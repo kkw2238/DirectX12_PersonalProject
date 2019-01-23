@@ -58,3 +58,5 @@ static	bool	App4xMsaaState = false;
 static	UINT	App4xMsaaQuality = 0;
 #endif // ! DEF_APPINFO
 
+using namespace DirectX;
+

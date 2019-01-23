@@ -1,4 +1,5 @@
 #include "Framework.h"
+#include "D3DDescriptorFactory.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -211,17 +212,6 @@ bool Framework::InitMainWindow()
 		L"MainHWND"
 	}; 
 
-	//wc.style = CS_HREDRAW | CS_VREDRAW;
-	//wc.lpfnWndProc = WndProc;
-	//wc.cbClsExtra = 0;
-	//wc.cbWndExtra = 0;
-	//wc.hInstance = m_AppInstanceHandle;
-	//wc.hIcon = LoadIcon(0, IDI_APPLICATION);
-	//wc.hCursor = LoadCursor(0, IDC_ARROW);
-	//wc.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
-	//wc.lpszMenuName = 0;
-	//wc.lpszClassName = L"MainHWND";
-	
 	if (!RegisterClass(&wc))
 	{
 		try {
@@ -263,38 +253,22 @@ bool Framework::InitMainWindow()
 
 void Framework::CreateRtvNDsvDescripotrHeaps()
 {
-	D3D12_DESCRIPTOR_HEAP_DESC d3dSwapChainHeapDesc{
-		D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-		m_SwapChainBufferCount,
-		D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
-		0 
-	}; ThrowIfFail(m_ID3DDevice->CreateDescriptorHeap(&d3dSwapChainHeapDesc, IID_PPV_ARGS(m_ID3DSwapChainBufferViewHeap.GetAddressOf())));
+	ThrowIfFail(m_ID3DDevice->CreateDescriptorHeap(
+		&D3DDescriptorFactory::RenderTargetDescriptorHeapDesc(DEFAULTOPT, m_SwapChainBufferCount), IID_PPV_ARGS(m_ID3DSwapChainBufferViewHeap.GetAddressOf())));
 
-	D3D12_DESCRIPTOR_HEAP_DESC d3dDsvHeapDesc{
-		D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
-		m_DepthStencilBufferCount,
-		D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
-		0 
-	}; ThrowIfFail(m_ID3DDevice->CreateDescriptorHeap(&d3dDsvHeapDesc, IID_PPV_ARGS(m_ID3DDepthStencilViewHeap.GetAddressOf())));
+	ThrowIfFail(m_ID3DDevice->CreateDescriptorHeap(
+		&D3DDescriptorFactory::DepthStencilDescriptorHeapDesc(DEFAULTOPT, m_DepthStencilBufferCount), IID_PPV_ARGS(m_ID3DDepthStencilViewHeap.GetAddressOf())));
 
-	D3D12_DESCRIPTOR_HEAP_DESC d3dRtvHeapDesc{
-		D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-		m_RenderTargetBufferCount,
-		D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
-		0 
-	}; ThrowIfFail(m_ID3DDevice->CreateDescriptorHeap(&d3dRtvHeapDesc, IID_PPV_ARGS(m_ID3DRenderTargetBufferViewHeap.GetAddressOf())));
+	ThrowIfFail(m_ID3DDevice->CreateDescriptorHeap(
+		&D3DDescriptorFactory::RenderTargetDescriptorHeapDesc(DEFAULTOPT, m_RenderTargetBufferCount), IID_PPV_ARGS(m_ID3DRenderTargetBufferViewHeap.GetAddressOf())));
 }
 
 void Framework::CreateCommandListObject()
 {
-	D3D12_COMMAND_QUEUE_DESC d3dQueueDesc{
-		D3D12_COMMAND_LIST_TYPE_DIRECT,
-		0,
-		D3D12_COMMAND_QUEUE_FLAG_NONE,
-		0
-	}; ThrowIfFail(m_ID3DDevice->CreateCommandQueue(&d3dQueueDesc, IID_PPV_ARGS(&m_ID3DCommandQueue)));
+	ThrowIfFail(m_ID3DDevice->CreateCommandQueue(&D3DDescriptorFactory::CommandQueueDesc(DEFAULTOPT), IID_PPV_ARGS(&m_ID3DCommandQueue)));
 
 	ThrowIfFail(m_ID3DDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_ID3DCommandAllocator)));
+	
 	ThrowIfFail(m_ID3DDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_ID3DCommandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_ID3DCommandList)));
 
 	m_ID3DCommandList->Close();
@@ -304,24 +278,10 @@ void Framework::CreateSwapChain()
 {
 	m_IDxgiSwapChain.Reset();
 
-	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
-	dxgiSwapChainDesc.BufferDesc.Width	= CLIENT_WIDTH;
-	dxgiSwapChainDesc.BufferDesc.Height = CLIENT_HEIGHT;
-	dxgiSwapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-	dxgiSwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-	dxgiSwapChainDesc.BufferDesc.Format = m_DXGIBackBufferFormat;
-	dxgiSwapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	dxgiSwapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	dxgiSwapChainDesc.SampleDesc.Count = App4xMsaaState ? 4 : 1;
-	dxgiSwapChainDesc.SampleDesc.Quality = App4xMsaaState ? (App4xMsaaQuality - 1) : 0;
-	dxgiSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	dxgiSwapChainDesc.BufferCount = m_SwapChainBufferCount;
-	dxgiSwapChainDesc.OutputWindow = m_MainWindowHandle;
-	dxgiSwapChainDesc.Windowed = true;
-	dxgiSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-	ThrowIfFail(m_IDxgiFactory->CreateSwapChain(m_ID3DCommandQueue.Get(), &dxgiSwapChainDesc, m_IDxgiSwapChain.GetAddressOf()));
+	ThrowIfFail(m_IDxgiFactory->CreateSwapChain(m_ID3DCommandQueue.Get(), 
+		&D3DDescriptorFactory::SwapChainDesc(DEFAULTOPT, m_DXGIBackBufferFormat, m_SwapChainBufferCount, m_MainWindowHandle), 
+		m_IDxgiSwapChain.GetAddressOf())
+	);
 }
 
 bool Framework::InitDirect12Device()
@@ -342,9 +302,9 @@ bool Framework::InitDirect12Device()
 	} 
 	ThrowIfFail(m_ID3DDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_ID3DFence)));
 
-	m_RenderTargetViewDescriptorSize = m_ID3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	m_DepthStencilViewDescriptorSize = m_ID3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-	m_CbvSrvUavDescriptorSize = m_ID3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	m_RenderTargetViewDescriptorSize	= m_ID3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	m_DepthStencilViewDescriptorSize	= m_ID3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	m_CbvSrvUavDescriptorSize			= m_ID3DDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMultisampleQualityLevels{
 		m_DXGIBackBufferFormat,
@@ -442,12 +402,13 @@ void Framework::OnResize()
 		cD3DRenderTargetViewHeapHandle.Offset(1, m_RenderTargetViewDescriptorSize);
 	}
 
-	D3D12_RESOURCE_DESC d3dDepthStencilDesc = D3DDescriptorOption::DepthStencilDesc(DEFAULTOPT);
+	D3D12_RESOURCE_DESC d3dDepthStencilDesc = D3DDescriptorFactory::DepthStencilDesc(DEFAULTOPT);
 
 	D3D12_CLEAR_VALUE d3dClearOption;
 	d3dClearOption.Format = m_DXGIDepthStencilBufferFormat;
 	d3dClearOption.DepthStencil.Depth = 1.0f;
 	d3dClearOption.DepthStencil.Stencil = 0;
+
 	m_ID3DDevice->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
@@ -457,13 +418,8 @@ void Framework::OnResize()
 		IID_PPV_ARGS(m_ID3DDepthStencilBuffer[MainDepthStencil].GetAddressOf())
 	);
 
-	D3D12_DEPTH_STENCIL_VIEW_DESC d3dDepthStencilViewDesc;
-	d3dDepthStencilViewDesc.Flags = D3D12_DSV_FLAG_NONE;
-	d3dDepthStencilViewDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-	d3dDepthStencilViewDesc.Format = m_DXGIDepthStencilBufferFormat;
-	d3dDepthStencilViewDesc.Texture2D.MipSlice = 0;
-
-	m_ID3DDevice->CreateDepthStencilView(m_ID3DDepthStencilBuffer[MainDepthStencil].Get(), &d3dDepthStencilViewDesc, GetDepthStencilView(MainDepthStencil));
+	m_ID3DDevice->CreateDepthStencilView(m_ID3DDepthStencilBuffer[MainDepthStencil].Get(), 
+		&D3DDescriptorFactory::DepthStencilViewDesc(DEFAULTOPT, m_DXGIDepthStencilBufferFormat), GetDepthStencilView(MainDepthStencil));
 
 	D3DUtil::ChangeResourceState(m_ID3DDepthStencilBuffer[MainDepthStencil].Get(), m_ID3DCommandList.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 

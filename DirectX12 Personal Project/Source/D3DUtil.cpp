@@ -85,25 +85,6 @@ std::wstring D3DUtil::StringToWString(std::string & str)
 	return wString;
 }
 
-D3D12_RESOURCE_DESC D3DDescriptorOption::DepthStencilDesc(DefaultOption)
-{
-	D3D12_RESOURCE_DESC d3dDepthStencilDesc;
-
-	d3dDepthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	d3dDepthStencilDesc.Alignment = 0;
-	d3dDepthStencilDesc.Width = CLIENT_WIDTH;
-	d3dDepthStencilDesc.Height = CLIENT_HEIGHT;
-	d3dDepthStencilDesc.DepthOrArraySize = 1;
-	d3dDepthStencilDesc.MipLevels = 1;
-	d3dDepthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-	d3dDepthStencilDesc.SampleDesc.Count = App4xMsaaState ? 4 : 1;
-	d3dDepthStencilDesc.SampleDesc.Quality = App4xMsaaState ? (App4xMsaaQuality - 1) : 0;
-	d3dDepthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	d3dDepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-	return d3dDepthStencilDesc;
-}
-
 ExeptionUtility::ExeptionUtility(const HRESULT hr, const int line, const std::string& fileName, const std::string& functionName) :
 	errorCode(hr), errorLine(line),	errorFileName(fileName), errorFunctionName(functionName)
 {}

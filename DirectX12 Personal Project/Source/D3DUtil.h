@@ -1,12 +1,12 @@
+/*
+ *	D3DUtil 클래스에는 DirectX관련 유틸리티,
+ *  ExeptionUtility에는 예외에 대한 메시지 처리   
+ */
+
 #pragma once
 #include "../stdafx.h"
 
 using namespace Microsoft::WRL;
-
-
-struct DefaultOption { };
-
-#define DEFAULTOPT DefaultOption()
 
 class D3DUtil
 {
@@ -38,16 +38,6 @@ public:
 		D3D12_RESOURCE_STATES afterState);
 
 	static std::wstring StringToWString(std::string& str);
-};
-
-class D3DDescriptorOption
-{
-public:
-	static D3D12_RESOURCE_DESC DepthStencilDesc(DefaultOption);
-	static D3D12_RESOURCE_DESC DepthStencilDesc() { return D3D12_RESOURCE_DESC(); }
-
-	static D3D12_RESOURCE_DESC RenderTargetDesc(DefaultOption);
-	static D3D12_RESOURCE_DESC RenderTargetDesc() { return D3D12_RESOURCE_DESC(); }
 };
 
 class ExeptionUtility
