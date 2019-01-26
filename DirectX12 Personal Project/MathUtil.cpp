@@ -322,12 +322,17 @@ Matrix4x4::Matrix4x4()
 	XMStoreFloat4x4(&matrix, DirectX::XMMatrixIdentity());
 }
 
-Matrix4x4::Matrix4x4(XMFLOAT4X4 & other)
+Matrix4x4::Matrix4x4(const Matrix4x4& other)
+{
+	this->matrix = other.matrix;
+}
+
+Matrix4x4::Matrix4x4(const XMFLOAT4X4 & other)
 {
 	matrix = other;
 }
 
-Matrix4x4::Matrix4x4(XMMATRIX & other)
+Matrix4x4::Matrix4x4(const XMMATRIX & other)
 {
 	XMStoreFloat4x4(&matrix, other);
 }
@@ -342,18 +347,24 @@ void Matrix4x4::operator=(const XMFLOAT4X4 & other)
 	matrix = other;
 }
 
+void Matrix4x4::operator=(const XMMATRIX& other)
+{
+	XMStoreFloat4x4(&matrix, other);
+}
+
 Matrix4x4 Matrix4x4::operator+(const Matrix4x4 & other)
 {
-	Matrix4x4 result;
-	XMStoreFloat4x4(&result.matrix, XMLoadFloat4x4(&matrix) + XMLoadFloat4x4(&other.matrix));
-	return result;
+	return XMLoadFloat4x4(&matrix) + XMLoadFloat4x4(&other.matrix);
 }
 
 Matrix4x4 Matrix4x4::operator+(const XMFLOAT4X4 & other)
 {
-	Matrix4x4 result;
-	XMStoreFloat4x4(&result.matrix, XMLoadFloat4x4(&matrix) + XMLoadFloat4x4(&other));
-	return result;
+	return XMLoadFloat4x4(&matrix) + XMLoadFloat4x4(&other);
+}
+
+Matrix4x4 Matrix4x4::operator+(const XMMATRIX& other)
+{
+	return XMLoadFloat4x4(&matrix) + other;
 }
 
 void Matrix4x4::operator+=(const Matrix4x4 & other)
@@ -366,18 +377,24 @@ void Matrix4x4::operator+=(const XMFLOAT4X4 & other)
 	XMStoreFloat4x4(&matrix, XMLoadFloat4x4(&matrix) + XMLoadFloat4x4(&other));
 }
 
+void Matrix4x4::operator+=(const XMMATRIX& other)
+{
+	XMStoreFloat4x4(&matrix, XMLoadFloat4x4(&matrix) +other);
+}
+
 Matrix4x4 Matrix4x4::operator-(const Matrix4x4 & other)
 {
-	Matrix4x4 result;
-	XMStoreFloat4x4(&result.matrix, XMLoadFloat4x4(&matrix) - XMLoadFloat4x4(&other.matrix));
-	return result;
+	return XMLoadFloat4x4(&matrix) - XMLoadFloat4x4(&other.matrix);
 }
 
 Matrix4x4 Matrix4x4::operator-(const XMFLOAT4X4 & other)
 {
-	Matrix4x4 result;
-	XMStoreFloat4x4(&result.matrix, XMLoadFloat4x4(&matrix) - XMLoadFloat4x4(&other));
-	return result;
+	return XMLoadFloat4x4(&matrix) - XMLoadFloat4x4(&other);
+}
+
+Matrix4x4 Matrix4x4::operator-(const XMMATRIX& other)
+{
+	return XMLoadFloat4x4(&matrix) - other;
 }
 
 void Matrix4x4::operator-=(const Matrix4x4 & other)
@@ -390,18 +407,24 @@ void Matrix4x4::operator-=(const XMFLOAT4X4 & other)
 	XMStoreFloat4x4(&matrix, XMLoadFloat4x4(&matrix) - XMLoadFloat4x4(&other));
 }
 
+void Matrix4x4::operator-=(const XMMATRIX& other)
+{
+	XMStoreFloat4x4(&matrix, XMLoadFloat4x4(&matrix) - other);
+}
+
 Matrix4x4 Matrix4x4::operator*(const Matrix4x4 & other)
 {
-	Matrix4x4 result;
-	XMStoreFloat4x4(&result.matrix, XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&other.matrix));
-	return result;
+	return XMLoadFloat4x4(&matrix)* XMLoadFloat4x4(&other.matrix);
 }
 
 Matrix4x4 Matrix4x4::operator*(const XMFLOAT4X4 & other)
 {
-	Matrix4x4 result;
-	XMStoreFloat4x4(&result.matrix, XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&other));
-	return result;
+	return XMLoadFloat4x4(&matrix)* XMLoadFloat4x4(&other);
+}
+
+Matrix4x4 Matrix4x4::operator*(const XMMATRIX& other)
+{
+	return XMLoadFloat4x4(&matrix)* other;
 }
 
 void Matrix4x4::operator*=(const float scalar)
@@ -419,6 +442,11 @@ void Matrix4x4::operator*=(const XMFLOAT4X4 & other)
 	XMStoreFloat4x4(&matrix, XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&other));
 }
 
+void Matrix4x4::operator*=(const XMMATRIX& other)
+{
+	XMStoreFloat4x4(&matrix, XMLoadFloat4x4(&matrix) * other);
+}
+
 Vector4 Matrix4x4::Row(const int index)
 {
 	return r[index];
@@ -433,4 +461,9 @@ Matrix4x4 Matrix4x4::Transpose()
 {
 	XMMATRIX result = XMMatrixTranspose(XMLoadFloat4x4(&matrix));
 	return Matrix4x4(result);
+}
+
+Matrix4x4 Matrix4x4::Inverse()
+{
+	return XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&matrix)), XMLoadFloat4x4(&matrix));
 }

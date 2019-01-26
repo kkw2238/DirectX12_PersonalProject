@@ -155,10 +155,13 @@ unsigned int Framework::OnMouseMove(WPARAM state, int xpos, int ypos)
 
 bool Framework::Initialized()
 {
+
 	if (!InitMainWindow()) return false;
 	if (!InitDirect12Device()) return false;
 
 	OnResize();
+
+	m_Scene.BuildObjects(m_ID3DDevice, m_ID3DCommandList);
 	
 	return true;
 }
@@ -171,25 +174,27 @@ int Framework::Run()
 {
 	MSG msg = { 0 };
 
-	while (msg.message != WM_QUIT)
-	{
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
-		{
+	while (msg.message != WM_QUIT) {
+
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 
-		else
-		{
-			if (!m_AppPausedState)
-			{
-				SetFrameStatesAtWindowText();
-				Update(m_FPS);
-				Draw(m_FPS);
+		else {
+			try{
+				if (!m_AppPausedState) {
+					SetFrameStatesAtWindowText();
+					Update(m_FPS);
+					Draw(m_FPS);
+				}
+				else {
+					Sleep(100);
+				}
 			}
-			else
-			{
-				Sleep(100);
+			catch (ExeptionUtility & e) {
+				MessageBox(nullptr, e.D3DErrorToString().c_str(), L"HR Failed", MB_OK);
+				return 0;
 			}
 		}
 	}
@@ -355,6 +360,8 @@ void Framework::Draw(const float fps)
 	m_ID3DCommandList->ClearDepthStencilView(GetDepthStencilView(MainDepthStencil), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
 	m_ID3DCommandList->OMSetRenderTargets(1, &GetCurrentBackBufferView(), true, &GetDepthStencilView(MainDepthStencil));
+
+	m_Scene.RenderObjects(m_ID3DCommandList);
 
 	D3DUtil::ChangeResourceState(GetCurrentBackBuffer(), m_ID3DCommandList.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

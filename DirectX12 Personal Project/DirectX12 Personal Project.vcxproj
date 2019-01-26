@@ -147,15 +147,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CompiledShader.h" />
     <ClInclude Include="DirectX12 Personal Project.h" />
+    <ClInclude Include="MathUtil.h" />
+    <ClInclude Include="Objects.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="PipelineObject.h" />
+    <ClInclude Include="Source\D3DDescriptorFactory.h" />
     <ClInclude Include="Source\D3DUtil.h" />
     <ClInclude Include="Source\Framework.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CompiledShader.cpp" />
     <ClCompile Include="DirectX12 Personal Project.cpp" />
+    <ClCompile Include="MathUtil.cpp" />
+    <ClCompile Include="Objects.cpp" />
+    <ClCompile Include="PipelineObject.cpp" />
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Source\D3DDescriptorFactory.cpp" />
     <ClCompile Include="Source\D3DUtil.cpp" />
     <ClCompile Include="Source\Framework.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -171,6 +183,12 @@
   <ItemGroup>
     <Image Include="DirectX12 Personal Project.ico" />
     <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="hlsl\DefaultShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,4 +1,8 @@
 #pragma once
+/*
+ *	D3DDescriptorFactory 클래스는 DirectX디바이스 관련 디스크립터들을 생성해주는 클래스임
+ */
+
 #include "../stdafx.h"
 
 struct DefaultOption { };
@@ -19,6 +23,4 @@ public:
 	static D3D12_DESCRIPTOR_HEAP_DESC DepthStencilDescriptorHeapDesc(DefaultOption, const unsigned int bufferCount);
 
 	static D3D12_COMMAND_QUEUE_DESC CommandQueueDesc(DefaultOption);
-
 };
-

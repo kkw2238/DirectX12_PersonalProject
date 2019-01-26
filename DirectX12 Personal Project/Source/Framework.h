@@ -6,6 +6,7 @@
  */
 
 #include "D3DUtil.h"
+#include "..//Scene.h"
 
 class Framework
 {
@@ -113,4 +114,6 @@ protected:
 	D3D_DRIVER_TYPE						m_D3DDriverType = D3D_DRIVER_TYPE_HARDWARE;
 	DXGI_FORMAT							m_DXGIBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT							m_DXGIDepthStencilBufferFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+
+	Scene								m_Scene;
 };

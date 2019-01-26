@@ -1,4 +1,9 @@
 #pragma once
+/*
+ *	D3DUtil에는 앞으로 사용할 Vector, Matrix등을 편하게 사용하기 위한 클래스가 선언되어 있음,
+ *  주로 사용하는 XMFLOAT와 XMVECTOR, XMFLOAT4x4 XMMATRIX들과 호환 가능하게 설계
+ */
+
 #include "Source/D3DUtil.h"
 
 class Matrix4x4;
@@ -106,37 +111,46 @@ protected:
 class Matrix4x4 {
 public:
 	Matrix4x4();
-	Matrix4x4(XMFLOAT4X4& other);
-	Matrix4x4(XMMATRIX& other);
+	Matrix4x4(const Matrix4x4& other);
+	Matrix4x4(const XMFLOAT4X4& other);
+	Matrix4x4(const XMMATRIX& other);
 	~Matrix4x4() {};
 
 public:
 	void operator=(const Matrix4x4& other);
 	void operator=(const XMFLOAT4X4& other);
+	void operator=(const XMMATRIX& other);
 
 	Matrix4x4 operator+(const Matrix4x4& other);
 	Matrix4x4 operator+(const XMFLOAT4X4& other);
+	Matrix4x4 operator+(const XMMATRIX& other);
 
 	void operator+=(const Matrix4x4& other);
 	void operator+=(const XMFLOAT4X4& other);
+	void operator+=(const XMMATRIX& other);
 
 	Matrix4x4 operator-(const Matrix4x4& other);
 	Matrix4x4 operator-(const XMFLOAT4X4& other);
+	Matrix4x4 operator-(const XMMATRIX& other);
 
 	void operator-=(const Matrix4x4& other);
 	void operator-=(const XMFLOAT4X4& other);
+	void operator-=(const XMMATRIX& other);
 
 	Matrix4x4 operator*(const Matrix4x4& other);
 	Matrix4x4 operator*(const XMFLOAT4X4& other);
+	Matrix4x4 operator*(const XMMATRIX& other);
 
 	void operator*=(const float scalar);
 	void operator*=(const Matrix4x4& other);
 	void operator*=(const XMFLOAT4X4& other);
+	void operator*=(const XMMATRIX& other);
 
 	Vector4 Row(const int index); 
 	Vector4 Colum(const int index);
 
 	Matrix4x4 Transpose();
+	Matrix4x4 Inverse();
 
 public:
 	union {
