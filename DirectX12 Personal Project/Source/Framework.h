@@ -78,6 +78,7 @@ protected:
 	const float			m_FPS = 1.0f / 60.0f;	// 임시 프레임 레이트
 
 protected:
+	
 	ComPtr<IDXGIFactory4>				m_IDxgiFactory;
 	ComPtr<IDXGISwapChain>				m_IDxgiSwapChain;
 	ComPtr<ID3D12Device>				m_ID3DDevice;

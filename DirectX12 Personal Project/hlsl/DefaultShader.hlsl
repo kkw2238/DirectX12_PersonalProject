@@ -1,22 +1,31 @@
-float4 VS(uint vertexID : SV_VertexID) : SV_POSITION
-{
-	if (vertexID == 0)
-		return float4(0.0f, 0.0f, 0.0f, 0.0f);
-	if (vertexID == 1)
-		return float4(0.0f, 1.0f, 0.0f, 0.0f);
-	if (vertexID == 2)
-		return float4(1.0f, 0.0f, 0.0f, 0.0f);
-	if (vertexID == 3)
-		return float4(1.0f, 0.0f, 0.0f, 0.0f);
-	if (vertexID == 4)
-		return float4(0.0f, 1.0f, 0.0f, 0.0f);
-	if (vertexID == 5)
-		return float4(1.0f, 1.0f, 0.0f, 0.0f);
+static float4 defaultVSOut[6] = {
+	{ -1.0f, -1.0f, 0.0f, 0.0f },
+	{ -1.0f, 1.0f, 0.0f, 0.0f },
+	{ 1.0f, -1.0f, 0.0f, 0.0f },
+	{ 1.0f, -1.0f, 0.0f, 0.0f },
+	{ -1.0f, 1.0f, 0.0f, 0.0f },
+	{ 1.0f, 1.0f, 0.0f, 0.0f }
+};
 
-	return float4(0.0f, 0.0f, 0.0f, 0.0f);
+struct BaseVertexInput {
+	float3 baseInputVertex : POSITION;
+};
+
+struct BaseVertexOutput {
+	float4 baseOutVertex : SV_POSITION;
+	float4 TestOutVertex : POSITION;
+};
+
+BaseVertexOutput VS(BaseVertexInput input, uint vertexID : SV_VertexID)
+{
+	BaseVertexOutput test;
+	test.baseOutVertex = float4(input.baseInputVertex.x, input.baseInputVertex.y, 0.0f, 0.0f);
+	test.TestOutVertex = float4(input.baseInputVertex.x, input.baseInputVertex.y, input.baseInputVertex.z, 0.0f);
+	return test;
 }
 
-float4 PS(float4 input : SV_POSITION) : SV_TARGET
+float4 PS(BaseVertexOutput input) : SV_TARGET
 {
-	return float4(1.0f, 0.0f, 0.0f, 0.0f);
+	float4 data = float4(input.TestOutVertex.x / 800.0f, input.TestOutVertex.y / 600.0f, 0.0f, 0.0f);
+	return data;
 }

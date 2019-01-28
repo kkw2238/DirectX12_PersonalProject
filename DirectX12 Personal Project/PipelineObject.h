@@ -4,6 +4,8 @@
  */
 
 #include "Source/D3DUtil.h"
+#include "Objects.h"
+#include "Camera.h"
 
 class ShaderObject
 {
@@ -12,7 +14,7 @@ public:
 	~ShaderObject() = default;
 
 public:
-	void ExecutePipeline(ComPtr<ID3D12GraphicsCommandList> id3dGraphicsCommandList);
+	virtual void ExecutePipeline(ComPtr<ID3D12GraphicsCommandList> id3dGraphicsCommandList, Camera* camera = nullptr);
 
 protected:
 	ComPtr<ID3D12RootSignature> m_ID3DRootSignature;
@@ -31,11 +33,20 @@ public:
 	~GraphicsShaderObjects() { };
 
 public:
+	virtual void ExecutePipeline(ComPtr<ID3D12GraphicsCommandList> id3dGraphicsCommandList, Camera* camera = nullptr);
+
 	void CreateGraphicsPipeline(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12CommandList> id3dCommandList, const int numRenderTarget);
 	void CreateGraphicsRootSignature(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12CommandList> id3dCommandList);
-	
+
+	void BuildGraphicsObjects(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12GraphicsCommandList> id3dCommandList);
+
 	virtual D3D12_BLEND_DESC					GraphicsBlendDesc();
 	virtual D3D12_RASTERIZER_DESC				GraphicsRasterRizerDesc();
 	virtual D3D12_DEPTH_STENCIL_DESC			GraphicsDepthStencilDesc();
 	virtual D3D12_INPUT_LAYOUT_DESC				GraphicsInputLayoutDesc();
+
+protected:
+	std::vector<D3D12_INPUT_ELEMENT_DESC>	m_D3DInputElementDescs;
+
+	std::vector<GraphicsObjects*>	m_TestObject;
 };

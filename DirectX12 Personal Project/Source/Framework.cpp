@@ -161,8 +161,17 @@ bool Framework::Initialized()
 
 	OnResize();
 
+	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
+
 	m_Scene.BuildObjects(m_ID3DDevice, m_ID3DCommandList);
-	
+	m_Scene.SetViewPortScissorRect(m_D3DViewport, m_D3DScissorRect);
+
+	ThrowIfFail(m_ID3DCommandList->Close());
+	ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };
+	m_ID3DCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+	FlushCommandQueue();
+
 	return true;
 }
 
@@ -292,6 +301,7 @@ void Framework::CreateSwapChain()
 bool Framework::InitDirect12Device()
 {
 #if defined(_DEBUG)
+	
 	ComPtr<ID3D12Debug> id3dDebugController;
 	D3D12GetDebugInterface(IID_PPV_ARGS(&id3dDebugController));
 	id3dDebugController->EnableDebugLayer();

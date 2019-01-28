@@ -8,13 +8,13 @@ ComPtr<ID3DBlob> D3DUtil::LoadFileBinary(const std::wstring & fileName)
 	std::ifstream::pos_type size = (int)ifs.tellg();
 	ifs.seekg(0, std::ios_base::beg);
 
-	ComPtr<ID3DBlob> fileDataStorage;
-	D3DCreateBlob(size, fileDataStorage.GetAddressOf());
+	ComPtr<ID3DBlob> id3dFileDataStorage;
+	D3DCreateBlob(size, id3dFileDataStorage.GetAddressOf());
 
-	ifs.read((char*)fileDataStorage->GetBufferPointer(), size);
+	ifs.read((char*)id3dFileDataStorage->GetBufferPointer(), size);
 	ifs.close();
 
-	return fileDataStorage;
+	return id3dFileDataStorage;
 }
 
 ComPtr<ID3D12Resource> D3DUtil::CreateDefaultBuffer(ID3D12Device * device, ID3D12GraphicsCommandList * commandList, const void * defaultData, UINT64 byteSize, ComPtr<ID3D12Resource>& uploadBuffer)
@@ -61,16 +61,16 @@ ComPtr<ID3DBlob> D3DUtil::CompileShader(const std::wstring & fileName, const D3D
 
 	HRESULT hr = S_OK;
 
-	ComPtr<ID3DBlob> byteCode = nullptr;
-	ComPtr<ID3DBlob> errorMsg;
+	ComPtr<ID3DBlob> id3dByteCode = nullptr;
+	ComPtr<ID3DBlob> id3dErrorMsg;
 
 	hr = D3DCompileFromFile(fileName.c_str(), defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-		entrypoint.c_str(), target.c_str(), compileFlags, 0, &byteCode, &errorMsg);
+		entrypoint.c_str(), target.c_str(), compileFlags, 0, &id3dByteCode, &id3dErrorMsg);
 
-	if (errorMsg != nullptr)
-		OutputDebugStringA((char*)errorMsg->GetBufferPointer());
+	if (id3dErrorMsg != nullptr)
+		OutputDebugStringA((char*)id3dErrorMsg->GetBufferPointer());
 
-	return byteCode;
+	return id3dByteCode;
 }
 
 void D3DUtil::ChangeResourceState(ID3D12Resource* resource, ID3D12GraphicsCommandList * commandList, D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState)

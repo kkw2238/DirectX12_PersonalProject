@@ -147,9 +147,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="CompiledShader.h" />
     <ClInclude Include="DirectX12 Personal Project.h" />
     <ClInclude Include="MathUtil.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Objects.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene.h" />
@@ -161,9 +163,11 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CompiledShader.cpp" />
     <ClCompile Include="DirectX12 Personal Project.cpp" />
     <ClCompile Include="MathUtil.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Objects.cpp" />
     <ClCompile Include="PipelineObject.cpp" />
     <ClCompile Include="Scene.cpp" />

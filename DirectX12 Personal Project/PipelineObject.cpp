@@ -1,18 +1,25 @@
 #include "PipelineObject.h"
 #include "CompiledShader.h"
 
-void ShaderObject::ExecutePipeline(ComPtr<ID3D12GraphicsCommandList> id3dGraphicsCommandList)
+void ShaderObject::ExecutePipeline(ComPtr<ID3D12GraphicsCommandList> id3dGraphicsCommandList, Camera* camera)
+{
+}
+
+//////////////////////////////////////
+
+void GraphicsShaderObjects::ExecutePipeline(ComPtr<ID3D12GraphicsCommandList> id3dGraphicsCommandList, Camera* camera)
 {
 	id3dGraphicsCommandList->SetGraphicsRootSignature(m_ID3DRootSignature.Get());
 	id3dGraphicsCommandList->SetPipelineState(m_ID3DPipelineState.Get());
 
-	id3dGraphicsCommandList->RSSetScissorRects(1, &m_D3DScissorRect);
-	id3dGraphicsCommandList->RSSetViewports(1, &m_D3DViewport);
+	if (camera) 
+		camera->SetViewportScissorRectToCommandList(id3dGraphicsCommandList);
 
-	id3dGraphicsCommandList->DrawInstanced(6, 1, 0, 0);
+	if (m_TestObject.size()) {
+		for (size_t s = 0; s < m_TestObject.size(); ++s)
+			m_TestObject[s]->Draw(id3dGraphicsCommandList);
+	}
 }
-
-//////////////////////////////////////
 
 void GraphicsShaderObjects::CreateGraphicsPipeline(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12CommandList> id3dCommandList, const int numRenderTarget)
 {
@@ -46,6 +53,7 @@ void GraphicsShaderObjects::CreateGraphicsRootSignature(ComPtr<ID3D12Device> id3
 
 	CD3DX12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
 	d3dRootSignatureDesc.Init(1, &d3dRootParameter);
+	d3dRootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	ComPtr<ID3DBlob> id3dSignatureBlob;
 	ComPtr<ID3DBlob> id3dErrorBlob;
@@ -55,6 +63,16 @@ void GraphicsShaderObjects::CreateGraphicsRootSignature(ComPtr<ID3D12Device> id3
 	if(id3dErrorBlob != nullptr) ::OutputDebugStringA((char*)id3dErrorBlob->GetBufferPointer());
 
 	ThrowIfFail(id3dDevice->CreateRootSignature(NULL, id3dSignatureBlob->GetBufferPointer(), id3dSignatureBlob->GetBufferSize(), IID_PPV_ARGS(m_ID3DRootSignature.GetAddressOf())));
+}
+
+void GraphicsShaderObjects::BuildGraphicsObjects(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12GraphicsCommandList> id3dCommandList)
+{
+	Mesh* mesh = new Mesh();
+	mesh->SetCubeMesh(id3dDevice, id3dCommandList, 0.5f, 0.5f, 0.5f);
+
+	m_TestObject.resize(1);
+	m_TestObject[0] = new GraphicsObjects();
+	m_TestObject[0]->SetMesh(mesh);
 }
 
 
@@ -75,6 +93,11 @@ D3D12_DEPTH_STENCIL_DESC GraphicsShaderObjects::GraphicsDepthStencilDesc()
 
 D3D12_INPUT_LAYOUT_DESC GraphicsShaderObjects::GraphicsInputLayoutDesc()
 {
-	return D3D12_INPUT_LAYOUT_DESC();
-}
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	m_D3DInputElementDescs = { 
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 } 
+	};
 
+	d3dInputLayoutDesc = { m_D3DInputElementDescs.data(), (UINT)m_D3DInputElementDescs.size() };
+	return d3dInputLayoutDesc;
+}
