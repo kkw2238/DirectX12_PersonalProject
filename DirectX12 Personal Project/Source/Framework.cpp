@@ -155,7 +155,6 @@ unsigned int Framework::OnMouseMove(WPARAM state, int xpos, int ypos)
 
 bool Framework::Initialized()
 {
-
 	if (!InitMainWindow()) return false;
 	if (!InitDirect12Device()) return false;
 
@@ -163,7 +162,7 @@ bool Framework::Initialized()
 
 	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
 
-	m_Scene.BuildObjects(m_ID3DDevice, m_ID3DCommandList);
+	m_Scene.BuildObjects(m_ID3DDevice.Get(), m_ID3DCommandList.Get());
 	m_Scene.SetViewPortScissorRect(m_D3DViewport, m_D3DScissorRect);
 
 	ThrowIfFail(m_ID3DCommandList->Close());
@@ -371,7 +370,7 @@ void Framework::Draw(const float fps)
 
 	m_ID3DCommandList->OMSetRenderTargets(1, &GetCurrentBackBufferView(), true, &GetDepthStencilView(MainDepthStencil));
 
-	m_Scene.RenderObjects(m_ID3DCommandList);
+	m_Scene.RenderObjects(m_ID3DCommandList.Get());
 
 	D3DUtil::ChangeResourceState(GetCurrentBackBuffer(), m_ID3DCommandList.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

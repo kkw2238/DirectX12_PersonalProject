@@ -1,27 +1,29 @@
 #include "PipelineObject.h"
 #include "CompiledShader.h"
 
-void ShaderObject::ExecutePipeline(ComPtr<ID3D12GraphicsCommandList> id3dGraphicsCommandList, Camera* camera)
+void ShaderObject::ExecutePipeline(ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera)
 {
 }
 
 //////////////////////////////////////
 
-void GraphicsShaderObjects::ExecutePipeline(ComPtr<ID3D12GraphicsCommandList> id3dGraphicsCommandList, Camera* camera)
+void GraphicsShaderObjects::ExecutePipeline(ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera)
 {
 	id3dGraphicsCommandList->SetGraphicsRootSignature(m_ID3DRootSignature.Get());
 	id3dGraphicsCommandList->SetPipelineState(m_ID3DPipelineState.Get());
 
-	if (camera) 
+	if (camera) {
 		camera->SetViewportScissorRectToCommandList(id3dGraphicsCommandList);
+		camera->UpdateInfo(id3dGraphicsCommandList, CAMERAINFO_CB);
+	}
 
 	if (m_TestObject.size()) {
 		for (size_t s = 0; s < m_TestObject.size(); ++s)
-			m_TestObject[s]->Draw(id3dGraphicsCommandList);
+			m_TestObject[s]->Draw(id3dGraphicsCommandList, OBJINFO_CB);
 	}
 }
 
-void GraphicsShaderObjects::CreateGraphicsPipeline(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12CommandList> id3dCommandList, const int numRenderTarget)
+void GraphicsShaderObjects::CreateGraphicsPipeline(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dCommandList, const int numRenderTarget)
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC d3dGraphicsPipelineDesc;
 	::ZeroMemory(&d3dGraphicsPipelineDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
@@ -44,15 +46,16 @@ void GraphicsShaderObjects::CreateGraphicsPipeline(ComPtr<ID3D12Device> id3dDevi
 	ThrowIfFail(id3dDevice->CreateGraphicsPipelineState(&d3dGraphicsPipelineDesc, IID_PPV_ARGS(m_ID3DPipelineState.GetAddressOf())));
 }
 
-void GraphicsShaderObjects::CreateGraphicsRootSignature(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12CommandList> id3dCommandList)
+void GraphicsShaderObjects::CreateGraphicsRootSignature(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dCommandList)
 {
 	CD3DX12_DESCRIPTOR_RANGE d3dRootDescriptorRange;
 
-	CD3DX12_ROOT_PARAMETER d3dRootParameter;
-	d3dRootParameter.InitAsConstants(0, 0);
+	CD3DX12_ROOT_PARAMETER d3dRootParameter[2];
+	d3dRootParameter[CAMERAINFO_CB].InitAsConstantBufferView(0);
+	d3dRootParameter[OBJINFO_CB].InitAsConstantBufferView(1);
 
 	CD3DX12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
-	d3dRootSignatureDesc.Init(1, &d3dRootParameter);
+	d3dRootSignatureDesc.Init(2, d3dRootParameter);
 	d3dRootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	ComPtr<ID3DBlob> id3dSignatureBlob;
@@ -65,13 +68,14 @@ void GraphicsShaderObjects::CreateGraphicsRootSignature(ComPtr<ID3D12Device> id3
 	ThrowIfFail(id3dDevice->CreateRootSignature(NULL, id3dSignatureBlob->GetBufferPointer(), id3dSignatureBlob->GetBufferSize(), IID_PPV_ARGS(m_ID3DRootSignature.GetAddressOf())));
 }
 
-void GraphicsShaderObjects::BuildGraphicsObjects(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12GraphicsCommandList> id3dCommandList)
+void GraphicsShaderObjects::BuildGraphicsObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dCommandList)
 {
 	Mesh* mesh = new Mesh();
-	mesh->SetCubeMesh(id3dDevice, id3dCommandList, 0.5f, 0.5f, 0.5f);
+	mesh->SetCubeMesh(id3dDevice, id3dCommandList, 50.0f, 50.0f, 50.0f);
 
 	m_TestObject.resize(1);
 	m_TestObject[0] = new GraphicsObjects();
+	m_TestObject[0]->BuildObjects(id3dDevice, id3dCommandList, 1);
 	m_TestObject[0]->SetMesh(mesh);
 }
 

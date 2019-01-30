@@ -1,7 +1,7 @@
 #pragma once
 #include "Source/D3DUtil.h"
-#include "MathUtil.h"
 #include "Mesh.h"
+#include "Sturctures.h"
 
 class Objects
 {
@@ -10,17 +10,16 @@ public:
 	~Objects();
 
 public:
-	Vector3			GetObjLightVector();
-	Vector3			GetObjUpVector();
-	Vector3			GetObjLookVector();
-	Vector3			GetObjPosition();
+	Vector3			GetObjRightVector(UINT index);
+	Vector3			GetObjUpVector(UINT index);
+	Vector3			GetObjLookVector(UINT index);
+	Vector3			GetObjPosition(UINT index);
 
-	void UpdateWorldMatrix(ComPtr<ID3D12GraphicsCommandList> id3dCommandList) {};
+	virtual void UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex) {};
+	virtual void BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT objectCount) {}
 
 protected:
-	Matrix4x4			m_WorldMatrix; 
-
-	Vector3				m_PositionVector;
+	std::vector<Matrix4x4>	m_WorldMatrix; 
 };
 
 class GraphicsObjects : public Objects
@@ -30,11 +29,15 @@ public:
 	~GraphicsObjects() {};
 
 public:
-	void Draw(ComPtr<ID3D12GraphicsCommandList> id3dGraphicsCommandList);
+	void Draw(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex);
 	void SetMesh(Mesh* newMesh);
-
+	void BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT objectCountx);
+	
+	virtual void UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex);
 protected:
 	Mesh* m_pMesh;
 	UINT m_ObjectCount = 1;
+
+	ObjectResourceBuffer<CB_OBJ_INFO> m_ObjUploadBuffer;
 };
 

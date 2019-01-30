@@ -61,4 +61,41 @@ protected:
 	if(FAILED(hr)) throw ExeptionUtility(hr, __LINE__, __FILE__, __FUNCTION__); \
 }
 
+template<typename T>
+class ObjectResourceBuffer {
+public:
+	ObjectResourceBuffer() {};
+	~ObjectResourceBuffer() {};
 
+public:
+	ID3D12Resource* ResourceBuffer() { return m_ID3DUploadResourceBuffer.Get(); };
+	D3D12_GPU_VIRTUAL_ADDRESS GPUVirtualAddress() { return m_ID3DUploadResourceBuffer.Get()->GetGPUVirtualAddress(); }
+
+	void CreateResourceBuffer(ID3D12Device* id3dDevice, UINT objectCount, bool isConstant = true) {
+
+			if (isConstant)
+				m_DataSize = D3DUtil::CalcConstantBufferByteSize(sizeof(T));
+			else
+				m_DataSize = sizeof(T);
+
+			ThrowIfFail(id3dDevice->CreateCommittedResource(
+				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+				D3D12_HEAP_FLAG_NONE,
+				&CD3DX12_RESOURCE_DESC::Buffer(m_DataSize * objectCount),
+				D3D12_RESOURCE_STATE_GENERIC_READ,
+				nullptr,
+				IID_PPV_ARGS(m_ID3DUploadResourceBuffer.GetAddressOf())
+			));
+
+			ThrowIfFail(m_ID3DUploadResourceBuffer->Map(0, nullptr, reinterpret_cast<void**>(&m_Data)));
+	}
+
+	void CopyData(UINT index, const T& data) {
+		memcpy(&m_Data[m_DataSize * index], &data, sizeof(T));
+	}
+
+protected:
+	ComPtr<ID3D12Resource> m_ID3DUploadResourceBuffer;
+	UINT64 m_DataSize;
+	BYTE* m_Data;
+};

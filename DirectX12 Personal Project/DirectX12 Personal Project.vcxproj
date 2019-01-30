@@ -160,6 +160,7 @@
     <ClInclude Include="Source\D3DUtil.h" />
     <ClInclude Include="Source\Framework.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Sturctures.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>

@@ -14,7 +14,7 @@ public:
 	~ShaderObject() = default;
 
 public:
-	virtual void ExecutePipeline(ComPtr<ID3D12GraphicsCommandList> id3dGraphicsCommandList, Camera* camera = nullptr);
+	virtual void ExecutePipeline(ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera = nullptr);
 
 protected:
 	ComPtr<ID3D12RootSignature> m_ID3DRootSignature;
@@ -28,17 +28,18 @@ protected:
 
 class GraphicsShaderObjects : public ShaderObject
 {
+	enum CBUFFERINFO { CAMERAINFO_CB, OBJINFO_CB };
 public:
 	GraphicsShaderObjects() { };
 	~GraphicsShaderObjects() { };
 
 public:
-	virtual void ExecutePipeline(ComPtr<ID3D12GraphicsCommandList> id3dGraphicsCommandList, Camera* camera = nullptr);
+	virtual void ExecutePipeline(ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera = nullptr);
 
-	void CreateGraphicsPipeline(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12CommandList> id3dCommandList, const int numRenderTarget);
-	void CreateGraphicsRootSignature(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12CommandList> id3dCommandList);
+	void CreateGraphicsPipeline(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dCommandList, const int numRenderTarget);
+	void CreateGraphicsRootSignature(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dCommandList);
 
-	void BuildGraphicsObjects(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12GraphicsCommandList> id3dCommandList);
+	void BuildGraphicsObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dCommandList);
 
 	virtual D3D12_BLEND_DESC					GraphicsBlendDesc();
 	virtual D3D12_RASTERIZER_DESC				GraphicsRasterRizerDesc();

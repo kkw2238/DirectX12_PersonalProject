@@ -13,6 +13,11 @@ Vector3::Vector3(XMFLOAT3 & other) :
 	xmf3Vector(other)
 {}
 
+XMVECTOR Vector3::GetXMVector()
+{
+	return XMLoadFloat3(&xmf3Vector);
+}
+
 void Vector3::operator=(const Vector3 & other)
 {
 	xmf3Vector = other.xmf3Vector;
@@ -148,25 +153,25 @@ void Vector3::operator*=(const float scalar)
 	XMStoreFloat3(&xmf3Vector, XMLoadFloat3(&xmf3Vector) * scalar);
 }
 
-Vector3 Vector3::DotProduct(const Vector3 & a, const XMFLOAT3 & b)
+float Vector3::DotProduct(const Vector3 & a, const XMFLOAT3 & b)
 {
 	XMFLOAT3 result;
 	XMStoreFloat3(&result, XMVector3Dot(XMLoadFloat3(&XMFLOAT3(a.x, a.y, a.z)), XMLoadFloat3(&b)));
-	return result;
+	return result.x;
 }
 
-Vector3 Vector3::DotProduct(const Vector3 & a, const Vector3 & b)
+float Vector3::DotProduct(const Vector3 & a, const Vector3 & b)
 {
 	XMFLOAT3 result;
 	XMStoreFloat3(&result, XMVector3Dot(XMLoadFloat3(&XMFLOAT3(a.x, a.y, a.z)), XMLoadFloat3(&XMFLOAT3(b.x, b.y, b.z))));
-	return result;
+	return result.x;
 }
 
-Vector3 Vector3::DotProduct(const Vector3 & a, const XMVECTOR & b)
+float Vector3::DotProduct(const Vector3 & a, const XMVECTOR & b)
 {
 	XMFLOAT3 result;
 	XMStoreFloat3(&result, XMVector3Dot(XMLoadFloat3(&XMFLOAT3(a.x, a.y, a.z)), b));
-	return result;
+	return result.x;
 }
 
 ////////////////////////////////////////
@@ -182,6 +187,11 @@ Vector4::Vector4(float vecx, float vecy, float vecz, float vecw)
 Vector4::Vector4(XMFLOAT4 & other)
 	: xmf4Vector(other)
 { }
+
+XMVECTOR Vector4::GetXMVector()
+{
+	return XMLoadFloat4(&xmf4Vector);
+}
 
 void Vector4::operator=(const Vector4 & other)
 {
@@ -337,6 +347,11 @@ Matrix4x4::Matrix4x4(const XMMATRIX & other)
 	XMStoreFloat4x4(&matrix, other);
 }
 
+XMMATRIX Matrix4x4::GetXMMatrix()
+{
+	return XMLoadFloat4x4(&matrix);
+}
+
 void Matrix4x4::operator=(const Matrix4x4 & other)
 {
 	matrix = other.matrix;
@@ -445,6 +460,16 @@ void Matrix4x4::operator*=(const XMFLOAT4X4 & other)
 void Matrix4x4::operator*=(const XMMATRIX& other)
 {
 	XMStoreFloat4x4(&matrix, XMLoadFloat4x4(&matrix) * other);
+}
+
+void Matrix4x4::SetRow(const int index, const Vector4& data)
+{
+	r[index] = data;
+}
+
+void Matrix4x4::SetColum(const int index, const Vector4& data)
+{
+	m[index][0] = data.x; m[index][1] = data.y; m[index][2] = data.z; m[index][4] = data.w;
 }
 
 Vector4 Matrix4x4::Row(const int index)

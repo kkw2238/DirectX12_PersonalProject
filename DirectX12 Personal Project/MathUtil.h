@@ -16,6 +16,8 @@ public:
 	~Vector3() = default;
 
 public:
+	XMVECTOR GetXMVector();
+
 	void operator=(const Vector3& other);
 	void operator=(const XMFLOAT3& other);
 	void operator=(const XMVECTOR& other);
@@ -46,13 +48,13 @@ public:
 	void operator*=(const XMVECTOR& other);
 	void operator*=(const float scalar);
 
-	static Vector3 DotProduct(const Vector3& a, const XMFLOAT3& b);
-	static Vector3 DotProduct(const Vector3& a, const Vector3& b);
-	static Vector3 DotProduct(const Vector3& a, const XMVECTOR& b);
+	static float DotProduct(const Vector3& a, const XMFLOAT3& b);
+	static float DotProduct(const Vector3& a, const Vector3& b);
+	static float DotProduct(const Vector3& a, const XMVECTOR& b);
 
 	static Vector3 Lerp(Vector3& a, Vector3& b, float t) { return a + (b - a) * t; }
 
-protected:
+public:
 	union {
 		struct {
 			float x, y, z;
@@ -69,6 +71,8 @@ public:
 	~Vector4() = default;
 
 public:
+	XMVECTOR GetXMVector();
+
 	void operator=(const Vector4& other);
 	void operator=(const XMFLOAT4& other);
 	void operator=(const XMVECTOR& other);
@@ -99,7 +103,7 @@ public:
 	static Vector4 DotProduct(const Vector4& a, const Vector4& b);
 	static Vector4 DotProduct(const Vector4& a, const XMVECTOR& b);
 
-protected:
+public:
 	union {
 		struct {
 			float x, y, z, w;
@@ -117,6 +121,8 @@ public:
 	~Matrix4x4() {};
 
 public:
+	XMMATRIX GetXMMatrix();
+
 	void operator=(const Matrix4x4& other);
 	void operator=(const XMFLOAT4X4& other);
 	void operator=(const XMMATRIX& other);
@@ -145,6 +151,9 @@ public:
 	void operator*=(const Matrix4x4& other);
 	void operator*=(const XMFLOAT4X4& other);
 	void operator*=(const XMMATRIX& other);
+
+	void SetRow(const int index, const Vector4& data);
+	void SetColum(const int index, const Vector4& data);
 
 	Vector4 Row(const int index); 
 	Vector4 Colum(const int index);
