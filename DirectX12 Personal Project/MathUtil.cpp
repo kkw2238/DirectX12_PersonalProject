@@ -13,6 +13,11 @@ Vector3::Vector3(XMFLOAT3 & other) :
 	xmf3Vector(other)
 {}
 
+Vector3::Vector3(XMVECTOR & other)
+{
+	XMStoreFloat3(&xmf3Vector, other);
+}
+
 XMVECTOR Vector3::GetXMVector()
 {
 	return XMLoadFloat3(&xmf3Vector);
@@ -153,6 +158,17 @@ void Vector3::operator*=(const float scalar)
 	XMStoreFloat3(&xmf3Vector, XMLoadFloat3(&xmf3Vector) * scalar);
 }
 
+Vector3 Vector3::Normalize()
+{
+	XMVECTOR result = XMVector3Normalize(GetXMVector());
+	return result;
+}
+
+void Vector3::Normalized()
+{
+	XMStoreFloat3(&xmf3Vector, XMVector3Normalize(GetXMVector()));
+}
+
 float Vector3::DotProduct(const Vector3 & a, const XMFLOAT3 & b)
 {
 	XMFLOAT3 result;
@@ -187,6 +203,11 @@ Vector4::Vector4(float vecx, float vecy, float vecz, float vecw)
 Vector4::Vector4(XMFLOAT4 & other)
 	: xmf4Vector(other)
 { }
+
+Vector4::Vector4(XMVECTOR & other)
+{
+	XMStoreFloat4(&xmf4Vector, other);
+}
 
 XMVECTOR Vector4::GetXMVector()
 {
@@ -302,6 +323,17 @@ void Vector4::operator*=(const float scalar)
 void Vector4::operator*=(const Matrix4x4 & other)
 {
 	XMStoreFloat4(&xmf4Vector, XMVector4Transform(XMLoadFloat4(&xmf4Vector), XMLoadFloat4x4(&other.matrix)));
+}
+
+Vector4 Vector4::Normalize()
+{
+	XMVECTOR result = XMVector4Normalize(GetXMVector());
+	return result;
+}
+
+void Vector4::Normalized()
+{
+	XMStoreFloat4(&xmf4Vector, XMVector4Normalize(GetXMVector()));
 }
 
 Vector4 Vector4::DotProduct(const Vector4 & a, const XMFLOAT4 & b)
@@ -469,7 +501,7 @@ void Matrix4x4::SetRow(const int index, const Vector4& data)
 
 void Matrix4x4::SetColum(const int index, const Vector4& data)
 {
-	m[index][0] = data.x; m[index][1] = data.y; m[index][2] = data.z; m[index][4] = data.w;
+	m[0][index] = data.x; m[1][index] = data.y; m[2][index] = data.z; m[3][index] = data.w;
 }
 
 Vector4 Matrix4x4::Row(const int index)

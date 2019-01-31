@@ -27,7 +27,7 @@ void Camera::SetViewportScissorRectToCommandList(ID3D12GraphicsCommandList* id3d
 
 void Camera::SetProjectionMatrix(float FOV, float aspectRatio, float nearZ, float farZ)
 {
-	m_Projection = XMMatrixPerspectiveFovLH(FOV, aspectRatio, nearZ, farZ);
+	m_Projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(FOV), aspectRatio, nearZ, farZ);
 }
 
 void Camera::GenerationViewMatrix()
@@ -38,19 +38,23 @@ void Camera::GenerationViewMatrix()
 void Camera::RegenerationViewMatrix()
 {
 	Vector3 position = GetObjPosition(0);
-	Vector3 right = GetObjRightVector(0);
-	Vector3 look = GetObjLookVector(0);
-	Vector3 up = GetObjUpVector(0);
+	Vector3 right = GetObjRightVector(0).Normalize();
+	Vector3 look = GetObjLookVector(0).Normalize();
+	Vector3 up = (look * right).Normalize();
 
 	m_ViewMatrix.SetColum(0, Vector4(right.x, right.y, right.z, -Vector3::DotProduct(position, right)));
-	m_ViewMatrix.SetColum(0, Vector4(up.x, up.y, up.z, -Vector3::DotProduct(position, up)));
-	m_ViewMatrix.SetColum(0, Vector4(look.x, look.y, look.z, -Vector3::DotProduct(position, look)));
+	m_ViewMatrix.SetColum(1, Vector4(up.x, up.y, up.z, -Vector3::DotProduct(position, up)));
+	m_ViewMatrix.SetColum(2, Vector4(look.x, look.y, look.z, -Vector3::DotProduct(position, look)));
+	m_ViewMatrix.SetColum(3, Vector4(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
 void Camera::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT objectCount)
 {
+	m_MoveSpeed = 10.0f;
+
 	m_CamUploadBuffer.CreateResourceBuffer(id3dDevice, objectCount);
 	m_WorldMatrix.resize(objectCount);
+
 	GenerationViewMatrix();
 }
 
@@ -59,7 +63,6 @@ void Camera::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT
 	CB_CAMERA_INFO tmpInfo;
 
 	/* test */
-	m_WorldMatrix[0]._43 += 0.01f;
 	RegenerationViewMatrix();
 
 	tmpInfo.matView = m_ViewMatrix.Transpose();

@@ -25,6 +25,8 @@ public:
 	HWND				MainHWND() const;
 	LRESULT				MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+	unsigned int		OnKeyDown(WPARAM state);
+	unsigned int		OnKeyUp(WPARAM state);
 	unsigned int		OnMouseDown(WPARAM state, int xpos, int ypos);
 	unsigned int		OnMouseUp(WPARAM state, int xpos, int ypos);
 	unsigned int		OnMouseMove(WPARAM state, int xpos, int ypos);
@@ -52,9 +54,9 @@ protected:
 protected:
 	bool				FlushCommandQueue();
 	
-	void				Draw(const float fps);
+	void				Draw(const float elapsedTime);
 	void				OnResize();
-	void				Update(const float fps);
+	void				Update(const float elapsedTime);
 
 	/* Get Resource */
 protected:

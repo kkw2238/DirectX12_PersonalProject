@@ -131,11 +131,25 @@ LRESULT Framework::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 		else if ((int)wParam == VK_F2)
 			App4xMsaaState = !App4xMsaaState;
+		return 0;
 
+	case WM_KEYDOWN:
 		return 0;
 	}
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+unsigned int Framework::OnKeyDown(WPARAM state)
+{
+	m_Scene.ProcessKeyboard(state);
+	return 0;
+}
+
+unsigned int Framework::OnKeyUp(WPARAM state)
+{
+	m_Scene.ProcessKeyboard(state);
+	return 0;
 }
 
 unsigned int Framework::OnMouseDown(WPARAM state, int xpos, int ypos)
@@ -355,7 +369,7 @@ bool Framework::FlushCommandQueue()
 	return true;
 }
 
-void Framework::Draw(const float fps)
+void Framework::Draw(const float elapsedTime)
 {
 	ThrowIfFail(m_ID3DCommandAllocator->Reset());
 	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
@@ -455,8 +469,9 @@ void Framework::OnResize()
 	m_D3DScissorRect = { 0, 0, CLIENT_WIDTH, CLIENT_HEIGHT };
 }
 
-void Framework::Update(const float fps)
+void Framework::Update(const float elapsedTime)
 {
+	m_Scene.ProcessKeyboard(elapsedTime);
 }
 
 ID3D12Resource * Framework::GetCurrentBackBuffer() const

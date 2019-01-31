@@ -51,12 +51,21 @@
 // const
 #ifndef  DEF_APPINFO
 #define  DEF_APPINFO
-static	int		CLIENT_WIDTH = 800;
-static	int		CLIENT_HEIGHT = 600;
+	static	int		CLIENT_WIDTH = 800;
+	static	int		CLIENT_HEIGHT = 600;
+		
+	static	bool	App4xMsaaState = false;
+	static	UINT	App4xMsaaQuality = 0;
 	
-static	bool	App4xMsaaState = false;
-static	UINT	App4xMsaaQuality = 0;
+	static const UINT DIR_RIGHT = 1;
+	static const UINT DIR_LEFT = 2;
+	static const UINT DIR_UP = 4;
+	static const UINT DIR_DOWN = 8;
 #endif // ! DEF_APPINFO
+
+#if defined(_DEBUG)
+	#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
+#endif
 
 using namespace DirectX;
 

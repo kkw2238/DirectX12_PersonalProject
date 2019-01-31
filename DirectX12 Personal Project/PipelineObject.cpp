@@ -71,12 +71,14 @@ void GraphicsShaderObjects::CreateGraphicsRootSignature(ID3D12Device* id3dDevice
 void GraphicsShaderObjects::BuildGraphicsObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dCommandList)
 {
 	Mesh* mesh = new Mesh();
-	mesh->SetCubeMesh(id3dDevice, id3dCommandList, 50.0f, 50.0f, 50.0f);
+	mesh->SetCubeMesh(id3dDevice, id3dCommandList, 5.0f, 5.0f, 5.0f);
 
 	m_TestObject.resize(1);
 	m_TestObject[0] = new GraphicsObjects();
-	m_TestObject[0]->BuildObjects(id3dDevice, id3dCommandList, 1);
+	m_TestObject[0]->BuildObjects(id3dDevice, id3dCommandList, 3);
 	m_TestObject[0]->SetMesh(mesh);
+	for (UINT i = 0; i < 3; ++i)
+		m_TestObject[0]->Move(i, Vector3(10.0f * i, 0.0f , 0.0f));
 }
 
 

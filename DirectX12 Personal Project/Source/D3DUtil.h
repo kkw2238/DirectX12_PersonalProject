@@ -37,6 +37,8 @@ public:
 		D3D12_RESOURCE_STATES beforeState,
 		D3D12_RESOURCE_STATES afterState);
 
+	static bool IsKeyDown(char key);
+
 	static std::wstring StringToWString(std::string& str);
 };
 

@@ -13,6 +13,7 @@ public:
 	Vector3();
 	Vector3(float vecx, float vecy, float vecz);
 	Vector3(XMFLOAT3& other);
+	Vector3(XMVECTOR& other);
 	~Vector3() = default;
 
 public:
@@ -48,11 +49,20 @@ public:
 	void operator*=(const XMVECTOR& other);
 	void operator*=(const float scalar);
 
+	Vector3 Normalize();
+	void Normalized();
+
 	static float DotProduct(const Vector3& a, const XMFLOAT3& b);
 	static float DotProduct(const Vector3& a, const Vector3& b);
 	static float DotProduct(const Vector3& a, const XMVECTOR& b);
 
 	static Vector3 Lerp(Vector3& a, Vector3& b, float t) { return a + (b - a) * t; }
+
+	friend std::ostream& operator<<(std::ostream& os, Vector3& vec)
+	{
+		os << "[" << vec.x << ", " << vec.y << ", " << vec.z << "]" << std::endl;
+		return os;
+	}
 
 public:
 	union {
@@ -68,6 +78,7 @@ public:
 	Vector4();
 	Vector4(float vecx, float vecy, float vecz, float vecw);
 	Vector4(XMFLOAT4& other);
+	Vector4(XMVECTOR& other);
 	~Vector4() = default;
 
 public:
@@ -98,6 +109,9 @@ public:
 
 	void operator*=(const float scalar);
 	void operator*=(const Matrix4x4& other);
+
+	Vector4 Normalize();
+	void Normalized();
 	
 	static Vector4 DotProduct(const Vector4& a, const XMFLOAT4& b);
 	static Vector4 DotProduct(const Vector4& a, const Vector4& b);

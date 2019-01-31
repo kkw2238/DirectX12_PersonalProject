@@ -78,6 +78,14 @@ void D3DUtil::ChangeResourceState(ID3D12Resource* resource, ID3D12GraphicsComman
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource, beforeState, afterState));
 }
 
+bool D3DUtil::IsKeyDown(char key)
+{
+	SHORT keyDown = GetAsyncKeyState(key);
+	if (keyDown & 0x0001) return true;
+	else if (keyDown & 0x8000) return true;
+	return false;
+}
+
 std::wstring D3DUtil::StringToWString(std::string & str)
 {
 	std::wstring wString;

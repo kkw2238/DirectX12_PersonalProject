@@ -21,3 +21,15 @@ void Scene::SetViewPortScissorRect(D3D12_VIEWPORT& viewport, D3D12_RECT& scissor
 	m_pCamera->SetViewport(viewport);
 	m_pCamera->SetProjectionMatrix(60.0f, (float)CLIENT_WIDTH / (float)CLIENT_HEIGHT, 1.0f, 1000.0f);
 }
+
+void Scene::ProcessKeyboard(float elapsedTime)
+{
+	DWORD keyDown = 0;
+
+	if (D3DUtil::IsKeyDown('W')) keyDown |= DIR_UP;
+	if (D3DUtil::IsKeyDown('S')) keyDown |= DIR_DOWN;
+	if (D3DUtil::IsKeyDown('D')) keyDown |= DIR_RIGHT;
+	if (D3DUtil::IsKeyDown('A')) keyDown |= DIR_LEFT;
+
+	m_pCamera.get()->Move(0, keyDown, elapsedTime);
+}
