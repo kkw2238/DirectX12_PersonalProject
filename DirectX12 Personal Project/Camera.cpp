@@ -48,7 +48,7 @@ void Camera::RegenerationViewMatrix()
 	m_ViewMatrix.SetColum(3, Vector4(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
-void Camera::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT objectCount)
+UINT Camera::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT objectCount)
 {
 	m_MoveSpeed = 10.0f;
 
@@ -56,6 +56,8 @@ void Camera::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* i
 	m_WorldMatrix.resize(objectCount);
 
 	GenerationViewMatrix();
+
+	return objectCount;
 }
 
 void Camera::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex)

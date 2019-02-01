@@ -5,7 +5,7 @@
  */
 
 
-#include "Source/D3DUtil.h"
+#include "D3DUtil.h"
 #include <map>
 
 class CompiledShader

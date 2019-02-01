@@ -12,15 +12,40 @@ struct DefaultOption { };
 class D3DDescriptorFactory
 {
 public:
-	static D3D12_RESOURCE_DESC DepthStencilDesc(DefaultOption);
-	static D3D12_DEPTH_STENCIL_VIEW_DESC DepthStencilViewDesc(DefaultOption, DXGI_FORMAT format);
+	D3DDescriptorFactory() {};
+	~D3DDescriptorFactory() {};
 
-	static D3D12_RESOURCE_DESC RenderTargetDesc(DefaultOption);
+public:
+	static D3DDescriptorFactory* Instance();
 
-	static DXGI_SWAP_CHAIN_DESC SwapChainDesc(DefaultOption, DXGI_FORMAT format, int swapChainCount, HWND& wndHandle);
+public:
+	D3D12_RESOURCE_DESC DepthStencilDesc(DefaultOption);
+	D3D12_RESOURCE_DESC RenderTargetDesc(DefaultOption);
+	DXGI_SWAP_CHAIN_DESC SwapChainDesc(DefaultOption, DXGI_FORMAT format, int swapChainCount, HWND& wndHandle);
+	D3D12_DEPTH_STENCIL_VIEW_DESC DepthStencilViewDesc(DefaultOption, DXGI_FORMAT format);
+	D3D12_DESCRIPTOR_HEAP_DESC DescriptorHeapDesc(DefaultOption, D3D12_DESCRIPTOR_HEAP_TYPE heapType, const unsigned int bufferCount);
+	D3D12_COMMAND_QUEUE_DESC CommandQueueDesc(DefaultOption);
 
-	static D3D12_DESCRIPTOR_HEAP_DESC RenderTargetDescriptorHeapDesc(DefaultOption, const unsigned int bufferCount);
-	static D3D12_DESCRIPTOR_HEAP_DESC DepthStencilDescriptorHeapDesc(DefaultOption, const unsigned int bufferCount);
+	D3D12_SHADER_RESOURCE_VIEW_DESC SRVResourceViewDesc(const D3D12_RESOURCE_DESC& d3dResourceDesc, D3D12_SRV_DIMENSION dimension);
 
-	static D3D12_COMMAND_QUEUE_DESC CommandQueueDesc(DefaultOption);
+	void SetCBVSRVUAVdescriptorHandleIncrementSize(UINT size);
+	void SetRTVdescriptorHandleIncrementSize(UINT size);
+	void SetDSVdescriptorHandleIncrementSize(UINT size);
+
+	UINT DescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE heapType);
+	
+	void CraeteCPUGPUDescriptorHandle(
+		D3D12_DESCRIPTOR_HEAP_TYPE heapType,
+		ID3D12DescriptorHeap* id3dDescriptorHeap, 
+		CD3DX12_CPU_DESCRIPTOR_HANDLE& cpuHandle, 
+		CD3DX12_GPU_DESCRIPTOR_HANDLE& gpuHandle, 
+		UINT offset
+	);
+
+protected:
+	UINT m_CBVSRVUAVdescriptorHandleIncrementSize = 0;
+	UINT m_DSVdescriptorHandleIncrementSize = 0;
+	UINT m_RTVdescriptorHandleIncrementSize = 0;
 };
+
+#define DESCFACTORY D3DDescriptorFactory::Instance()

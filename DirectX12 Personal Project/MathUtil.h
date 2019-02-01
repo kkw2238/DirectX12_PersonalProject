@@ -4,7 +4,7 @@
  *  주로 사용하는 XMFLOAT와 XMVECTOR, XMFLOAT4x4 XMMATRIX들과 호환 가능하게 설계
  */
 
-#include "Source/D3DUtil.h"
+#include "D3DUtil.h"
 
 class Matrix4x4;
 

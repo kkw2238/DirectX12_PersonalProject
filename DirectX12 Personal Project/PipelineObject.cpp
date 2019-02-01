@@ -5,6 +5,15 @@ void ShaderObject::ExecutePipeline(ID3D12GraphicsCommandList* id3dGraphicsComman
 {
 }
 
+void ShaderObject::CreateDescriptorHeap(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT CBVCount, UINT SRVCount, UINT UAVCount)
+{
+	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = DESCFACTORY->DescriptorHeapDesc(DEFAULTOPT, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, CBVCount + SRVCount + UAVCount);
+
+	m_DescriptorHeapSRVStart = CBVCount;
+
+	ThrowIfFail(id3dDevice->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(m_ID3DDescriptorHeap.GetAddressOf())));
+}
+
 //////////////////////////////////////
 
 void GraphicsShaderObjects::ExecutePipeline(ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera)
@@ -23,7 +32,7 @@ void GraphicsShaderObjects::ExecutePipeline(ID3D12GraphicsCommandList* id3dGraph
 	}
 }
 
-void GraphicsShaderObjects::CreateGraphicsPipeline(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dCommandList, const int numRenderTarget)
+void GraphicsShaderObjects::CreateGraphicsPipeline(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const int numRenderTarget)
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC d3dGraphicsPipelineDesc;
 	::ZeroMemory(&d3dGraphicsPipelineDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
@@ -46,7 +55,7 @@ void GraphicsShaderObjects::CreateGraphicsPipeline(ID3D12Device* id3dDevice, ID3
 	ThrowIfFail(id3dDevice->CreateGraphicsPipelineState(&d3dGraphicsPipelineDesc, IID_PPV_ARGS(m_ID3DPipelineState.GetAddressOf())));
 }
 
-void GraphicsShaderObjects::CreateGraphicsRootSignature(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dCommandList)
+void GraphicsShaderObjects::CreateGraphicsRootSignature(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
 	CD3DX12_DESCRIPTOR_RANGE d3dRootDescriptorRange;
 
@@ -68,15 +77,16 @@ void GraphicsShaderObjects::CreateGraphicsRootSignature(ID3D12Device* id3dDevice
 	ThrowIfFail(id3dDevice->CreateRootSignature(NULL, id3dSignatureBlob->GetBufferPointer(), id3dSignatureBlob->GetBufferSize(), IID_PPV_ARGS(m_ID3DRootSignature.GetAddressOf())));
 }
 
-void GraphicsShaderObjects::BuildGraphicsObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dCommandList)
+void GraphicsShaderObjects::BuildGraphicsObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
 	Mesh* mesh = new Mesh();
-	mesh->SetCubeMesh(id3dDevice, id3dCommandList, 5.0f, 5.0f, 5.0f);
+	mesh->SetCubeMesh(id3dDevice, id3dGraphicsCommandList, 5.0f, 5.0f, 5.0f);
 
 	m_TestObject.resize(1);
 	m_TestObject[0] = new GraphicsObjects();
-	m_TestObject[0]->BuildObjects(id3dDevice, id3dCommandList, 3);
+	m_TestObject[0]->BuildObjects(id3dDevice, id3dGraphicsCommandList, 3);
 	m_TestObject[0]->SetMesh(mesh);
+
 	for (UINT i = 0; i < 3; ++i)
 		m_TestObject[0]->Move(i, Vector3(10.0f * i, 0.0f , 0.0f));
 }

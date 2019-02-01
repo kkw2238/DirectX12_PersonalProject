@@ -108,10 +108,6 @@ protected:
 	D3D12_VIEWPORT						m_D3DViewport;
 	D3D12_RECT							m_D3DScissorRect;
 
-	UINT								m_RenderTargetViewDescriptorSize = 0;
-	UINT								m_DepthStencilViewDescriptorSize = 0;
-	UINT								m_CbvSrvUavDescriptorSize = 0;	// ConstantBufferView, ShaderResourceView, UnorderedAccessView
-
 	std::wstring						m_MainWindowTitle = L"DirectX12 Project ";
 
 	D3D_DRIVER_TYPE						m_D3DDriverType = D3D_DRIVER_TYPE_HARDWARE;
