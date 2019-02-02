@@ -2,9 +2,7 @@
 
 void Scene::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
-	m_TestShaderObject.CreateGraphicsRootSignature(id3dDevice, id3dGraphicsCommandList);
-	m_TestShaderObject.CreateGraphicsPipeline(id3dDevice, id3dGraphicsCommandList, 1);
-	m_TestShaderObject.BuildGraphicsObjects(id3dDevice, id3dGraphicsCommandList);
+	m_TestShaderObject.BuildPipelineObject(id3dDevice, id3dGraphicsCommandList, 1);
 
 	m_pCamera = std::make_unique<Camera>();
 	m_pCamera->BuildObjects(id3dDevice, id3dGraphicsCommandList, 1);

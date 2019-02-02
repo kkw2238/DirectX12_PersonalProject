@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Sturctures.h"
 
 Mesh::Mesh()
 {
@@ -18,15 +19,15 @@ void Mesh::SetCubeMesh(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12GraphicsCom
 	m_nIndicesCount = 36;
 	m_nStartSlot = 0;
 
-	std::array<Vector3, 8> vertexInfo{
-		Vector3(-width / 2.0f, -height / 2.0f, -depth / 2.0f),
-		Vector3(-width / 2.0f, +height / 2.0f, -depth / 2.0f),
-		Vector3(+width / 2.0f, +height / 2.0f, -depth / 2.0f),
-		Vector3(+width / 2.0f, -height / 2.0f, -depth / 2.0f),
-		Vector3(-width / 2.0f, -height / 2.0f, +depth / 2.0f),
-		Vector3(-width / 2.0f, +height / 2.0f, +depth / 2.0f),
-		Vector3(+width / 2.0f, +height / 2.0f, +depth / 2.0f),
-		Vector3(+width / 2.0f, -height / 2.0f, +depth / 2.0f)
+	std::array<IA_TEXTURE_OBJ, 8> vertexInfo{
+		IA_TEXTURE_OBJ{ Vector3(-width / 2.0f, -height / 2.0f, -depth / 2.0f), Vector2(0.0f, 1.0f) },
+		IA_TEXTURE_OBJ{ Vector3(-width / 2.0f, +height / 2.0f, -depth / 2.0f), Vector2(0.0f, 0.0f) },
+		IA_TEXTURE_OBJ{ Vector3(+width / 2.0f, +height / 2.0f, -depth / 2.0f), Vector2(1.0f, 0.0f) },
+		IA_TEXTURE_OBJ{ Vector3(+width / 2.0f, -height / 2.0f, -depth / 2.0f), Vector2(1.0f, 1.0f) },
+		IA_TEXTURE_OBJ{ Vector3(-width / 2.0f, -height / 2.0f, +depth / 2.0f), Vector2(0.0f, 0.0f) },
+		IA_TEXTURE_OBJ{ Vector3(-width / 2.0f, +height / 2.0f, +depth / 2.0f), Vector2(0.0f, 0.0f) },
+		IA_TEXTURE_OBJ{ Vector3(+width / 2.0f, +height / 2.0f, +depth / 2.0f), Vector2(1.0f, 0.0f) },
+		IA_TEXTURE_OBJ{ Vector3(+width / 2.0f, -height / 2.0f, +depth / 2.0f), Vector2(1.0f, 0.0f) }
 	};
 
 	std::array<UINT, 36> indexInfo{
@@ -49,9 +50,9 @@ void Mesh::SetCubeMesh(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12GraphicsCom
 		4, 3, 7
 	};
 	
-	m_ID3DVertexBuffer = D3DUtil::CreateDefaultBuffer(id3dDevice.Get(), id3dCommandList.Get(), vertexInfo.data(), sizeof(Vector3) * m_nVerticesCount, m_ID3DVertexUploadBuffer);
+	m_ID3DVertexBuffer = D3DUtil::CreateDefaultBuffer(id3dDevice.Get(), id3dCommandList.Get(), vertexInfo.data(), sizeof(IA_TEXTURE_OBJ) * m_nVerticesCount, m_ID3DVertexUploadBuffer);
 	m_D3DVertexBufferView.BufferLocation = m_ID3DVertexBuffer->GetGPUVirtualAddress();
-	m_D3DVertexBufferView.StrideInBytes = sizeof(Vector3);
+	m_D3DVertexBufferView.StrideInBytes = sizeof(IA_TEXTURE_OBJ);
 	m_D3DVertexBufferView.SizeInBytes = m_D3DVertexBufferView.StrideInBytes * m_nVerticesCount;
 
 	m_ID3DIndexBuffer = D3DUtil::CreateDefaultBuffer(id3dDevice.Get(), id3dCommandList.Get(), indexInfo.data(), sizeof(UINT) * m_nIndicesCount, m_ID3DIndexUploadBuffer);

@@ -83,12 +83,18 @@ void GraphicsObjects::SetMesh(Mesh* newMesh)
 	m_pMesh = newMesh;
 }
 
-void GraphicsObjects::SetTexture(std::vector<std::shared_ptr<Texture>>& newTextures)
+void GraphicsObjects::SetTextures(std::vector<TextureRootInfo>& newTextures)
 {
 	m_Textures = std::move(newTextures);
 }
 
-void GraphicsObjects::AddTexture(std::shared_ptr<Texture> newTexture)
+void GraphicsObjects::SetTexture(TextureRootInfo& newTexture)
+{
+	m_Textures.resize(1);
+	m_Textures[0] = newTexture;
+}
+
+void GraphicsObjects::AddTexture(TextureRootInfo& newTexture)
 {
 	m_Textures.push_back(newTexture);
 }
@@ -109,9 +115,17 @@ void GraphicsObjects::CreateCBV(ID3D12Device* id3dDevice, ID3D12GraphicsCommandL
 
 void GraphicsObjects::CreateSRV(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset)
 {
+	CD3DX12_CPU_DESCRIPTOR_HANDLE SRVCPUDescriptorHandle;
+	CD3DX12_GPU_DESCRIPTOR_HANDLE SRVGPUDescriptorHandle; 
+	DESCFACTORY->CraeteCPUGPUDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, id3dDescriptorHeap, SRVCPUDescriptorHandle, SRVGPUDescriptorHandle, offset);
+
 	for (UINT i = 0; i < m_Textures.size(); ++i) {
-		CD3DX12_CPU_DESCRIPTOR_HANDLE tmpCPUDescHandle = m_SRVCPUDescriptorHandle;
-		id3dDevice->CreateShaderResourceView(m_Textures[i]->Resource(), &m_Textures[i]->SRVDesc(), tmpCPUDescHandle.Offset(i));
+		id3dDevice->CreateShaderResourceView(m_Textures[i].Resource(), &m_Textures[i].SRVDesc(), SRVCPUDescriptorHandle);
+		
+		m_Textures[i].SetDescriptorHandle(SRVCPUDescriptorHandle, SRVGPUDescriptorHandle);
+
+		SRVCPUDescriptorHandle.Offset(DESCFACTORY->DescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+		SRVGPUDescriptorHandle.Offset(DESCFACTORY->DescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
 	}
 }
 
@@ -133,4 +147,8 @@ void GraphicsObjects::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandL
 	}
 
 	id3dGraphicsCommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, m_ObjUploadBuffer.GPUVirtualAddress());
+
+	for (UINT i = 0; i < m_Textures.size(); ++i) {
+		m_Textures[i].UpdateInfo(id3dGraphicsCommandList);
+	}
 }

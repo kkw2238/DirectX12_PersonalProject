@@ -14,7 +14,20 @@ struct OBJ_INFO {
 	matrix objWorld;
 };
 
+struct VS_TEXTURE_INPUT {
+	float3 vertexPosition : POSITION;
+	float2 vertexUV : TEXCOORD;
+};
+
+struct VS_TEXTURE_OUTPUT {
+	float4 worldPosition : SV_POSITION;
+	float2 uv : TEXCOORD;
+};
+
+sampler DEFAULT_SAMPLER : register(s0);
+
 StructuredBuffer<OBJ_INFO> INST_OBJ_INFO : register(t1);
+Texture2D SR_TEXTURE : register(t2);
 
 static float4 defaultVSOut[6] = {
 	{ -1.0f, -1.0f, 0.0f, 0.0f },
@@ -25,14 +38,19 @@ static float4 defaultVSOut[6] = {
 	{ 1.0f, 1.0f, 0.0f, 0.0f }
 };
 
-float4 VS(float3 vsInput : POSITION, uint vertexID : SV_VertexID) : SV_POSITION
+VS_TEXTURE_OUTPUT VS(VS_TEXTURE_INPUT vsInput, uint vertexID : SV_VertexID)
 {
-	float4 world = float4(vsInput.xyz, 1.0f);
+	VS_TEXTURE_OUTPUT output;
+
+	float4 world = float4(vsInput.vertexPosition, 1.0f);
 	
-	return mul(mul(mul(world, objWorld), camView), camProjection);
+	output.worldPosition = mul(mul(mul(world, objWorld), camView), camProjection);
+	output.uv = vsInput.vertexUV;
+
+	return output;
 }
 
-float4 PS(float4 psInput : SV_POSITION) : SV_TARGET
+float4 PS(VS_TEXTURE_OUTPUT psInput) : SV_TARGET
 {
-	return float4(1.0f, 0.0f, 0.0f, 1.0f);
+	return SR_TEXTURE.Sample(DEFAULT_SAMPLER, float2(psInput.uv));
 }

@@ -24,7 +24,10 @@ public:
 	DXGI_SWAP_CHAIN_DESC SwapChainDesc(DefaultOption, DXGI_FORMAT format, int swapChainCount, HWND& wndHandle);
 	D3D12_DEPTH_STENCIL_VIEW_DESC DepthStencilViewDesc(DefaultOption, DXGI_FORMAT format);
 	D3D12_DESCRIPTOR_HEAP_DESC DescriptorHeapDesc(DefaultOption, D3D12_DESCRIPTOR_HEAP_TYPE heapType, const unsigned int bufferCount);
+	D3D12_DESCRIPTOR_HEAP_DESC DescriptorHeapDesc(D3D12_DESCRIPTOR_HEAP_TYPE heapType, D3D12_DESCRIPTOR_HEAP_FLAGS flag, const unsigned int bufferCount);
 	D3D12_COMMAND_QUEUE_DESC CommandQueueDesc(DefaultOption);
+	std::vector<CD3DX12_STATIC_SAMPLER_DESC> SamplerDesc(DefaultOption);
+	std::vector<CD3DX12_STATIC_SAMPLER_DESC> SamplerDescs(DefaultOption);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC SRVResourceViewDesc(const D3D12_RESOURCE_DESC& d3dResourceDesc, D3D12_SRV_DIMENSION dimension);
 
@@ -33,7 +36,7 @@ public:
 	void SetDSVdescriptorHandleIncrementSize(UINT size);
 
 	UINT DescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE heapType);
-	
+
 	void CraeteCPUGPUDescriptorHandle(
 		D3D12_DESCRIPTOR_HEAP_TYPE heapType,
 		ID3D12DescriptorHeap* id3dDescriptorHeap, 

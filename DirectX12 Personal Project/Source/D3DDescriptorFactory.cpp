@@ -69,9 +69,39 @@ D3D12_DESCRIPTOR_HEAP_DESC D3DDescriptorFactory::DescriptorHeapDesc(DefaultOptio
 	return D3D12_DESCRIPTOR_HEAP_DESC{ heapType, bufferCount, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, 0 };
 }
 
+D3D12_DESCRIPTOR_HEAP_DESC D3DDescriptorFactory::DescriptorHeapDesc(D3D12_DESCRIPTOR_HEAP_TYPE heapType, D3D12_DESCRIPTOR_HEAP_FLAGS flag, const unsigned int bufferCount)
+{
+	return D3D12_DESCRIPTOR_HEAP_DESC{ heapType, bufferCount, flag, 0 };
+}
+
+
 D3D12_COMMAND_QUEUE_DESC D3DDescriptorFactory::CommandQueueDesc(DefaultOption)
 {
 	return D3D12_COMMAND_QUEUE_DESC{ D3D12_COMMAND_LIST_TYPE_DIRECT, 0,	D3D12_COMMAND_QUEUE_FLAG_NONE, 0 };
+}
+
+std::vector<CD3DX12_STATIC_SAMPLER_DESC> D3DDescriptorFactory::SamplerDesc(DefaultOption)
+{
+	return std::vector<CD3DX12_STATIC_SAMPLER_DESC>{CD3DX12_STATIC_SAMPLER_DESC{
+			0,
+			D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+			D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+			D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+			D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+			0.0f,
+			1,
+			D3D12_COMPARISON_FUNC_ALWAYS,
+			D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE,
+			0.0f,
+			D3D12_FLOAT32_MAX,
+			D3D12_SHADER_VISIBILITY_PIXEL
+		}
+	};
+}
+
+std::vector<CD3DX12_STATIC_SAMPLER_DESC> D3DDescriptorFactory::SamplerDescs(DefaultOption)
+{
+	return std::vector<CD3DX12_STATIC_SAMPLER_DESC>();
 }
 
 D3D12_SHADER_RESOURCE_VIEW_DESC D3DDescriptorFactory::SRVResourceViewDesc(const D3D12_RESOURCE_DESC& d3dResourceDesc, D3D12_SRV_DIMENSION dimension)

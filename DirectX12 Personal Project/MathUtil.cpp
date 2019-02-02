@@ -1,5 +1,194 @@
 #include "MathUtil.h"
 
+Vector2::Vector2() : xmf2Vector(XMFLOAT2())
+{ }
+
+Vector2::Vector2(float vecx, float vecy) : xmf2Vector(XMFLOAT2(vecx, vecy))
+{ }
+
+Vector2::Vector2(XMFLOAT2& other)
+{
+	xmf2Vector = other;
+}
+
+Vector2::Vector2(XMVECTOR& other)
+{
+	XMStoreFloat2(&xmf2Vector, other);
+}
+
+XMVECTOR Vector2::GetXMVector()
+{
+	return XMLoadFloat2(&xmf2Vector);
+}
+
+void Vector2::operator=(const Vector2& other)
+{
+	xmf2Vector = other.xmf2Vector;
+}
+
+void Vector2::operator=(const XMFLOAT2& other)
+{
+	xmf2Vector = other;
+}
+
+void Vector2::operator=(const XMVECTOR& other)
+{
+	XMStoreFloat2(&xmf2Vector, other);
+}
+
+Vector2 Vector2::operator+(const Vector2& other)
+{
+	XMFLOAT2 result;
+	XMStoreFloat2(&result, XMLoadFloat2(&xmf2Vector) + XMLoadFloat2(&XMFLOAT2(other.x, other.y)));
+	return result;
+}
+
+Vector2 Vector2::operator+(const XMFLOAT2& other)
+{
+	XMFLOAT2 result;
+	XMStoreFloat2(&result, XMLoadFloat2(&xmf2Vector) + XMLoadFloat2(&other));
+	return result;
+}
+
+Vector2 Vector2::operator+(const XMVECTOR& other)
+{
+	XMFLOAT2 result;
+	XMStoreFloat2(&result, XMLoadFloat2(&xmf2Vector) + other);
+	return result;
+}
+
+void Vector2::operator+=(const Vector2& other)
+{
+	XMStoreFloat2(&xmf2Vector, XMLoadFloat2(&xmf2Vector) + XMLoadFloat2(&other.xmf2Vector));
+}
+
+void Vector2::operator+=(const XMFLOAT2& other)
+{
+	XMStoreFloat2(&xmf2Vector, XMLoadFloat2(&xmf2Vector) + XMLoadFloat2(&other));
+}
+
+void Vector2::operator+=(const XMVECTOR& other)
+{
+	XMStoreFloat2(&xmf2Vector, XMLoadFloat2(&xmf2Vector) + other);
+}
+
+Vector2 Vector2::operator-(const Vector2& other)
+{
+	XMFLOAT2 result;
+	XMStoreFloat2(&result, XMLoadFloat2(&xmf2Vector) - XMLoadFloat2(&XMFLOAT2(other.x, other.y)));
+	return result;
+}
+
+Vector2 Vector2::operator-(const XMFLOAT2& other)
+{
+	XMFLOAT2 result;
+	XMStoreFloat2(&result, XMLoadFloat2(&xmf2Vector) - XMLoadFloat2(&other));
+	return result;
+}
+
+Vector2 Vector2::operator-(const XMVECTOR& other)
+{
+	XMFLOAT2 result;
+	XMStoreFloat2(&result, XMLoadFloat2(&xmf2Vector) - other);
+	return result;
+}
+
+void Vector2::operator-=(const Vector2& other)
+{
+	XMStoreFloat2(&xmf2Vector, XMLoadFloat2(&xmf2Vector) - XMLoadFloat2(&other.xmf2Vector));
+}
+
+void Vector2::operator-=(const XMFLOAT2& other)
+{
+	XMStoreFloat2(&xmf2Vector, XMLoadFloat2(&xmf2Vector) - XMLoadFloat2(&other));
+}
+
+void Vector2::operator-=(const XMVECTOR& other)
+{
+	XMStoreFloat2(&xmf2Vector, XMLoadFloat2(&xmf2Vector) + other);
+}
+
+Vector2 Vector2::operator*(const Vector2& other)
+{
+	XMFLOAT2 result;
+	XMStoreFloat2(&result, XMVector2Cross(XMLoadFloat2(&xmf2Vector), XMLoadFloat2(&XMFLOAT2(other.x, other.y))));
+	return result;
+}
+
+Vector2 Vector2::operator*(const XMFLOAT2& other)
+{
+	XMFLOAT2 result;
+	XMStoreFloat2(&result, XMVector2Cross(XMLoadFloat2(&xmf2Vector), XMLoadFloat2(&other)));
+	return result;
+}
+
+Vector2 Vector2::operator*(const XMVECTOR& other)
+{
+	XMFLOAT2 result;
+	XMStoreFloat2(&result, XMVector2Cross(XMLoadFloat2(&xmf2Vector), other));
+	return result;
+}
+
+Vector2 Vector2::operator*(const float scalar)
+{
+	XMFLOAT2 result;
+	XMStoreFloat2(&result, XMLoadFloat2(&xmf2Vector) * scalar);
+	return result;
+}
+
+void Vector2::operator*=(const Vector2& other)
+{
+	XMStoreFloat2(&xmf2Vector, XMVector2Cross(XMLoadFloat2(&xmf2Vector), XMLoadFloat2(&XMFLOAT2(other.x, other.y))));
+}
+
+void Vector2::operator*=(const XMFLOAT2& other)
+{
+	XMStoreFloat2(&xmf2Vector, XMVector2Cross(XMLoadFloat2(&xmf2Vector), XMLoadFloat2(&other)));
+}
+
+void Vector2::operator*=(const XMVECTOR& other)
+{
+	XMStoreFloat2(&xmf2Vector, XMVector2Cross(XMLoadFloat2(&xmf2Vector), other));
+}
+
+void Vector2::operator*=(const float scalar)
+{
+	XMStoreFloat2(&xmf2Vector, XMLoadFloat2(&xmf2Vector) * scalar);
+}
+
+Vector2 Vector2::Normalize()
+{
+	XMVECTOR result = XMVector2Normalize(GetXMVector());
+	return result;
+}
+
+void Vector2::Normalized()
+{
+	XMStoreFloat2(&xmf2Vector, XMVector2Normalize(GetXMVector()));
+}
+
+float Vector2::DotProduct(const Vector2& a, const XMFLOAT2& b)
+{
+	XMFLOAT2 result;
+	XMStoreFloat2(&result, XMVector2Dot(XMLoadFloat2(&XMFLOAT2(a.x, a.y)), XMLoadFloat2(&b)));
+	return result.x;
+}
+
+float Vector2::DotProduct(const Vector2& a, const Vector2& b)
+{
+	XMFLOAT2 result;
+	XMStoreFloat2(&result, XMVector2Dot(XMLoadFloat2(&XMFLOAT2(a.x, a.y)), XMLoadFloat2(&XMFLOAT2(b.x, b.y))));
+	return result.x;
+}
+
+float Vector2::DotProduct(const Vector2& a, const XMVECTOR& b)
+{
+	XMFLOAT2 result;
+	XMStoreFloat2(&result, XMVector2Dot(XMLoadFloat2(&XMFLOAT2(a.x, a.y)), b));
+	return result.x;
+}
+
+////////////////////////////////////////
 
 Vector3::Vector3() :
 	xmf3Vector(XMFLOAT3())

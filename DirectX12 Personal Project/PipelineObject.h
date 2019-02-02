@@ -17,6 +17,7 @@ public:
 public:
 	virtual void ExecutePipeline(ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera = nullptr);
 	virtual void CreateDescriptorHeap(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT CBVCount, UINT SRVCount, UINT UAVCount);
+	virtual void BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const int numRenderTarget) {};
 
 protected:
 	ComPtr<ID3D12RootSignature> m_ID3DRootSignature;
@@ -33,17 +34,17 @@ protected:
 
 class GraphicsShaderObjects : public ShaderObject
 {
-	enum CBUFFERINFO { CAMERAINFO_CB, OBJINFO_CB };
+	enum ROOTPAPAMETER_INDEX { CAMERAINFO_CB, OBJINFO_CB, TEXTURE_SR };
 public:
 	GraphicsShaderObjects() { };
 	~GraphicsShaderObjects() { };
 
 public:
 	virtual void ExecutePipeline(ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera = nullptr);
+	virtual void BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const int numRenderTarget);
 
 	void CreateGraphicsPipeline(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const int numRenderTarget);
 	void CreateGraphicsRootSignature(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
-
 	void BuildGraphicsObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 
 	virtual D3D12_BLEND_DESC					GraphicsBlendDesc();

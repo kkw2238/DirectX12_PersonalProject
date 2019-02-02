@@ -8,6 +8,71 @@
 
 class Matrix4x4;
 
+class Vector2 {
+public:
+	Vector2();
+	Vector2(float vecx, float vecy);
+	Vector2(XMFLOAT2& other);
+	Vector2(XMVECTOR& other);
+	~Vector2() = default;
+
+public:
+	XMVECTOR GetXMVector();
+
+	void operator=(const Vector2& other);
+	void operator=(const XMFLOAT2& other);
+	void operator=(const XMVECTOR& other);
+
+	Vector2 operator+(const Vector2& other);
+	Vector2 operator+(const XMFLOAT2& other);
+	Vector2 operator+(const XMVECTOR& other);
+
+	void operator+=(const Vector2& other);
+	void operator+=(const XMFLOAT2& other);
+	void operator+=(const XMVECTOR& other);
+
+	Vector2 operator-(const Vector2& other);
+	Vector2 operator-(const XMFLOAT2& other);
+	Vector2 operator-(const XMVECTOR& other);
+
+	void operator-=(const Vector2& other);
+	void operator-=(const XMFLOAT2& other);
+	void operator-=(const XMVECTOR& other);
+
+	Vector2 operator*(const Vector2& other);
+	Vector2 operator*(const XMFLOAT2& other);
+	Vector2 operator*(const XMVECTOR& other);
+	Vector2 operator*(const float scalar);
+
+	void operator*=(const Vector2& other);
+	void operator*=(const XMFLOAT2& other);
+	void operator*=(const XMVECTOR& other);
+	void operator*=(const float scalar);
+
+	Vector2 Normalize();
+	void Normalized();
+
+	static float DotProduct(const Vector2& a, const XMFLOAT2& b);
+	static float DotProduct(const Vector2& a, const Vector2& b);
+	static float DotProduct(const Vector2& a, const XMVECTOR& b);
+
+	static Vector2 Lerp(Vector2& a, Vector2& b, float t) { return a + (b - a) * t; }
+
+	friend std::ostream & operator<<(std::ostream & os, Vector2 & vec)
+	{
+		os << "[" << vec.x << ", " << vec.y << "]" << std::endl;
+		return os;
+	}
+
+public:
+	union {
+		struct {
+			float x, y;
+		};
+		XMFLOAT2 xmf2Vector;
+	};
+};
+
 class Vector3 {
 public:
 	Vector3();
@@ -42,7 +107,7 @@ public:
 	Vector3 operator*(const Vector3& other);
 	Vector3 operator*(const XMFLOAT3& other);
 	Vector3 operator*(const XMVECTOR& other);
-	Vector3 operator*(const float other);
+	Vector3 operator*(const float scalar);
 
 	void operator*=(const Vector3& other);
 	void operator*=(const XMFLOAT3& other);
@@ -104,7 +169,7 @@ public:
 	void operator-=(const XMFLOAT4& other);
 	void operator-=(const XMVECTOR& other);
 
-	Vector4 operator*(const float other);
+	Vector4 operator*(const float scalar);
 	Vector4 operator*(const Matrix4x4& other);
 
 	void operator*=(const float scalar);

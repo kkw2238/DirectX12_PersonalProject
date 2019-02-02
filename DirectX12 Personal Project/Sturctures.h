@@ -14,3 +14,8 @@ struct CB_CAMERA_INFO {
 struct CB_OBJ_INFO {
 	Matrix4x4 matWorld;
 };
+
+struct IA_TEXTURE_OBJ {
+	Vector3 vertexPos;
+	Vector2 texCoord;
+};

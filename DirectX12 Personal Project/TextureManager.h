@@ -18,6 +18,10 @@ public:
 		bool isCubeMap
 	);
 
+	void AddTexture(ID3D12Resource* texture, const std::wstring& textureName, D3D12_SRV_DIMENSION srvDimension);
+
+	std::vector<std::shared_ptr<Texture>>* GetTextureVector(std::vector<std::wstring>& textureNames);
+
 protected:
 	std::unordered_map<std::wstring, std::shared_ptr<Texture>> m_Textures;
 };

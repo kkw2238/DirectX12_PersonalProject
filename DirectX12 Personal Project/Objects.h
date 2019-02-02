@@ -43,8 +43,9 @@ public:
 public:
 	void Draw(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex);
 	void SetMesh(Mesh* newMesh);
-	void SetTexture(std::vector<std::shared_ptr<Texture>>& newTextures);
-	void AddTexture(std::shared_ptr<Texture> newTexture);
+	void SetTextures(std::vector<TextureRootInfo>& newTextures);
+	void SetTexture(TextureRootInfo& newTexture);
+	void AddTexture(TextureRootInfo& newTexture);
 	void CreateCBV(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset);
 	void CreateSRV(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset);
 	UINT BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT objectCountx);
@@ -54,7 +55,7 @@ public:
 protected:
 	Mesh* m_pMesh;
 
-	std::vector<std::shared_ptr<Texture>> m_Textures;
+	std::vector<TextureRootInfo> m_Textures;
 
 	ObjectResourceBuffer<CB_OBJ_INFO> m_ObjUploadBuffer;
 
@@ -62,8 +63,5 @@ protected:
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE m_CBVCPUDescriptorHandle;
 	CD3DX12_GPU_DESCRIPTOR_HANDLE m_CBVGPUDescriptorHandle;
-
-	CD3DX12_CPU_DESCRIPTOR_HANDLE m_SRVCPUDescriptorHandle;
-	CD3DX12_GPU_DESCRIPTOR_HANDLE m_SRVGPUDescriptorHandle;
 };
 
