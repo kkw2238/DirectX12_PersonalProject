@@ -71,35 +71,64 @@ void Objects::Move(UINT index, const Vector3& distance)
 	SetObjPosition(index, newPosition);
 }
 
-void GraphicsObjects::Draw(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex)
-{
-	UpdateInfo(id3dGraphicsCommandList, rootParameterIndex);
-
-	m_pMesh->DrawMesh(id3dGraphicsCommandList, m_ObjectCount);
-}
-
-void GraphicsObjects::SetMesh(Mesh* newMesh)
+void GraphicsTextureObject::SetMesh(Mesh* newMesh)
 {
 	m_pMesh = newMesh;
 }
 
-void GraphicsObjects::SetTextures(std::vector<TextureRootInfo>& newTextures)
+void GraphicsTextureObject::SetTextures(std::vector<TextureRootInfo>& newTextures)
 {
 	m_Textures = std::move(newTextures);
 }
 
-void GraphicsObjects::SetTexture(TextureRootInfo& newTexture)
+void GraphicsTextureObject::SetTexture(TextureRootInfo& newTexture)
 {
 	m_Textures.resize(1);
 	m_Textures[0] = newTexture;
 }
 
-void GraphicsObjects::AddTexture(TextureRootInfo& newTexture)
+void GraphicsTextureObject::AddTexture(TextureRootInfo& newTexture)
 {
 	m_Textures.push_back(newTexture);
 }
 
-void GraphicsObjects::CreateCBV(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset)
+void GraphicsTextureObject::CreateSRV(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset)
+{
+	CD3DX12_CPU_DESCRIPTOR_HANDLE SRVCPUDescriptorHandle;
+	CD3DX12_GPU_DESCRIPTOR_HANDLE SRVGPUDescriptorHandle;
+	DESCFACTORY->CraeteCPUGPUDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, id3dDescriptorHeap, SRVCPUDescriptorHandle, SRVGPUDescriptorHandle, offset);
+
+	for (UINT i = 0; i < m_Textures.size(); ++i) {
+		id3dDevice->CreateShaderResourceView(m_Textures[i].Resource(), &m_Textures[i].SRVDesc(), SRVCPUDescriptorHandle);
+
+		m_Textures[i].SetDescriptorHandle(SRVCPUDescriptorHandle, SRVGPUDescriptorHandle);
+
+		SRVCPUDescriptorHandle.Offset(DESCFACTORY->DescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+		SRVGPUDescriptorHandle.Offset(DESCFACTORY->DescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+	}
+}
+
+void GraphicsTextureObject::Draw(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex)
+{
+	UpdateInfo(id3dGraphicsCommandList, rootParameterIndex);
+	UpdateTextureInfo(id3dGraphicsCommandList);
+
+	if (m_pMesh != nullptr)
+		m_pMesh->DrawMesh(id3dGraphicsCommandList, m_ObjectCount);
+	else
+		id3dGraphicsCommandList->DrawInstanced(6, 1, 0, 0);
+}
+
+void GraphicsTextureObject::UpdateTextureInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList)
+{
+	for (UINT i = 0; i < m_Textures.size(); ++i) {
+		m_Textures[i].UpdateInfo(id3dGraphicsCommandList);
+	}
+}
+
+/////////////////////////////////////////
+
+void GraphicsMeshObject::CreateCBV(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset)
 {
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvViewDesc;
 	cbvViewDesc.SizeInBytes = m_ObjUploadBuffer.DataSize();
@@ -113,23 +142,8 @@ void GraphicsObjects::CreateCBV(ID3D12Device* id3dDevice, ID3D12GraphicsCommandL
 	}
 }
 
-void GraphicsObjects::CreateSRV(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset)
-{
-	CD3DX12_CPU_DESCRIPTOR_HANDLE SRVCPUDescriptorHandle;
-	CD3DX12_GPU_DESCRIPTOR_HANDLE SRVGPUDescriptorHandle; 
-	DESCFACTORY->CraeteCPUGPUDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, id3dDescriptorHeap, SRVCPUDescriptorHandle, SRVGPUDescriptorHandle, offset);
 
-	for (UINT i = 0; i < m_Textures.size(); ++i) {
-		id3dDevice->CreateShaderResourceView(m_Textures[i].Resource(), &m_Textures[i].SRVDesc(), SRVCPUDescriptorHandle);
-		
-		m_Textures[i].SetDescriptorHandle(SRVCPUDescriptorHandle, SRVGPUDescriptorHandle);
-
-		SRVCPUDescriptorHandle.Offset(DESCFACTORY->DescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
-		SRVGPUDescriptorHandle.Offset(DESCFACTORY->DescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
-	}
-}
-
-UINT GraphicsObjects::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT objectCount)
+UINT GraphicsMeshObject::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT objectCount)
 {
 	m_ObjUploadBuffer.CreateResourceBuffer(id3dDevice, objectCount);
 	m_WorldMatrix.resize(objectCount);
@@ -138,7 +152,7 @@ UINT GraphicsObjects::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsComma
 	return objectCount;
 }
 
-void GraphicsObjects::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex)
+void GraphicsMeshObject::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex)
 {
 	for (UINT i = 0; i < m_ObjectCount; ++i) {
 		CB_OBJ_INFO tmpData;
@@ -147,8 +161,4 @@ void GraphicsObjects::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandL
 	}
 
 	id3dGraphicsCommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, m_ObjUploadBuffer.GPUVirtualAddress());
-
-	for (UINT i = 0; i < m_Textures.size(); ++i) {
-		m_Textures[i].UpdateInfo(id3dGraphicsCommandList);
-	}
 }

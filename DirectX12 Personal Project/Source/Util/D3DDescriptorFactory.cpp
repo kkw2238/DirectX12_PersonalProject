@@ -8,21 +8,15 @@ D3DDescriptorFactory* D3DDescriptorFactory::Instance()
 
 D3D12_RESOURCE_DESC D3DDescriptorFactory::DepthStencilDesc(DefaultOption)
 {
-	D3D12_RESOURCE_DESC d3dDepthStencilDesc;
-
-	d3dDepthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	d3dDepthStencilDesc.Alignment = 0;
-	d3dDepthStencilDesc.Width = CLIENT_WIDTH;
-	d3dDepthStencilDesc.Height = CLIENT_HEIGHT;
-	d3dDepthStencilDesc.DepthOrArraySize = 1;
-	d3dDepthStencilDesc.MipLevels = 1;
-	d3dDepthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-	d3dDepthStencilDesc.SampleDesc.Count = App4xMsaaState ? 4 : 1;
-	d3dDepthStencilDesc.SampleDesc.Quality = App4xMsaaState ? (App4xMsaaQuality - 1) : 0;
-	d3dDepthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	d3dDepthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-	return d3dDepthStencilDesc;
+	return CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R24G8_TYPELESS,
+		CLIENT_WIDTH,
+		CLIENT_HEIGHT,
+		1,
+		1,
+		App4xMsaaState ? 4 : 1,
+		App4xMsaaState ? (App4xMsaaQuality - 1) : 0,
+		D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL
+	);
 }
 
 D3D12_DEPTH_STENCIL_VIEW_DESC D3DDescriptorFactory::DepthStencilViewDesc(DefaultOption, DXGI_FORMAT format)
@@ -36,9 +30,28 @@ D3D12_DEPTH_STENCIL_VIEW_DESC D3DDescriptorFactory::DepthStencilViewDesc(Default
 	return d3dDepthStencilViewDesc;
 }
 
+D3D12_RENDER_TARGET_VIEW_DESC D3DDescriptorFactory::RenderTargetViewDesc(DefaultOption, DXGI_FORMAT format)
+{
+	D3D12_RENDER_TARGET_VIEW_DESC d3dRenderTargetViewDesc;
+	d3dRenderTargetViewDesc.Format = format;
+	d3dRenderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	d3dRenderTargetViewDesc.Texture2D.MipSlice = 0;
+	d3dRenderTargetViewDesc.Texture2D.PlaneSlice = 0;
+
+	return d3dRenderTargetViewDesc;
+}
+
 D3D12_RESOURCE_DESC D3DDescriptorFactory::RenderTargetDesc(DefaultOption)
 {
-	return D3D12_RESOURCE_DESC();
+	return CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM,
+		CLIENT_WIDTH,
+		CLIENT_HEIGHT,
+		1,
+		1,
+		App4xMsaaState ? 4 : 1,
+		App4xMsaaState ? (App4xMsaaQuality - 1) : 0,
+		D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET
+	);
 }
 
 DXGI_SWAP_CHAIN_DESC D3DDescriptorFactory::SwapChainDesc(DefaultOption, DXGI_FORMAT format, int swapChainCount, HWND& wndHandle)

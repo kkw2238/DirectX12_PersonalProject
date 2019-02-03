@@ -41,7 +41,7 @@
 #include <dxgi1_4.h>
 
 // 여기서 프로그램에 필요한 추가 헤더를 참조합니다.
-#include "Source/d3dx12.h"
+#include "d3dx12.h"
 
 // lib 참조
 #pragma comment(lib,"d3dcompiler.lib")

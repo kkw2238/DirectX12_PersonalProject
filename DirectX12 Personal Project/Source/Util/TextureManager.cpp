@@ -16,7 +16,7 @@ TextureManager* TextureManager::Instance()
 	return &texManager;
 }
 
-std::shared_ptr<Texture> TextureManager::GetTexture(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& fileName, const std::wstring& textureName, DDS_ALPHA_MODE alphaMode, bool isCubeMap)
+std::shared_ptr<Texture> TextureManager::LoadTexture(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& fileName, const std::wstring& textureName, DDS_ALPHA_MODE alphaMode, bool isCubeMap)
 {
 	if (m_Textures[textureName] == nullptr)
 		m_Textures[textureName] = std::make_shared<Texture>(id3dDevice, id3dGraphicsCommandList, fileName, alphaMode, isCubeMap);
@@ -38,4 +38,9 @@ std::vector<std::shared_ptr<Texture>>* TextureManager::GetTextureVector(std::vec
 			result.push_back(m_Textures[*p]);
 
 	return &result;
+}
+
+std::shared_ptr<Texture> TextureManager::GetTexture(const std::wstring& textureName)
+{
+	return m_Textures[textureName];
 }

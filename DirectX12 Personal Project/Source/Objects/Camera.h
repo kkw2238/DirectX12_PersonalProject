@@ -8,6 +8,8 @@ public:
 	~Camera();
 
 public:
+	void CreateViewport();
+	void CreateScissorRect();
 	void SetViewport(D3D12_VIEWPORT& viewPort);
 	void SetScissorRect(D3D12_RECT& scissorRect);
 	void SetViewportScissorRectToCommandList(ID3D12GraphicsCommandList* id3dCommandList);

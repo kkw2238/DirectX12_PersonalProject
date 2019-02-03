@@ -54,3 +54,13 @@ float4 PS(VS_TEXTURE_OUTPUT psInput) : SV_TARGET
 {
 	return SR_TEXTURE.Sample(DEFAULT_SAMPLER, float2(psInput.uv));
 }
+
+float4 VSTextureFullScreen(uint vertexID : SV_VertexID) : SV_POSITION
+{
+	return defaultVSOut[vertexID];
+}
+
+float4 PSTextureFullScreen(float4 psInput : SV_POSITION) : SV_TARGET
+{
+	return SR_TEXTURE[psInput.xy];
+}

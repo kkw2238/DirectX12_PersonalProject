@@ -9,8 +9,8 @@ public:
 	~Mesh();
 
 public:
-	void SetCubeMesh(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12GraphicsCommandList> id3dCommandList, float width, float height, float depth);
-	void DrawMesh(ComPtr<ID3D12GraphicsCommandList> id3dCommandList, UINT nObjectCount);
+	void SetCubeMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dCommandList, float width, float height, float depth);
+	void DrawMesh(ID3D12GraphicsCommandList* id3dCommandList, UINT nObjectCount);
 
 protected:
 	ComPtr<ID3D12Resource> m_ID3DVertexBuffer = nullptr;

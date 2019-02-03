@@ -9,6 +9,21 @@ Camera::~Camera()
 {
 }
 
+void Camera::CreateViewport()
+{
+	m_D3DViewport.TopLeftX = 0;
+	m_D3DViewport.TopLeftY = 0;
+	m_D3DViewport.Width = static_cast<float>(CLIENT_WIDTH);
+	m_D3DViewport.Height = static_cast<float>(CLIENT_HEIGHT);
+	m_D3DViewport.MinDepth = 0.0f;
+	m_D3DViewport.MaxDepth = 1.0f;
+}
+
+void Camera::CreateScissorRect()
+{
+	m_D3DScissorRect = { 0, 0, CLIENT_WIDTH, CLIENT_HEIGHT };
+}
+
 void Camera::SetViewport(D3D12_VIEWPORT& viewPort)
 {
 	m_D3DViewport = viewPort;
@@ -56,6 +71,9 @@ UINT Camera::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* i
 	m_WorldMatrix.resize(objectCount);
 
 	GenerationViewMatrix();
+
+	CreateScissorRect();
+	CreateViewport();
 
 	return objectCount;
 }

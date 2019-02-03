@@ -6,11 +6,11 @@
  */
 
 #include "D3DUtil.h"
-#include "..//Scene.h"
+#include "Scene.h"
 
 class Framework
 {
-	enum RenderTargets{ MainRenderTarget = 0 };
+	enum RenderTargets{ RTV_COLOR = 0 };
 	enum DepthStencils{ MainDepthStencil = 0 };
 
 public:
@@ -45,6 +45,9 @@ protected:
 	void				CreateRtvNDsvDescripotrHeaps();
 	void				CreateCommandListObject();
 	void				CreateSwapChain();
+	void				CreateSwapChainBuffers();
+	void				CreateRenderTargetBuffers();
+	void				CreateDepthStencilBuffers();
 
 	/* Initialized Direct12 */
 protected:
@@ -54,6 +57,10 @@ protected:
 protected:
 	bool				FlushCommandQueue();
 	
+	void				OnPrepareRender();
+	void				ForwardRender();
+	void				DeferredRender();
+
 	void				Draw(const float elapsedTime);
 	void				OnResize();
 	void				Update(const float elapsedTime);
@@ -62,6 +69,7 @@ protected:
 protected:
 	ID3D12Resource*				GetCurrentBackBuffer() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
+	D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetBufferView(const int index) const;
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView(const int index) const;
 
 protected:
@@ -105,13 +113,12 @@ protected:
 	ComPtr<ID3D12DescriptorHeap>		m_ID3DRenderTargetBufferViewHeap;
 	ComPtr<ID3D12DescriptorHeap>		m_ID3DDepthStencilViewHeap;
 
-	D3D12_VIEWPORT						m_D3DViewport;
-	D3D12_RECT							m_D3DScissorRect;
-
 	std::wstring						m_MainWindowTitle = L"DirectX12 Project ";
+	std::wstring						m_RenderTargetNames[m_RenderTargetBufferCount] = { L"RT_COLOR" };
 
 	D3D_DRIVER_TYPE						m_D3DDriverType = D3D_DRIVER_TYPE_HARDWARE;
 	DXGI_FORMAT							m_DXGIBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+	DXGI_FORMAT							m_DXGI_RenderTargetBufferFormat[2] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R16G16B16A16_FLOAT };
 	DXGI_FORMAT							m_DXGIDepthStencilBufferFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
 	Scene								m_Scene;

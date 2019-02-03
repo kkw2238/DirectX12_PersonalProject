@@ -13,7 +13,7 @@ Mesh::~Mesh()
 {
 }
 
-void Mesh::SetCubeMesh(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12GraphicsCommandList> id3dCommandList, float width, float height, float depth)
+void Mesh::SetCubeMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, float width, float height, float depth)
 {
 	m_nVerticesCount = 8;
 	m_nIndicesCount = 36;
@@ -50,22 +50,22 @@ void Mesh::SetCubeMesh(ComPtr<ID3D12Device> id3dDevice, ComPtr<ID3D12GraphicsCom
 		4, 3, 7
 	};
 	
-	m_ID3DVertexBuffer = D3DUtil::CreateDefaultBuffer(id3dDevice.Get(), id3dCommandList.Get(), vertexInfo.data(), sizeof(IA_TEXTURE_OBJ) * m_nVerticesCount, m_ID3DVertexUploadBuffer);
+	m_ID3DVertexBuffer = D3DUtil::CreateDefaultBuffer(id3dDevice, id3dGraphicsCommandList, vertexInfo.data(), sizeof(IA_TEXTURE_OBJ) * m_nVerticesCount, m_ID3DVertexUploadBuffer);
 	m_D3DVertexBufferView.BufferLocation = m_ID3DVertexBuffer->GetGPUVirtualAddress();
 	m_D3DVertexBufferView.StrideInBytes = sizeof(IA_TEXTURE_OBJ);
 	m_D3DVertexBufferView.SizeInBytes = m_D3DVertexBufferView.StrideInBytes * m_nVerticesCount;
 
-	m_ID3DIndexBuffer = D3DUtil::CreateDefaultBuffer(id3dDevice.Get(), id3dCommandList.Get(), indexInfo.data(), sizeof(UINT) * m_nIndicesCount, m_ID3DIndexUploadBuffer);
+	m_ID3DIndexBuffer = D3DUtil::CreateDefaultBuffer(id3dDevice, id3dGraphicsCommandList, indexInfo.data(), sizeof(UINT) * m_nIndicesCount, m_ID3DIndexUploadBuffer);
 	m_D3DIndexBufferView.BufferLocation = m_ID3DIndexBuffer->GetGPUVirtualAddress();
 	m_D3DIndexBufferView.Format = DXGI_FORMAT_R32_UINT;
 	m_D3DIndexBufferView.SizeInBytes = sizeof(UINT) * m_nIndicesCount;
 }
 
-void Mesh::DrawMesh(ComPtr<ID3D12GraphicsCommandList> id3dCommandList, UINT nObjectCount)
+void Mesh::DrawMesh(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT nObjectCount)
 {
-	id3dCommandList->IASetPrimitiveTopology(m_PrimitiveType);
-	id3dCommandList->IASetIndexBuffer(&m_D3DIndexBufferView);
-	id3dCommandList->IASetVertexBuffers(m_nStartSlot, 1, &m_D3DVertexBufferView);
+	id3dGraphicsCommandList->IASetPrimitiveTopology(m_PrimitiveType);
+	id3dGraphicsCommandList->IASetIndexBuffer(&m_D3DIndexBufferView);
+	id3dGraphicsCommandList->IASetVertexBuffers(m_nStartSlot, 1, &m_D3DVertexBufferView);
 
-	id3dCommandList->DrawIndexedInstanced(m_nIndicesCount, nObjectCount, 0, 0, 0);
+	id3dGraphicsCommandList->DrawIndexedInstanced(m_nIndicesCount, nObjectCount, 0, 0, 0);
 }

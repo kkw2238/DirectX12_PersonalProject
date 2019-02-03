@@ -23,6 +23,7 @@ public:
 	D3D12_RESOURCE_DESC RenderTargetDesc(DefaultOption);
 	DXGI_SWAP_CHAIN_DESC SwapChainDesc(DefaultOption, DXGI_FORMAT format, int swapChainCount, HWND& wndHandle);
 	D3D12_DEPTH_STENCIL_VIEW_DESC DepthStencilViewDesc(DefaultOption, DXGI_FORMAT format);
+	D3D12_RENDER_TARGET_VIEW_DESC RenderTargetViewDesc(DefaultOption, DXGI_FORMAT format);
 	D3D12_DESCRIPTOR_HEAP_DESC DescriptorHeapDesc(DefaultOption, D3D12_DESCRIPTOR_HEAP_TYPE heapType, const unsigned int bufferCount);
 	D3D12_DESCRIPTOR_HEAP_DESC DescriptorHeapDesc(D3D12_DESCRIPTOR_HEAP_TYPE heapType, D3D12_DESCRIPTOR_HEAP_FLAGS flag, const unsigned int bufferCount);
 	D3D12_COMMAND_QUEUE_DESC CommandQueueDesc(DefaultOption);

@@ -182,6 +182,12 @@ public:
 	static Vector4 DotProduct(const Vector4& a, const Vector4& b);
 	static Vector4 DotProduct(const Vector4& a, const XMVECTOR& b);
 
+	friend std::ostream& operator<<(std::ostream& os, Vector4& vec)
+	{
+		os << "[" << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << "]" << std::endl;
+		return os;
+	}
+
 public:
 	union {
 		struct {
@@ -239,6 +245,14 @@ public:
 
 	Matrix4x4 Transpose();
 	Matrix4x4 Inverse();
+
+	friend std::ostream& operator<<(std::ostream& os, Matrix4x4& vec)
+	{
+		for (int i = 0; i < 4; ++i)
+			os << vec.r[i];
+		return os;
+	}
+
 
 public:
 	union {

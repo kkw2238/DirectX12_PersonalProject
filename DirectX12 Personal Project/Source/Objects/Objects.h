@@ -34,34 +34,49 @@ protected:
 	float m_MoveSpeed = 0.1f;
 };
 
-class GraphicsObjects : public Objects
+/* 단순한 텍스쳐 오브젝트 ( 메쉬 X )*/
+class GraphicsTextureObject : public Objects
 {
 public:
-	GraphicsObjects() {};
-	~GraphicsObjects() {};
+	GraphicsTextureObject() {};
+	~GraphicsTextureObject() {};
 
 public:
-	void Draw(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex);
 	void SetMesh(Mesh* newMesh);
 	void SetTextures(std::vector<TextureRootInfo>& newTextures);
 	void SetTexture(TextureRootInfo& newTexture);
 	void AddTexture(TextureRootInfo& newTexture);
-	void CreateCBV(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset);
 	void CreateSRV(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset);
+	void Draw(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex);
+	void UpdateTextureInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList);
+
+protected:
+	std::vector<TextureRootInfo> m_Textures;
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE m_CBVCPUDescriptorHandle;
+	CD3DX12_GPU_DESCRIPTOR_HANDLE m_CBVGPUDescriptorHandle;
+
+	Mesh* m_pMesh = nullptr;
+
+	UINT m_ObjectCount = 1;
+};
+
+/* 메쉬를 소유한 오브젝트 */
+class GraphicsMeshObject : public GraphicsTextureObject
+{
+public:
+	GraphicsMeshObject() {};
+	~GraphicsMeshObject() {};
+
+public:
+	void CreateCBV(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset);
+
 	UINT BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT objectCountx);
 	
 	virtual void UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex);
 
 protected:
-	Mesh* m_pMesh;
-
-	std::vector<TextureRootInfo> m_Textures;
-
+	
 	ObjectResourceBuffer<CB_OBJ_INFO> m_ObjUploadBuffer;
-
-	UINT m_ObjectCount = 1;
-
-	CD3DX12_CPU_DESCRIPTOR_HANDLE m_CBVCPUDescriptorHandle;
-	CD3DX12_GPU_DESCRIPTOR_HANDLE m_CBVGPUDescriptorHandle;
 };
 
