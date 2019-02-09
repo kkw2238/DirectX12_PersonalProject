@@ -1,7 +1,7 @@
 #pragma once
 #include "D3DUtil.h"
 #include "Mesh.h"
-#include "Sturctures.h"
+#include "Structures.h"
 #include "TextureManager.h"
 #include "D3DDescriptorFactory.h"
 

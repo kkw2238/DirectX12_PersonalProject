@@ -1,5 +1,5 @@
 #include "Mesh.h"
-#include "Sturctures.h"
+#include "Structures.h"
 
 Mesh::Mesh()
 {
@@ -15,40 +15,135 @@ Mesh::~Mesh()
 
 void Mesh::SetCubeMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, float width, float height, float depth)
 {
-	m_nVerticesCount = 8;
+	m_nVerticesCount = 24;
 	m_nIndicesCount = 36;
 	m_nStartSlot = 0;
-
-	std::array<IA_TEXTURE_OBJ, 8> vertexInfo{
-		IA_TEXTURE_OBJ{ Vector3(-width / 2.0f, -height / 2.0f, -depth / 2.0f), Vector2(0.0f, 1.0f) },
-		IA_TEXTURE_OBJ{ Vector3(-width / 2.0f, +height / 2.0f, -depth / 2.0f), Vector2(0.0f, 0.0f) },
-		IA_TEXTURE_OBJ{ Vector3(+width / 2.0f, +height / 2.0f, -depth / 2.0f), Vector2(1.0f, 0.0f) },
-		IA_TEXTURE_OBJ{ Vector3(+width / 2.0f, -height / 2.0f, -depth / 2.0f), Vector2(1.0f, 1.0f) },
-		IA_TEXTURE_OBJ{ Vector3(-width / 2.0f, -height / 2.0f, +depth / 2.0f), Vector2(0.0f, 0.0f) },
-		IA_TEXTURE_OBJ{ Vector3(-width / 2.0f, +height / 2.0f, +depth / 2.0f), Vector2(0.0f, 0.0f) },
-		IA_TEXTURE_OBJ{ Vector3(+width / 2.0f, +height / 2.0f, +depth / 2.0f), Vector2(1.0f, 0.0f) },
-		IA_TEXTURE_OBJ{ Vector3(+width / 2.0f, -height / 2.0f, +depth / 2.0f), Vector2(1.0f, 0.0f) }
-	};
-
-	std::array<UINT, 36> indexInfo{
+	
+	std::vector<UINT> indexInfo{
 		0, 1, 2,
 		0, 2, 3,
 
-		4, 6, 5,
-		4, 7, 6,
+		4, 5, 6,
+		4, 6, 7,
 
-		4, 5, 1,
-		4, 1, 0,
+		8, 9, 10,
+		8, 10, 11,
 
-		3, 2, 6,
-		3, 6, 7,
+		12, 13, 14,
+		12, 14, 15,
 
-		1, 5, 6,
-		1, 6, 2,
+		16, 17, 18,
+		16, 18, 19,
 
-		4, 0, 3,
-		4, 3, 7
+		20, 21, 22,
+		20, 22, 23
 	};
+
+	std::vector<Vector3> tangents(m_nVerticesCount);
+
+	std::vector<Vector3> normals{
+		Vector3(0.0f, 0.0f, -1.0f),
+		Vector3(0.0f, 0.0f, -1.0f),
+		Vector3(0.0f, 0.0f, -1.0f),
+		Vector3(0.0f, 0.0f, -1.0f),
+
+		Vector3(0.0f, 0.0f, 1.0f),
+		Vector3(0.0f, 0.0f, 1.0f),
+		Vector3(0.0f, 0.0f, 1.0f),
+		Vector3(0.0f, 0.0f, 1.0f),
+
+		Vector3(+0.0f, +1.0f, 0.0f),
+		Vector3(+0.0f, +1.0f, 0.0f),
+		Vector3(+0.0f, +1.0f, 0.0f),
+		Vector3(+0.0f, +1.0f, 0.0f),
+
+		Vector3(+0.0f, -1.0f, 0.0f),
+		Vector3(+0.0f, -1.0f, 0.0f),
+		Vector3(+0.0f, -1.0f, 0.0f),
+		Vector3(+0.0f, -1.0f, 0.0f),
+
+		Vector3(-1.0f, +0.0f, 0.0f),
+		Vector3(-1.0f, +0.0f, 0.0f),
+		Vector3(-1.0f, +0.0f, 0.0f),
+		Vector3(-1.0f, +0.0f, 0.0f),
+
+		Vector3(+1.0f, +0.0f, 0.0f),
+		Vector3(+1.0f, +0.0f, 0.0f),
+		Vector3(+1.0f, +0.0f, 0.0f),
+		Vector3(+1.0f, +0.0f, 0.0f)
+	};
+
+	std::vector<Vector3> vertices{
+		Vector3(-width / 2.0f, -height / 2.0f, -depth / 2.0f),
+		Vector3(-width / 2.0f, +height / 2.0f, -depth / 2.0f),
+		Vector3(+width / 2.0f, +height / 2.0f, -depth / 2.0f),
+		Vector3(+width / 2.0f, -height / 2.0f, -depth / 2.0f),
+
+		Vector3(-width / 2.0f, -height / 2.0f, +depth / 2.0f),
+		Vector3(+width / 2.0f, -height / 2.0f, +depth / 2.0f),
+		Vector3(+width / 2.0f, +height / 2.0f, +depth / 2.0f),
+		Vector3(-width / 2.0f, +height / 2.0f, +depth / 2.0f),
+
+		Vector3(-width / 2.0f, +height / 2.0f, -depth / 2.0f),
+		Vector3(-width / 2.0f, +height / 2.0f, +depth / 2.0f),
+		Vector3(+width / 2.0f, +height / 2.0f, +depth / 2.0f),
+		Vector3(+width / 2.0f, +height / 2.0f, -depth / 2.0f),
+
+		Vector3(-width / 2.0f, -height / 2.0f, -depth / 2.0f),
+		Vector3(+width / 2.0f, -height / 2.0f, -depth / 2.0f),
+		Vector3(+width / 2.0f, -height / 2.0f, +depth / 2.0f),
+		Vector3(-width / 2.0f, -height / 2.0f, +depth / 2.0f),
+
+		Vector3(-width / 2.0f, -height / 2.0f, +depth / 2.0f),
+		Vector3(-width / 2.0f, +height / 2.0f, +depth / 2.0f),
+		Vector3(-width / 2.0f, +height / 2.0f, -depth / 2.0f),
+		Vector3(-width / 2.0f, -height / 2.0f, -depth / 2.0f),
+
+		Vector3(+width / 2.0f, -height / 2.0f, -depth / 2.0f),
+		Vector3(+width / 2.0f, +height / 2.0f, -depth / 2.0f),
+		Vector3(+width / 2.0f, +height / 2.0f, +depth / 2.0f),
+		Vector3(+width / 2.0f, -height / 2.0f, +depth / 2.0f),
+	};
+
+	std::vector<Vector2> texCoords{
+		Vector2(0.0f, 1.0f),
+		Vector2(0.0f, 0.0f),
+		Vector2(1.0f, 0.0f),
+		Vector2(1.0f, 1.0f),
+
+		Vector2(1.0f, 1.0f),
+		Vector2(0.0f, 1.0f),
+		Vector2(0.0f, 0.0f),
+		Vector2(1.0f, 0.0f),
+
+		Vector2(0.0f, 1.0f),
+		Vector2(0.0f, 0.0f),
+		Vector2(1.0f, 0.0f),
+		Vector2(1.0f, 1.0f),
+
+		Vector2(1.0f, 1.0f),
+		Vector2(0.0f, 1.0f),
+		Vector2(0.0f, 0.0f),
+		Vector2(1.0f, 0.0f),
+
+		Vector2(0.0f, 1.0f),
+		Vector2(0.0f, 0.0f),
+		Vector2(1.0f, 0.0f),
+		Vector2(1.0f, 1.0f),
+
+		Vector2(0.0f, 1.0f),
+		Vector2(0.0f, 0.0f),
+		Vector2(1.0f, 0.0f),
+		Vector2(1.0f, 1.0f)
+	};
+
+	CreateTangentVectors(vertices, normals, texCoords, indexInfo, m_nIndicesCount / 3, tangents);
+
+	std::array<IA_TEXTURE_OBJ, 24> vertexInfo;
+
+	for (UINT i = 0; i < m_nVerticesCount; ++i) {
+		vertexInfo[i] = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i]);
+	}
 	
 	m_ID3DVertexBuffer = D3DUtil::CreateDefaultBuffer(id3dDevice, id3dGraphicsCommandList, vertexInfo.data(), sizeof(IA_TEXTURE_OBJ) * m_nVerticesCount, m_ID3DVertexUploadBuffer);
 	m_D3DVertexBufferView.BufferLocation = m_ID3DVertexBuffer->GetGPUVirtualAddress();

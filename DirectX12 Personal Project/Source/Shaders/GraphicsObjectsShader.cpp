@@ -1,5 +1,6 @@
 #include "GraphicsObjectsShader.h"
 #include "CompiledShader.h"
+#include "LightManager.h"
 
 void GraphicsObjectsShader::BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const int numRenderTarget)
 {
@@ -20,6 +21,8 @@ void GraphicsObjectsShader::RenderGraphicsObj(ID3D12GraphicsCommandList* id3dGra
 		camera->UpdateInfo(id3dGraphicsCommandList, CAMERAINFO_CB);
 	}
 
+	LIGHT_MANAGER->UpdateLightInfo(id3dGraphicsCommandList, LIGHT_CB);
+
 	if (m_TestObject.size()) {
 		for (size_t s = 0; s < m_TestObject.size(); ++s)
 			m_TestObject[s]->Draw(id3dGraphicsCommandList, OBJINFO_CB);
@@ -31,9 +34,10 @@ void GraphicsObjectsShader::CreateGraphicsRootSignature(ID3D12Device * id3dDevic
 	CD3DX12_DESCRIPTOR_RANGE d3dRootDescriptorRange;
 	d3dRootDescriptorRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2);
 
-	CD3DX12_ROOT_PARAMETER d3dRootParameter[3];
+	CD3DX12_ROOT_PARAMETER d3dRootParameter[4];
 	d3dRootParameter[CAMERAINFO_CB].InitAsConstantBufferView(0);
 	d3dRootParameter[OBJINFO_CB].InitAsConstantBufferView(1);
+	d3dRootParameter[LIGHT_CB].InitAsConstantBufferView(2);
 	d3dRootParameter[TEXTURE_SR].InitAsDescriptorTable(1, &d3dRootDescriptorRange);
 
 	std::vector<CD3DX12_STATIC_SAMPLER_DESC> d3dSamplerDescs = DESCFACTORY->SamplerDesc(DEFAULTOPT);
@@ -74,7 +78,9 @@ D3D12_INPUT_LAYOUT_DESC GraphicsObjectsShader::GraphicsInputLayoutDesc()
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	m_D3DInputElementDescs = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TANGENT", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 	d3dInputLayoutDesc = { m_D3DInputElementDescs.data(), (UINT)m_D3DInputElementDescs.size() };

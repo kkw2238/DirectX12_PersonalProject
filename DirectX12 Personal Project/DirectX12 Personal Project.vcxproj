@@ -156,6 +156,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DirectX12 Personal Project.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="LightManager.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Source\DDSTextureLoader\DDSTextureLoader.h" />
     <ClInclude Include="Source\DDSTextureLoader\DDSTextureLoader12.h" />
@@ -174,13 +176,15 @@
     <ClInclude Include="Source\Util\D3DUtil.h" />
     <ClInclude Include="Source\Util\MathUtil.h" />
     <ClInclude Include="Source\Util\MeshManager.h" />
-    <ClInclude Include="Source\Util\Sturctures.h" />
+    <ClInclude Include="Source\Util\Structures.h" />
     <ClInclude Include="Source\Util\TextureManager.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX12 Personal Project.cpp" />
+    <ClCompile Include="Light.cpp" />
+    <ClCompile Include="LightManager.cpp" />
     <ClCompile Include="Source\DDSTextureLoader\DDSTextureLoader.cpp" />
     <ClCompile Include="Source\DDSTextureLoader\DDSTextureLoader12.cpp" />
     <ClCompile Include="Source\Framework\Framework.cpp" />
@@ -216,6 +220,22 @@
     <FxCompile Include="hlsl\DefaultShader.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="hlsl\Light.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="hlsl\NormalMap.hlsl">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,6 +1,6 @@
 #pragma once
 /*
- *	D3DUtil에는 앞으로 사용할 Vector, Matrix등을 편하게 사용하기 위한 클래스가 선언되어 있음,
+ *	MathUtil에는 앞으로 사용할 Vector, Matrix등을 편하게 사용하기 위한 클래스가 선언되어 있음,
  *  주로 사용하는 XMFLOAT와 XMVECTOR, XMFLOAT4x4 XMMATRIX들과 호환 가능하게 설계
  */
 
@@ -275,3 +275,5 @@ public:
 		XMFLOAT4X4 matrix;
 	};
 };
+
+void CreateTangentVectors(std::vector<Vector3>& positions, std::vector<Vector3>& normals, std::vector<Vector2>& texcoords, std::vector<UINT>& indeies, UINT meshCount, std::vector<Vector3>& TBN);

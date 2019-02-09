@@ -1,5 +1,6 @@
 #include "Framework.h"
 #include "D3DDescriptorFactory.h"
+#include "LightManager.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -177,6 +178,7 @@ bool Framework::Initialized()
 	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
 
 	m_Scene.BuildObjects(m_ID3DDevice.Get(), m_ID3DCommandList.Get());
+	LIGHT_MANAGER->CreateLight(m_ID3DDevice.Get());
 
 	ThrowIfFail(m_ID3DCommandList->Close());
 	ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };

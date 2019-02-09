@@ -93,9 +93,6 @@
     <ClInclude Include="Source\Shaders\PipelineObject.h">
       <Filter>헤더 파일\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Util\Sturctures.h">
-      <Filter>헤더 파일\Util</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Util\TextureManager.h">
       <Filter>헤더 파일\Util</Filter>
     </ClInclude>
@@ -116,6 +113,15 @@
     </ClInclude>
     <ClInclude Include="Source\Framework\d3dx12.h">
       <Filter>헤더 파일\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Util\Structures.h">
+      <Filter>헤더 파일\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="LightManager.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -176,6 +182,12 @@
     <ClCompile Include="Source\Util\TextureManager.cpp">
       <Filter>소스 파일\Util</Filter>
     </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="LightManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX12 Personal Project.rc">
@@ -192,6 +204,12 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\DefaultShader.hlsl">
+      <Filter>소스 파일\Shaders\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\NormalMap.hlsl">
+      <Filter>소스 파일\Shaders\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\Light.hlsl">
       <Filter>소스 파일\Shaders\hlsl</Filter>
     </FxCompile>
   </ItemGroup>

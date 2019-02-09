@@ -713,3 +713,34 @@ Matrix4x4 Matrix4x4::Inverse()
 {
 	return XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&matrix)), XMLoadFloat4x4(&matrix));
 }
+
+void CreateTangentVectors(std::vector<Vector3>& positions, std::vector<Vector3>& normals, std::vector<Vector2>& texcoords, std::vector<UINT>& indeies, UINT meshCount, std::vector<Vector3>& Tangent )
+{
+	UINT vertexCount = positions.size();
+
+	std::vector<Vector3> tan1(vertexCount);
+	std::vector<Vector3> tan2(vertexCount);
+
+	for (UINT i = 0; i < meshCount; ++i) {
+		std::array<UINT, 3> index{ indeies[i * 3], indeies[i * 3 + 1], indeies[i * 3 + 2] };
+		std::array<Vector3, 3> vertexPos{ positions[index[0]], positions[index[1]], positions[index[2]] };
+		std::array<Vector2, 3> texCoord{ texcoords[index[0]], texcoords[index[1]], texcoords[index[2]] };
+
+		Vector3 deltaVertex1 = vertexPos[1] - vertexPos[0];	
+		Vector3 deltaVertex2 = vertexPos[2] - vertexPos[0];
+
+		Vector2 deltaTexCoord1 = texCoord[1] - texCoord[0];
+		Vector2 deltaTexCoord2 = texCoord[2] - texCoord[0];
+
+		float r = 1.0f / (deltaTexCoord1.x * deltaTexCoord2.y - deltaTexCoord2.x * deltaTexCoord1.y);
+		Vector2 inverse1 = Vector2(deltaTexCoord2.y, -deltaTexCoord1.y) * r;
+		Vector3 T = deltaVertex1 * inverse1.x + deltaVertex2 * inverse1.y;
+		
+		for (UINT j = 0; j < 3; ++j)
+			tan1[index[j]] += T;
+	}
+
+	for (UINT i = 0; i < vertexCount; ++i) {
+		Tangent[i] = (tan1[i] - (normals[i] * Vector3::DotProduct(normals[i], tan1[i]))).Normalize();
+	}
+}
