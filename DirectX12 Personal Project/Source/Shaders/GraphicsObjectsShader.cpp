@@ -9,7 +9,7 @@ void GraphicsObjectsShader::BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12
 	CreateGraphicsRootSignature(id3dDevice, id3dGraphicsCommandList);
 	CreateGraphicsPipeline(id3dDevice, id3dGraphicsCommandList, numRenderTarget, formats);
 
-	CreateDescriptorHeap(id3dDevice, id3dGraphicsCommandList, 0, 1, 0);
+	CreateDescriptorHeap(id3dDevice, id3dGraphicsCommandList, 0, 2, 0);
 
 	BuildGraphicsObjects(id3dDevice, id3dGraphicsCommandList);
 }
@@ -31,14 +31,16 @@ void GraphicsObjectsShader::RenderGraphicsObj(ID3D12GraphicsCommandList* id3dGra
 
 void GraphicsObjectsShader::CreateGraphicsRootSignature(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id3dGraphicsCommandList)
 {
-	CD3DX12_DESCRIPTOR_RANGE d3dRootDescriptorRange;
-	d3dRootDescriptorRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2);
+	CD3DX12_DESCRIPTOR_RANGE d3dRootDescriptorRange[2];
+	d3dRootDescriptorRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2);
+	d3dRootDescriptorRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 3);
 
-	CD3DX12_ROOT_PARAMETER d3dRootParameter[4];
+	CD3DX12_ROOT_PARAMETER d3dRootParameter[5];
 	d3dRootParameter[CAMERAINFO_CB].InitAsConstantBufferView(0);
 	d3dRootParameter[OBJINFO_CB].InitAsConstantBufferView(1);
 	d3dRootParameter[LIGHT_CB].InitAsConstantBufferView(2);
-	d3dRootParameter[TEXTURE_SR].InitAsDescriptorTable(1, &d3dRootDescriptorRange);
+	d3dRootParameter[TEXTURE_SR].InitAsDescriptorTable(1, &d3dRootDescriptorRange[0]);
+	d3dRootParameter[TEXTURE_NORM_SR].InitAsDescriptorTable(1, &d3dRootDescriptorRange[1]);
 
 	std::vector<CD3DX12_STATIC_SAMPLER_DESC> d3dSamplerDescs = DESCFACTORY->SamplerDesc(DEFAULTOPT);
 
@@ -60,13 +62,15 @@ void GraphicsObjectsShader::BuildGraphicsObjects(ID3D12Device * id3dDevice, ID3D
 	Mesh* mesh = new Mesh();
 	mesh->SetCubeMesh(id3dDevice, id3dGraphicsCommandList, 5.0f, 5.0f, 5.0f);
 
-	TextureRootInfo tex(TEXMANAGER->LoadTexture(id3dDevice, id3dGraphicsCommandList, std::wstring(L"Textures\\MainBackgound_COLOR.DDS"), L"MAINBG", DDS_ALPHA_MODE_UNKNOWN, false), TEXTURE_SR);
-
+	std::vector<TextureRootInfo> textures;
+	textures.emplace_back(TEXMANAGER->LoadTexture(id3dDevice, id3dGraphicsCommandList, std::wstring(L"Textures\\tile.DDS"), L"TILE", DDS_ALPHA_MODE_UNKNOWN, false), TEXTURE_SR);
+	textures.emplace_back(TEXMANAGER->LoadTexture(id3dDevice, id3dGraphicsCommandList, std::wstring(L"Textures\\tile_nmap.DDS"), L"TILE_NORM", DDS_ALPHA_MODE_UNKNOWN, false), TEXTURE_NORM_SR);
+	
 	m_TestObject.resize(1);
 	m_TestObject[0] = new GraphicsMeshObject();
 	m_TestObject[0]->BuildObjects(id3dDevice, id3dGraphicsCommandList, 3);
 	m_TestObject[0]->SetMesh(mesh);
-	m_TestObject[0]->SetTexture(tex);
+	m_TestObject[0]->SetTextures(textures);
 	m_TestObject[0]->CreateSRV(id3dDevice, id3dGraphicsCommandList, m_ID3DDescriptorHeap.Get(), m_DescriptorHeapSRVStart);
 
 	for (UINT i = 0; i < 3; ++i)
@@ -95,5 +99,5 @@ D3D12_SHADER_BYTECODE GraphicsObjectsShader::VS()
 
 D3D12_SHADER_BYTECODE GraphicsObjectsShader::PS()
 {
-	return COMPILEDSHADER->GetShaderByteCode(L"hlsl\\DefaultShader.hlsl", nullptr, "PS", "ps_5_0");
+	return COMPILEDSHADER->GetShaderByteCode(L"hlsl\\DefaultShader.hlsl", LIGHT_MANAGER->GetShaderDefined().data(), "PS", "ps_5_0");
 }

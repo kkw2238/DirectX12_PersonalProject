@@ -10,6 +10,7 @@
 struct CB_CAMERA_INFO {
 	Matrix4x4 matProjection;
 	Matrix4x4 matView;
+	Vector3	  position;
 };
 
 struct CB_OBJ_INFO {

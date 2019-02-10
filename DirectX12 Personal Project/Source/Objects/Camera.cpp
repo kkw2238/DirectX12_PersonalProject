@@ -87,6 +87,8 @@ void Camera::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT
 
 	tmpInfo.matView = m_ViewMatrix.Transpose();
 	tmpInfo.matProjection = m_Projection.Transpose();
+	tmpInfo.position = GetObjPosition(0);
+
 	m_CamUploadBuffer.CopyData(0, tmpInfo);
 
 	id3dGraphicsCommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, m_CamUploadBuffer.GPUVirtualAddress());

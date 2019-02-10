@@ -18,10 +18,13 @@ public:
 	Light* GetLight(UINT index);
 	Matrix4x4* GetLightMatrix(UINT index);
 
+	std::vector<D3D_SHADER_MACRO> GetShaderDefined();
 private:
-	ObjectResourceBuffer<CB_LIGHTS> m_LightUploadBuffer;
 	std::vector<Light>	m_Lights;
+
 	Vector4	m_Ambient;
+
+	ObjectResourceBuffer<CB_LIGHTS> m_LightUploadBuffer;
 };
 
 #define LIGHT_MANAGER LightManager::Instance()

@@ -3,7 +3,7 @@
 
 class GraphicsObjectsShader : public GraphicsShaderBase
 {
-	enum ROOTPAPAMETER_INDEX { CAMERAINFO_CB, OBJINFO_CB, LIGHT_CB , TEXTURE_SR };
+	enum ROOTPAPAMETER_INDEX { CAMERAINFO_CB, OBJINFO_CB, LIGHT_CB , TEXTURE_SR, TEXTURE_NORM_SR };
 public:
 	GraphicsObjectsShader() { };
 	~GraphicsObjectsShader() { };

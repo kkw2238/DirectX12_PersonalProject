@@ -3,20 +3,12 @@ cbuffer CB_CAM_INFO : register(b0)
 {
 	matrix camProjection;
 	matrix camView;
+	float3 camPosition;
 };
 
 cbuffer CB_OBJ_INFO : register(b1)
 {
 	matrix objWorld;
-};
-
-struct LIGHT_INFO {
-	float3 litColor;
-	float litFallstart;
-	float3 litPosition;
-	float litFallend;
-	float3 litDirection;
-	float litSpotPower;
 };
 
 
@@ -46,6 +38,7 @@ sampler DEFAULT_SAMPLER : register(s0);
 
 StructuredBuffer<OBJ_INFO> INST_OBJ_INFO : register(t1);
 Texture2D SR_TEXTURE : register(t2);
+Texture2D SR_TEXTURE_NORM : register(t3);
 
 static float4 defaultVSOut[6] = {
 	{ -1.0f, -1.0f, 0.0f, 0.0f },
@@ -62,20 +55,25 @@ VS_TEXTURE_OUTPUT VS(VS_TEXTURE_INPUT vsInput, uint vertexID : SV_VertexID)
 
 	float4 world = float4(vsInput.vertexPosition, 1.0f);
 	
-	output.position = mul(world, objWorld);
-	output.worldPosition = mul(mul(output.position, camView), camProjection);
+	output.worldPosition = mul(world, objWorld);
+	output.position = mul(mul(output.worldPosition, camView), camProjection);
 	output.uv = vsInput.vertexUV;
-	output.worldNormal = mul(world, vsInput.normal);
-	output.worldTangent = mul(world, vsInput.tangent);
+	output.worldNormal = mul(float4(vsInput.normal, 1.0f), objWorld).xyz;
+	output.worldTangent = mul(float4(vsInput.tangent, 1.0f), objWorld).xyz;
 
 	return output;
 }
 
 float4 PS(VS_TEXTURE_OUTPUT psInput) : SV_TARGET
 {
-	float3 normal = CalculateNormalMap(psInput.worldNormal, psInput.worldTangent, psInput.worldNormal);
-	return float4(normal, 1.0f);
-	//return SR_TEXTURE.Sample(DEFAULT_SAMPLER, float2(psInput.uv)) + litAmbient;
+	float3 normal = SR_TEXTURE_NORM.Sample(DEFAULT_SAMPLER, psInput.uv);
+	normal = CalculateNormalMap(normal, psInput.worldTangent, psInput.worldNormal);
+
+	float4 color = SR_TEXTURE.Sample(DEFAULT_SAMPLER, psInput.uv);
+
+	color.xyz += CalculateLight(normal, psInput.worldPosition.xyz, camPosition);
+
+	return color;
 }
 
 float4 VSTextureFullScreen(uint vertexID : SV_VertexID) : SV_POSITION
