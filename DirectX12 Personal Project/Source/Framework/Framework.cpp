@@ -1,6 +1,7 @@
 #include "Framework.h"
 #include "D3DDescriptorFactory.h"
 #include "LightManager.h"
+#include <shellapi.h>
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -125,6 +126,10 @@ LRESULT Framework::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
+
+	case WM_DROPFILES:
+		OnFileDrop(hWnd, wParam);
+		return 0;
 	case WM_KEYUP:
 		if (wParam == VK_ESCAPE)
 		{
@@ -167,6 +172,34 @@ unsigned int Framework::OnMouseMove(WPARAM state, int xpos, int ypos)
 {
 	return 0;
 }
+
+unsigned int Framework::OnFileDrop(HWND hWnd, WPARAM state)
+{
+	UINT filenameLen;
+	HDROP hDrop = (HDROP)state;
+	TCHAR* fileName = NULL;
+
+	DragAcceptFiles(hWnd, FALSE);	// 드래그 드랍 비활성화
+
+	filenameLen = DragQueryFile(hDrop, 0, fileName, MAX_PATH) + 1;
+	//DragQueryFile( Handle, Index, File이름을 저장할 버퍼, 파일 이름 길이)
+	// Index = 0xffffffff : 불러온 파일 갯수
+	// File이름 버퍼 = NULL : 파일의 이름 크기
+
+	fileName = new TCHAR[filenameLen];
+	::ZeroMemory(fileName, filenameLen);
+
+	DragQueryFile(hDrop, 0, fileName, filenameLen);
+	std::wstring loadFileName(fileName);
+	loadFileName.rfind(L"\\\\");
+
+	DragFinish(hDrop);
+
+
+	DragAcceptFiles(hWnd, TRUE);	// 드래그 앤 드랍 활성화
+	return 0;
+}
+
 
 bool Framework::Initialized()
 {
@@ -275,6 +308,7 @@ bool Framework::InitMainWindow()
 
 	ShowWindow(m_MainWindowHandle, SW_SHOW);
 	UpdateWindow(m_MainWindowHandle);
+	DragAcceptFiles(m_MainWindowHandle, TRUE);
 
 	return true;
 }
@@ -314,9 +348,6 @@ void Framework::CreateSwapChain()
 
 void Framework::CreateSwapChainBuffers()
 {
-	for (int i = 0; i < m_SwapChainBufferCount; ++i)
-		m_ID3DSwapChainBuffer[i].Reset();
-
 	m_CurrentSwapChainBufferIndex = 0;
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE cD3DSwapChainViewHeapHandle(m_ID3DSwapChainBufferViewHeap->GetCPUDescriptorHandleForHeapStart());
@@ -330,9 +361,6 @@ void Framework::CreateSwapChainBuffers()
 
 void Framework::CreateRenderTargetBuffers()
 {
-	for (int i = 0; i < m_RenderTargetBufferCount; ++i)
-		m_ID3DRenderTargetBuffer[i].Reset();
-
 	D3D12_RESOURCE_DESC d3dRednerTargetDesc = DESCFACTORY->RenderTargetDesc(DEFAULTOPT);
 	CD3DX12_CPU_DESCRIPTOR_HANDLE cD3DRenderTargetViewHeapHandle(m_ID3DRenderTargetBufferViewHeap->GetCPUDescriptorHandleForHeapStart());
 
@@ -352,15 +380,12 @@ void Framework::CreateRenderTargetBuffers()
 		m_ID3DDevice->CreateRenderTargetView(m_ID3DRenderTargetBuffer[i].Get(),
 			&DESCFACTORY->RenderTargetViewDesc(DEFAULTOPT, m_DXGI_RenderTargetBufferFormat[0]), GetRenderTargetBufferView(i));
 
-		TEXMANAGER->AddTexture(m_ID3DRenderTargetBuffer[i].Get(), m_RenderTargetNames[i]);
+		TEXMANAGER->AddTexture(m_ID3DDevice.Get(), m_ID3DRenderTargetBuffer[i].Get(), m_RenderTargetNames[i]);
 	}
 }
 
 void Framework::CreateDepthStencilBuffers()
 {
-	for (int i = 0; i < m_DepthStencilBufferCount; ++i)
-		m_ID3DDepthStencilBuffer[i].Reset();
-
 	D3D12_RESOURCE_DESC d3dDepthStencilDesc = DESCFACTORY->DepthStencilDesc(DEFAULTOPT);
 
 	D3D12_CLEAR_VALUE d3dClearOption;
@@ -509,6 +534,8 @@ void Framework::OnResize()
 
 	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
 
+	ResetBuffers();
+
 	m_IDxgiSwapChain->ResizeBuffers(
 		m_SwapChainBufferCount,
 		CLIENT_WIDTH, CLIENT_HEIGHT,
@@ -519,7 +546,7 @@ void Framework::OnResize()
 	CreateSwapChainBuffers();
 	CreateDepthStencilBuffers();
 	CreateRenderTargetBuffers();
-	
+
 	ThrowIfFail(m_ID3DCommandList->Close());
 	ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };
 	m_ID3DCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
@@ -527,6 +554,18 @@ void Framework::OnResize()
 	FlushCommandQueue();
 	
 	m_Scene.UpdateScissorRectViewport();
+}
+
+void Framework::ResetBuffers()
+{
+	for (int i = 0; i < m_SwapChainBufferCount; ++i)
+		m_ID3DSwapChainBuffer[i].Reset();
+
+	for (int i = 0; i < m_DepthStencilBufferCount; ++i)
+		m_ID3DDepthStencilBuffer[i].Reset();
+
+	for (int i = 0; i < m_RenderTargetBufferCount; ++i)
+		m_ID3DRenderTargetBuffer[i].Reset();
 }
 
 void Framework::Update(const float elapsedTime)

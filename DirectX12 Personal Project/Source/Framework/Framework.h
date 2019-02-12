@@ -27,6 +27,7 @@ public:
 
 	unsigned int		OnKeyDown(WPARAM state);
 	unsigned int		OnKeyUp(WPARAM state);
+	unsigned int		OnFileDrop(HWND hWnd, WPARAM state);
 	unsigned int		OnMouseDown(WPARAM state, int xpos, int ypos);
 	unsigned int		OnMouseUp(WPARAM state, int xpos, int ypos);
 	unsigned int		OnMouseMove(WPARAM state, int xpos, int ypos);
@@ -63,6 +64,7 @@ protected:
 
 	void				Draw(const float elapsedTime);
 	void				OnResize();
+	void				ResetBuffers();
 	void				Update(const float elapsedTime);
 
 	/* Get Resource */

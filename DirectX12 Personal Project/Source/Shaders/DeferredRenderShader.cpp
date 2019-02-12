@@ -26,10 +26,8 @@ void DeferredRenderShader::BuildGraphicsObjects(ID3D12Device* id3dDevice, ID3D12
 
 	m_TextureObject.resize(1);
 	m_TextureObject[0] = new GraphicsTextureObject();
-	m_TextureObject[0]->SetTexture(tex);
+	m_TextureObject[0]->SetTexture(id3dDevice, tex, m_ID3DDescriptorHeap.Get(), 0);
 	m_TextureObject[0]->SetMesh(nullptr);
-	m_TextureObject[0]->CreateSRV(id3dDevice, id3dGraphicsCommandList, m_ID3DDescriptorHeap.Get(), 0);
-
 }
 
 void DeferredRenderShader::CreateGraphicsRootSignature(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)

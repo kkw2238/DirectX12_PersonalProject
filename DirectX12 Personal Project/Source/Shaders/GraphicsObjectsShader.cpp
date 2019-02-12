@@ -70,8 +70,7 @@ void GraphicsObjectsShader::BuildGraphicsObjects(ID3D12Device * id3dDevice, ID3D
 	m_TestObject[0] = new GraphicsMeshObject();
 	m_TestObject[0]->BuildObjects(id3dDevice, id3dGraphicsCommandList, 3);
 	m_TestObject[0]->SetMesh(mesh);
-	m_TestObject[0]->SetTextures(textures);
-	m_TestObject[0]->CreateSRV(id3dDevice, id3dGraphicsCommandList, m_ID3DDescriptorHeap.Get(), m_DescriptorHeapSRVStart);
+	m_TestObject[0]->SetTextures(id3dDevice, textures, m_ID3DDescriptorHeap.Get(), m_DescriptorHeapSRVStart);
 
 	for (UINT i = 0; i < 3; ++i)
 		m_TestObject[0]->Move(i, Vector3(10.0f * i, 0.0f, 0.0f));

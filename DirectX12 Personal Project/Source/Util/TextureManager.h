@@ -18,13 +18,15 @@ public:
 		bool isCubeMap
 	);
 
-	void AddTexture(ID3D12Resource* texture, const std::wstring& textureName, D3D12_SRV_DIMENSION srvDimension = D3D12_SRV_DIMENSION_TEXTURE2D);
+	void LinkedTexture(const std::wstring& textureName, TextureRootInfo* rootInfo);
+	void AddTexture(ID3D12Device* id3dDevice, ID3D12Resource* texture, const std::wstring& textureName, D3D12_SRV_DIMENSION srvDimension = D3D12_SRV_DIMENSION_TEXTURE2D);
 
 	std::vector<std::shared_ptr<Texture>>* GetTextureVector(std::vector<std::wstring>& textureNames);
 	std::shared_ptr<Texture> GetTexture(const std::wstring& textureName);
 
 protected:
 	std::unordered_map<std::wstring, std::shared_ptr<Texture>> m_Textures;
+	std::unordered_map<std::wstring, std::vector<std::shared_ptr<TextureRootInfo*>>> m_LinkedTextures;
 };
 
 #define TEXMANAGER TextureManager::Instance()

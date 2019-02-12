@@ -5,7 +5,7 @@
  */
 
 #include "MathUtil.h"
-#define MAX_LIGHT 1
+#define MAX_LIGHT 2
 
 struct CB_CAMERA_INFO {
 	Matrix4x4 matProjection;
