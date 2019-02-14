@@ -131,8 +131,11 @@ void GraphicsTextureObject::Draw(ID3D12GraphicsCommandList* id3dGraphicsCommandL
 	UpdateInfo(id3dGraphicsCommandList, rootParameterIndex);
 	UpdateTextureInfo(id3dGraphicsCommandList);
 
-	if (m_pMesh != nullptr)
-		m_pMesh->DrawMesh(id3dGraphicsCommandList, m_ObjectCount);
+	if (MESHMANAGER->GetLatelyMesh() != nullptr) {
+		MESHMANAGER->GetLatelyMesh()->DrawMeshes(id3dGraphicsCommandList, m_ObjectCount);
+	}
+	else if (m_pMesh != nullptr)
+		m_pMesh->DrawMeshes(id3dGraphicsCommandList, m_ObjectCount);
 	else
 		id3dGraphicsCommandList->DrawInstanced(6, 1, 0, 0);
 }

@@ -741,6 +741,6 @@ void CreateTangentVectors(std::vector<Vector3>& positions, std::vector<Vector3>&
 	}
 
 	for (UINT i = 0; i < vertexCount; ++i) {
-		Tangent[i] = (tan1[i] - (normals[i] * Vector3::DotProduct(normals[i], tan1[i]))).Normalize();
+		Tangent.emplace_back(Vector3(tan1[i] - (normals[i] * Vector3::DotProduct(normals[i], tan1[i]))).Normalize());
 	}
 }

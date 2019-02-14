@@ -40,6 +40,7 @@ public:
 	static bool IsKeyDown(char key);
 
 	static std::wstring StringToWString(std::string& str);
+	static std::wstring GetExtension(const std::wstring& directory);
 };
 
 class ExeptionUtility

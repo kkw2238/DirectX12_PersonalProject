@@ -43,6 +43,7 @@ void GraphicsShaderBase::CreateGraphicsPipeline(ID3D12Device* id3dDevice, ID3D12
 
 void GraphicsShaderBase::ExecutePipeline(ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera)
 {
+	id3dGraphicsCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	id3dGraphicsCommandList->SetGraphicsRootSignature(m_ID3DRootSignature.Get());
 	id3dGraphicsCommandList->SetPipelineState(m_ID3DPipelineState.Get());
 

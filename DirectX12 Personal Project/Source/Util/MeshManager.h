@@ -1,8 +1,24 @@
 #pragma once
+#include "Mesh.h"
+
 class MeshManager
 {
 public:
 	MeshManager();
 	~MeshManager();
+
+public:
+	static MeshManager* Instance();
+
+	std::shared_ptr<Mesh> LoadMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& fileName, const std::wstring& meshName, bool onlyloadOne);
+	std::shared_ptr<Mesh> GetMesh(const std::wstring& meshName);
+	std::shared_ptr<Mesh> GetLatelyMesh();
+	std::vector<std::shared_ptr<Mesh>> GetMeshVector(std::vector<std::wstring>& mesheNames);
+
+protected:
+	std::unordered_map<std::wstring, std::shared_ptr<Mesh>> m_Meshes;
+
+	std::wstring m_LatelyLoadMeshName;
 };
 
+#define MESHMANAGER MeshManager::Instance()

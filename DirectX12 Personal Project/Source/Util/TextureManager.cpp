@@ -40,7 +40,7 @@ void TextureManager::AddTexture(ID3D12Device* id3dDevice, ID3D12Resource* textur
 		(*(m_LinkedTextures[textureName])[i])->RefreshTexture(id3dDevice, m_Textures[textureName]);
 }
 
-std::vector<std::shared_ptr<Texture>>* TextureManager::GetTextureVector(std::vector<std::wstring>& textureNames)
+std::vector<std::shared_ptr<Texture>> TextureManager::GetTextureVector(std::vector<std::wstring>& textureNames)
 {
 	std::vector<std::shared_ptr<Texture>> result;
 
@@ -48,7 +48,7 @@ std::vector<std::shared_ptr<Texture>>* TextureManager::GetTextureVector(std::vec
 		if (m_Textures[*p] != nullptr)
 			result.push_back(m_Textures[*p]);
 
-	return &result;
+	return result;
 }
 
 std::shared_ptr<Texture> TextureManager::GetTexture(const std::wstring& textureName)

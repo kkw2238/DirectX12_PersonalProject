@@ -93,6 +93,12 @@ std::wstring D3DUtil::StringToWString(std::string & str)
 	return wString;
 }
 
+std::wstring D3DUtil::GetExtension(const std::wstring& directory)
+{
+	size_t extensionPos = directory.find_last_of('.');
+	return directory.substr(extensionPos);
+}
+
 ExeptionUtility::ExeptionUtility(const HRESULT hr, const int line, const std::string& fileName, const std::string& functionName) :
 	errorCode(hr), errorLine(line),	errorFileName(fileName), errorFunctionName(functionName)
 {}

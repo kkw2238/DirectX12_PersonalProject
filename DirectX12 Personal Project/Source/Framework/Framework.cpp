@@ -2,6 +2,7 @@
 #include "D3DDescriptorFactory.h"
 #include "LightManager.h"
 #include <shellapi.h>
+#include "MeshManager.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -182,19 +183,23 @@ unsigned int Framework::OnFileDrop(HWND hWnd, WPARAM state)
 	DragAcceptFiles(hWnd, FALSE);	// 드래그 드랍 비활성화
 
 	filenameLen = DragQueryFile(hDrop, 0, fileName, MAX_PATH) + 1;
-	//DragQueryFile( Handle, Index, File이름을 저장할 버퍼, 파일 이름 길이)
-	// Index = 0xffffffff : 불러온 파일 갯수
-	// File이름 버퍼 = NULL : 파일의 이름 크기
 
 	fileName = new TCHAR[filenameLen];
 	::ZeroMemory(fileName, filenameLen);
 
 	DragQueryFile(hDrop, 0, fileName, filenameLen);
 	std::wstring loadFileName(fileName);
-	loadFileName.rfind(L"\\\\");
+	
+	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
+	MESHMANAGER->LoadMesh(m_ID3DDevice.Get(), m_ID3DCommandList.Get(), loadFileName, L"LoadMesh", true);
+
+	ThrowIfFail(m_ID3DCommandList->Close());
+	ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };
+	m_ID3DCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+	FlushCommandQueue();
 
 	DragFinish(hDrop);
-
 
 	DragAcceptFiles(hWnd, TRUE);	// 드래그 앤 드랍 활성화
 	return 0;
@@ -485,24 +490,51 @@ void Framework::OnPrepareRender()
 		D3DUtil::ChangeResourceState(m_ID3DRenderTargetBuffer[i].Get(), m_ID3DCommandList.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		m_ID3DCommandList->ClearRenderTargetView(GetRenderTargetBufferView(i), DirectX::Colors::Black, 0, nullptr);
 	}
+
+	ThrowIfFail(m_ID3DCommandList->Close());
+
+	ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };
+	m_ID3DCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+	FlushCommandQueue();
 }
 
 void Framework::ForwardRender()
 {
+	ThrowIfFail(m_ID3DCommandAllocator->Reset());
+	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
+
 	m_ID3DCommandList->OMSetRenderTargets(1, &GetRenderTargetBufferView(RTV_COLOR), true, &GetDepthStencilView(MainDepthStencil));
 
 	m_Scene.RenderObjects(m_ID3DCommandList.Get());
 
 	D3DUtil::ChangeResourceState(m_ID3DRenderTargetBuffer[RTV_COLOR].Get(), m_ID3DCommandList.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
+
+	ThrowIfFail(m_ID3DCommandList->Close());
+
+	ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };
+	m_ID3DCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+	FlushCommandQueue();
 }
 
 void Framework::DeferredRender()
 {
+	ThrowIfFail(m_ID3DCommandAllocator->Reset());
+	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
+
 	m_ID3DCommandList->OMSetRenderTargets(1, &GetCurrentBackBufferView(), true, &GetDepthStencilView(MainDepthStencil));
 
 	m_Scene.RenderDeferredObjects(m_ID3DCommandList.Get());
 
 	D3DUtil::ChangeResourceState(GetCurrentBackBuffer(), m_ID3DCommandList.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+
+	ThrowIfFail(m_ID3DCommandList->Close());
+
+	ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };
+	m_ID3DCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+	FlushCommandQueue();
 }
 
 void Framework::Draw(const float elapsedTime)
@@ -511,10 +543,10 @@ void Framework::Draw(const float elapsedTime)
 	ForwardRender();
 	DeferredRender();
 
-	ThrowIfFail(m_ID3DCommandList->Close());
-
-	ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };
-	m_ID3DCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	//ThrowIfFail(m_ID3DCommandList->Close());
+	//
+	//ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };
+	//m_ID3DCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	ThrowIfFail(m_IDxgiSwapChain->Present(0, 0));
 
