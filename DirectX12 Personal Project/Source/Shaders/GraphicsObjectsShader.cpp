@@ -63,8 +63,8 @@ void GraphicsObjectsShader::BuildGraphicsObjects(ID3D12Device * id3dDevice, ID3D
 	mesh->SetCubeMesh(id3dDevice, id3dGraphicsCommandList, 5.0f, 5.0f, 5.0f);
 
 	std::vector<TextureRootInfo> textures;
-	textures.emplace_back(TEXMANAGER->LoadTexture(id3dDevice, id3dGraphicsCommandList, std::wstring(L"Textures\\tile.DDS"), L"TILE", DDS_ALPHA_MODE_UNKNOWN, false), TEXTURE_SR);
-	textures.emplace_back(TEXMANAGER->LoadTexture(id3dDevice, id3dGraphicsCommandList, std::wstring(L"Textures\\tile_nmap.DDS"), L"TILE_NORM", DDS_ALPHA_MODE_UNKNOWN, false), TEXTURE_NORM_SR);
+	textures.emplace_back(TEXMANAGER->LoadTexture(id3dDevice, id3dGraphicsCommandList, std::wstring(L"Textures\\tile.DDS"), L"DEFAULT", DDS_ALPHA_MODE_UNKNOWN, false), TEXTURE_SR);
+	textures.emplace_back(TEXMANAGER->LoadTexture(id3dDevice, id3dGraphicsCommandList, std::wstring(L"Textures\\tile_nmap.DDS"), L"DEFAULT_NORM", DDS_ALPHA_MODE_UNKNOWN, false), TEXTURE_NORM_SR);
 	
 	m_TestObject.resize(1);
 	m_TestObject[0] = new GraphicsMeshObject();
@@ -99,4 +99,12 @@ D3D12_SHADER_BYTECODE GraphicsObjectsShader::VS()
 D3D12_SHADER_BYTECODE GraphicsObjectsShader::PS()
 {
 	return COMPILEDSHADER->GetShaderByteCode(L"hlsl\\DefaultShader.hlsl", LIGHT_MANAGER->GetShaderDefined().data(), "PS", "ps_5_0");
+}
+
+GraphicsMeshObject* GraphicsObjectsShader::Objects(UINT index)
+{
+	if (index < m_TestObject.size())
+		return m_TestObject[index];
+	else
+		return nullptr;
 }

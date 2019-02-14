@@ -58,7 +58,7 @@ public:
 
 	static Vector2 Lerp(Vector2& a, Vector2& b, float t) { return a + (b - a) * t; }
 
-	friend std::ostream & operator<<(std::ostream & os, Vector2 & vec)
+	friend std::ostream & operator<<(std::ostream & os, const Vector2 & vec)
 	{
 		os << "[" << vec.x << ", " << vec.y << "]" << std::endl;
 		return os;
@@ -123,7 +123,7 @@ public:
 
 	static Vector3 Lerp(Vector3& a, Vector3& b, float t) { return a + (b - a) * t; }
 
-	friend std::ostream& operator<<(std::ostream& os, Vector3& vec)
+	friend std::ostream& operator<<(std::ostream& os, const Vector3& vec)
 	{
 		os << "[" << vec.x << ", " << vec.y << ", " << vec.z << "]" << std::endl;
 		return os;

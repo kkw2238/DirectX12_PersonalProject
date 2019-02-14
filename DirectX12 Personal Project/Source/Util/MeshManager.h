@@ -10,7 +10,7 @@ public:
 public:
 	static MeshManager* Instance();
 
-	std::shared_ptr<Mesh> LoadMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& fileName, const std::wstring& meshName, bool onlyloadOne);
+	std::shared_ptr<Mesh> LoadMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& fileName, const std::wstring& meshName, const std::wstring& extension, bool onlyloadOne);
 	std::shared_ptr<Mesh> GetMesh(const std::wstring& meshName);
 	std::shared_ptr<Mesh> GetLatelyMesh();
 	std::vector<std::shared_ptr<Mesh>> GetMeshVector(std::vector<std::wstring>& mesheNames);

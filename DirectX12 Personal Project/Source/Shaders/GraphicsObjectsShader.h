@@ -14,11 +14,13 @@ public:
 
 	void CreateGraphicsRootSignature(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 	void BuildGraphicsObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
-
+	
 	virtual D3D12_INPUT_LAYOUT_DESC				GraphicsInputLayoutDesc();
 
 	virtual D3D12_SHADER_BYTECODE				VS();
 	virtual D3D12_SHADER_BYTECODE				PS();
+
+	GraphicsMeshObject* Objects(UINT index);
 
 protected:
 	std::vector<D3D12_INPUT_ELEMENT_DESC>	m_D3DInputElementDescs;

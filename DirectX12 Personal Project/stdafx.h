@@ -61,6 +61,9 @@
 	static const UINT DIR_LEFT = 2;
 	static const UINT DIR_UP = 4;
 	static const UINT DIR_DOWN = 8;
+	static const UINT DIR_FORWARD = 16;
+	static const UINT DIR_BACK = 32;
+
 #endif // ! DEF_APPINFO
 
 #if defined(_DEBUG)

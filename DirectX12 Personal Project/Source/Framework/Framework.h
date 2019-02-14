@@ -13,6 +13,9 @@ class Framework
 	enum RenderTargets{ RTV_COLOR = 0 };
 	enum DepthStencils{ MainDepthStencil = 0 };
 
+	std::vector<std::wstring> MODELTYPES = { L".FBX", L".fbx" };
+	std::vector<std::wstring> TEXTURETYPES = { L".DDS", L".dds" };
+
 public:
 	Framework(HINSTANCE hInst);
 	~Framework();

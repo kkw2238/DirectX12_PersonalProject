@@ -1,7 +1,5 @@
 #include "MeshManager.h"
 
-
-
 MeshManager::MeshManager()
 {
 }
@@ -28,13 +26,18 @@ std::vector<std::shared_ptr<Mesh>> MeshManager::GetMeshVector(std::vector<std::w
 	return result;
 }
 
-std::shared_ptr<Mesh> MeshManager::LoadMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& path, const std::wstring& meshName, bool onlyloadOne)
+std::shared_ptr<Mesh> MeshManager::LoadMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& path, const std::wstring& meshName, const std::wstring& extension, bool onlyloadOne)
 {
-	if (m_Meshes[meshName] == nullptr)
-		m_Meshes[meshName] = std::make_shared<Mesh>(id3dDevice, id3dGraphicsCommandList, path, meshName);
 
-	if (onlyloadOne)
+#ifdef _DEBUG
+	std::wcout << L"Successfully LoadFile : " << path.c_str() << std::endl;
+#endif
+
+	if (onlyloadOne && m_Meshes[meshName] != nullptr)
 		m_Meshes.erase(m_LatelyLoadMeshName);
+
+	if (m_Meshes[meshName] == nullptr)
+		m_Meshes[meshName] = std::make_shared<Mesh>(id3dDevice, id3dGraphicsCommandList, path, meshName, extension);
 
 	m_LatelyLoadMeshName = meshName;
 

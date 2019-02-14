@@ -18,9 +18,31 @@ TextureManager* TextureManager::Instance()
 
 std::shared_ptr<Texture> TextureManager::LoadTexture(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& fileName, const std::wstring& textureName, DDS_ALPHA_MODE alphaMode, bool isCubeMap)
 {
-	if (m_Textures[textureName] == nullptr)
-		m_Textures[textureName] = std::make_shared<Texture>(id3dDevice, id3dGraphicsCommandList, textureName, fileName, alphaMode, isCubeMap);
-	
+#ifdef _DEBUG
+	std::wcout << L"Successfully LoadFile : " << fileName.c_str() << std::endl;
+#endif
+
+	std::shared_ptr<Texture>originalData = nullptr;
+
+	if (m_Textures[textureName] != nullptr)
+		originalData = std::move(m_Textures[textureName]);
+
+	if (m_Textures[textureName] == nullptr) {
+		std::shared_ptr<Texture> makedTexture = std::make_shared<Texture>(id3dDevice, id3dGraphicsCommandList, textureName, fileName, alphaMode, isCubeMap);
+
+		if (makedTexture->Name().length() > 0)
+			m_Textures[textureName] = std::move(makedTexture);
+
+		else {
+#ifdef _DEBUG
+			std::wcout << L"Not Found NRMFile : " << fileName.c_str() << std::endl;
+#endif
+			m_Textures[textureName] = std::move(originalData);
+			return nullptr;
+		}
+	}
+	RefreshLinkedTexture(id3dDevice, textureName);
+
 	return m_Textures[textureName];
 }
 
@@ -36,6 +58,11 @@ void TextureManager::AddTexture(ID3D12Device* id3dDevice, ID3D12Resource* textur
 
 	m_Textures[textureName] = std::make_shared<Texture>(texture, textureName, srvDimension);
 	
+	RefreshLinkedTexture(id3dDevice, textureName);
+}
+
+void TextureManager::RefreshLinkedTexture(ID3D12Device* id3dDevice, const std::wstring& textureName)
+{
 	for (size_t i = 0; i != m_LinkedTextures[textureName].size(); ++i)
 		(*(m_LinkedTextures[textureName])[i])->RefreshTexture(id3dDevice, m_Textures[textureName]);
 }

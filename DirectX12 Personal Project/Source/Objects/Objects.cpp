@@ -8,22 +8,22 @@ Objects::~Objects()
 {
 }
 
-void Objects::SetObjRightVector(UINT index, Vector3& vector)
+void Objects::SetObjRightVector(UINT index, const Vector3& vector)
 {
 	m_WorldMatrix[index]._xyz1 = vector;
 }
 
-void Objects::SetObjUpVector(UINT index, Vector3& vector)
+void Objects::SetObjUpVector(UINT index, const Vector3& vector)
 {
 	m_WorldMatrix[index]._xyz2 = vector;
 }
 
-void Objects::SetObjLookVector(UINT index, Vector3& vector)
+void Objects::SetObjLookVector(UINT index, const Vector3& vector)
 {
 	m_WorldMatrix[index]._xyz3 = vector;
 }
 
-void Objects::SetObjPosition(UINT index, Vector3& vector)
+void Objects::SetObjPosition(UINT index, const Vector3& vector)
 {
 	m_WorldMatrix[index]._xyz4 = vector;
 }
@@ -53,10 +53,12 @@ void Objects::Move(UINT index, DWORD direction, float elapsedtime)
 	Vector3 moveDirection;
 	Vector3 moveDistance;
 	
-	if (direction & DIR_UP)		moveDirection.z += 1.0f;
-	if (direction & DIR_DOWN)	moveDirection.z -= 1.0f;
+	if (direction & DIR_UP)		moveDirection.y += 1.0f;
+	if (direction & DIR_DOWN)	moveDirection.y -= 1.0f;
 	if (direction & DIR_RIGHT)	moveDirection.x += 1.0f;
 	if (direction & DIR_LEFT)	moveDirection.x -= 1.0f;
+	if (direction & DIR_FORWARD)moveDirection.z += 1.0f;
+	if (direction & DIR_BACK)	moveDirection.z -= 1.0f;
 
 	moveDistance = GetObjPosition(index) + moveDirection.Normalize() * m_MoveSpeed * elapsedtime;
 
@@ -131,11 +133,13 @@ void GraphicsTextureObject::Draw(ID3D12GraphicsCommandList* id3dGraphicsCommandL
 	UpdateInfo(id3dGraphicsCommandList, rootParameterIndex);
 	UpdateTextureInfo(id3dGraphicsCommandList);
 
-	if (MESHMANAGER->GetLatelyMesh() != nullptr) {
-		MESHMANAGER->GetLatelyMesh()->DrawMeshes(id3dGraphicsCommandList, m_ObjectCount);
+	if (!m_Is2D) {
+		if (MESHMANAGER->GetLatelyMesh() != nullptr) {
+			MESHMANAGER->GetLatelyMesh()->DrawMeshes(id3dGraphicsCommandList, m_ObjectCount);
+		}
+		else if (m_pMesh != nullptr)
+			m_pMesh->DrawMeshes(id3dGraphicsCommandList, m_ObjectCount);
 	}
-	else if (m_pMesh != nullptr)
-		m_pMesh->DrawMeshes(id3dGraphicsCommandList, m_ObjectCount);
 	else
 		id3dGraphicsCommandList->DrawInstanced(6, 1, 0, 0);
 }
@@ -177,9 +181,20 @@ void GraphicsMeshObject::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsComma
 {
 	for (UINT i = 0; i < m_ObjectCount; ++i) {
 		CB_OBJ_INFO tmpData;
-		tmpData.matWorld = m_WorldMatrix[i].Transpose();
+		Matrix4x4 scaleMatrix = XMMatrixScalingFromVector(m_ScaleSize.GetXMVector());
+		tmpData.matWorld = (scaleMatrix * m_WorldMatrix[i]).Transpose();
 		m_ObjUploadBuffer.CopyData(i, tmpData);
 	}
 
 	id3dGraphicsCommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, m_ObjUploadBuffer.GPUVirtualAddress());
+}
+
+void GraphicsMeshObject::SetObjScale(UINT index, const Vector3& vector)
+{
+	m_ScaleSize = vector;
+}
+
+Vector3 GraphicsMeshObject::GetObjScale(UINT index)
+{
+	return m_ScaleSize;
 }

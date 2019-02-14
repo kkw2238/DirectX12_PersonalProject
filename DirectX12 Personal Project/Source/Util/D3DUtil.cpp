@@ -93,10 +93,21 @@ std::wstring D3DUtil::StringToWString(std::string & str)
 	return wString;
 }
 
-std::wstring D3DUtil::GetExtension(const std::wstring& directory)
+std::wstring D3DUtil::GetExtension(const std::wstring& path)
 {
-	size_t extensionPos = directory.find_last_of('.');
-	return directory.substr(extensionPos);
+	size_t extensionPos = path.find_last_of('.');
+	return path.substr(extensionPos);
+}
+
+std::wstring D3DUtil::GetFileName(const std::wstring& path)
+{
+	size_t fileNamePos = path.find_last_of('\\');
+	return path.substr(fileNamePos);
+}
+
+std::wstring D3DUtil::GetPathExceptFileName(const std::wstring& path)
+{
+	return std::wstring();
 }
 
 ExeptionUtility::ExeptionUtility(const HRESULT hr, const int line, const std::string& fileName, const std::string& functionName) :

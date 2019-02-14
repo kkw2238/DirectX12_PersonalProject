@@ -5,11 +5,10 @@ Mesh::Mesh()
 {
 }
 
-Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& path, const std::wstring& meshName)
+Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& path, const std::wstring& meshName, const std::wstring& extension)
 {
 	Assimp::Importer importer;
 
-	std::wstring extension = D3DUtil::GetExtension(path);
 	std::string filenameString(path.begin(), path.end());
 	std::string extensionString(extension.begin(), extension.end());
 
@@ -68,6 +67,11 @@ void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dG
 	m_D3DIndexBufferView.SizeInBytes = sizeof(UINT) * m_nIndicesCount;
 }
 
+std::vector<Mesh> Mesh::Get()
+{
+	return m_ChildMeshes;
+}
+
 
 void Mesh::DrawMeshes(ID3D12GraphicsCommandList* id3dCommandList, UINT nObjectCount)
 {
@@ -104,7 +108,7 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 
 		if (mesh->mVertices != nullptr) {
 			vertex = mesh->mVertices[verticesIndex];
-			vertices.emplace_back(vertex.x, -vertex.z, vertex.y);
+			vertices.emplace_back(vertex.x, vertex.y, vertex.z);
 		}
 		if (mesh->mTextureCoords[0] != nullptr) {
 			texCoord = mesh->mTextureCoords[0][verticesIndex];

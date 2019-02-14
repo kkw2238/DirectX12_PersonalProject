@@ -9,7 +9,8 @@ Texture::Texture()
 
 Texture::Texture(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& texName, const std::wstring& fileName, DDS_ALPHA_MODE alphaMode, bool isCubeMap, D3D12_SRV_DIMENSION srvDimension)
 {
-	ThrowIfFail(CreateDDSTextureFromFile12(id3dDevice, id3dGraphicsCommandList, fileName.c_str(), m_ID3DTexture, m_ID3DTextureUploadBuffer, 0, &alphaMode));
+	if(FAILED(CreateDDSTextureFromFile12(id3dDevice, id3dGraphicsCommandList, fileName.c_str(), m_ID3DTexture, m_ID3DTextureUploadBuffer, 0, &alphaMode)))
+		return;
 
 	m_TextureName = texName;
 

@@ -36,6 +36,26 @@ void Scene::ProcessKeyboard(float elapsedTime)
 	if (D3DUtil::IsKeyDown('S')) keyDown |= DIR_DOWN;
 	if (D3DUtil::IsKeyDown('D')) keyDown |= DIR_RIGHT;
 	if (D3DUtil::IsKeyDown('A')) keyDown |= DIR_LEFT;
+	if (D3DUtil::IsKeyDown(VK_UP)) keyDown |= DIR_FORWARD;
+	if (D3DUtil::IsKeyDown(VK_DOWN)) keyDown |= DIR_BACK;
+	if (D3DUtil::IsKeyDown(VK_ADD)) ProcessMouseWheel(1, elapsedTime);
+	if (D3DUtil::IsKeyDown(VK_SUBTRACT)) ProcessMouseWheel(-1, elapsedTime);
 
 	m_Camera.get()->Move(0, keyDown, elapsedTime);
+}
+
+void Scene::ProcessMouseWheel(SHORT wheelRotatedir, float elapsedTime)
+{
+	Vector3 addScaleSize = Vector3(0.01f, 0.01f, 0.01f);
+	GraphicsMeshObject* sceneObj = m_TestShaderObject.Objects(0);
+
+	if (sceneObj != nullptr) {
+		if (wheelRotatedir > 0) {
+			if (sceneObj != nullptr)
+				sceneObj->SetObjScale(0, sceneObj->GetObjScale(0) + addScaleSize);
+		}
+		else 
+			sceneObj->SetObjScale(0, sceneObj->GetObjScale(0) - addScaleSize);
+		
+	}
 }

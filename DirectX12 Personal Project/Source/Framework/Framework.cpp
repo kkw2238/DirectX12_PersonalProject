@@ -44,7 +44,9 @@ LRESULT Framework::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_ACTIVATE:
 		return 0;
-
+	//case WM_MOUSEHWHEEL:
+	//	m_Scene.ProcessMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam), 0.1666f);
+	//	return 0;
 	case WM_SIZE:
 		CLIENT_WIDTH = LOWORD(lParam);
 		CLIENT_HEIGHT = HIWORD(lParam);
@@ -127,7 +129,6 @@ LRESULT Framework::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
-
 	case WM_DROPFILES:
 		OnFileDrop(hWnd, wParam);
 		return 0;
@@ -191,8 +192,17 @@ unsigned int Framework::OnFileDrop(HWND hWnd, WPARAM state)
 	std::wstring loadFileName(fileName);
 	
 	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
-	MESHMANAGER->LoadMesh(m_ID3DDevice.Get(), m_ID3DCommandList.Get(), loadFileName, L"LoadMesh", true);
 
+	std::wstring extension = D3DUtil::GetExtension(loadFileName);
+
+	if (std::find(MODELTYPES.begin(), MODELTYPES.end(), extension) != MODELTYPES.end())
+		MESHMANAGER->LoadMesh(m_ID3DDevice.Get(), m_ID3DCommandList.Get(), loadFileName, L"LoadMesh", extension, true);
+
+	if (std::find(TEXTURETYPES.begin(), TEXTURETYPES.end(), extension) != TEXTURETYPES.end()) {
+		TEXMANAGER->LoadTexture(m_ID3DDevice.Get(), m_ID3DCommandList.Get(), loadFileName, L"DEFAULT", DDS_ALPHA_MODE_UNKNOWN, false);
+		loadFileName.insert(loadFileName.find_last_of('.'), L"_NRM");
+		TEXMANAGER->LoadTexture(m_ID3DDevice.Get(), m_ID3DCommandList.Get(), loadFileName, L"DEFAULT_NRM", DDS_ALPHA_MODE_UNKNOWN, false);
+	}
 	ThrowIfFail(m_ID3DCommandList->Close());
 	ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };
 	m_ID3DCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
