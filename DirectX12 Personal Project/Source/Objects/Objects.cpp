@@ -128,10 +128,10 @@ void GraphicsTextureObject::CreateSRV(ID3D12Device* id3dDevice, ID3D12Descriptor
 	}
 }
 
-void GraphicsTextureObject::Draw(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex)
+void GraphicsTextureObject::Draw(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex)
 {
 	UpdateInfo(id3dGraphicsCommandList, rootParameterIndex);
-	UpdateTextureInfo(id3dGraphicsCommandList);
+	UpdateTextureInfo(id3dDevice, id3dGraphicsCommandList);
 
 	if (!m_Is2D) {
 		if (MESHMANAGER->GetLatelyMesh() != nullptr) {
@@ -144,10 +144,10 @@ void GraphicsTextureObject::Draw(ID3D12GraphicsCommandList* id3dGraphicsCommandL
 		id3dGraphicsCommandList->DrawInstanced(6, 1, 0, 0);
 }
 
-void GraphicsTextureObject::UpdateTextureInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList)
+void GraphicsTextureObject::UpdateTextureInfo(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
 	for (UINT i = 0; i < m_Textures.size(); ++i) {
-		m_Textures[i].UpdateInfo(id3dGraphicsCommandList);
+		m_Textures[i].UpdateInfo(id3dDevice, id3dGraphicsCommandList);
 	}
 }
 

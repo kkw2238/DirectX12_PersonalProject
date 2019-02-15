@@ -65,7 +65,7 @@ void Camera::RegenerationViewMatrix()
 
 UINT Camera::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT objectCount)
 {
-	m_MoveSpeed = 10.0f;
+	m_MoveSpeed = 20.0f;
 
 	m_CamUploadBuffer.CreateResourceBuffer(id3dDevice, objectCount);
 	m_WorldMatrix.resize(objectCount);

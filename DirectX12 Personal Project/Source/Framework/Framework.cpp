@@ -516,7 +516,7 @@ void Framework::ForwardRender()
 
 	m_ID3DCommandList->OMSetRenderTargets(1, &GetRenderTargetBufferView(RTV_COLOR), true, &GetDepthStencilView(MainDepthStencil));
 
-	m_Scene.RenderObjects(m_ID3DCommandList.Get());
+	m_Scene.RenderObjects(m_ID3DDevice.Get(), m_ID3DCommandList.Get());
 
 	D3DUtil::ChangeResourceState(m_ID3DRenderTargetBuffer[RTV_COLOR].Get(), m_ID3DCommandList.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
 
@@ -535,7 +535,7 @@ void Framework::DeferredRender()
 
 	m_ID3DCommandList->OMSetRenderTargets(1, &GetCurrentBackBufferView(), true, &GetDepthStencilView(MainDepthStencil));
 
-	m_Scene.RenderDeferredObjects(m_ID3DCommandList.Get());
+	m_Scene.RenderDeferredObjects(m_ID3DDevice.Get(), m_ID3DCommandList.Get());
 
 	D3DUtil::ChangeResourceState(GetCurrentBackBuffer(), m_ID3DCommandList.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

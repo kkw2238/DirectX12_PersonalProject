@@ -714,6 +714,16 @@ Matrix4x4 Matrix4x4::Inverse()
 	return XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&matrix)), XMLoadFloat4x4(&matrix));
 }
 
+
+void CreateNormalVectors(std::vector<Vector3>& positions, std::vector<Vector3>& normals)
+{
+	normals.resize(positions.size());
+
+	for (size_t i = 0; i < positions.size(); ++i) {
+		normals[i] = positions[i].Normalize();
+	}
+}
+
 void CreateTangentVectors(std::vector<Vector3>& positions, std::vector<Vector3>& normals, std::vector<Vector2>& texcoords, std::vector<UINT>& indeies, UINT meshCount, std::vector<Vector3>& Tangent )
 {
 	UINT vertexCount = positions.size();

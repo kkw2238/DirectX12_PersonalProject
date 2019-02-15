@@ -2,6 +2,10 @@
 #include "CompiledShader.h"
 #include "LightManager.h"
 
+GraphicsObjectsShader::GraphicsObjectsShader()
+{
+}
+
 void GraphicsObjectsShader::BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const int numRenderTarget)
 {
 	std::vector<DXGI_FORMAT> formats = { DXGI_FORMAT_R8G8B8A8_UNORM };
@@ -10,11 +14,11 @@ void GraphicsObjectsShader::BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12
 	CreateGraphicsPipeline(id3dDevice, id3dGraphicsCommandList, numRenderTarget, formats);
 
 	CreateDescriptorHeap(id3dDevice, id3dGraphicsCommandList, 0, 2, 0);
-
+	
 	BuildGraphicsObjects(id3dDevice, id3dGraphicsCommandList);
 }
 
-void GraphicsObjectsShader::RenderGraphicsObj(ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera)
+void GraphicsObjectsShader::RenderGraphicsObj(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera)
 {
 	if (camera) {
 		camera->SetViewportScissorRectToCommandList(id3dGraphicsCommandList);
@@ -25,7 +29,7 @@ void GraphicsObjectsShader::RenderGraphicsObj(ID3D12GraphicsCommandList* id3dGra
 
 	if (m_TestObject.size()) {
 		for (size_t s = 0; s < m_TestObject.size(); ++s)
-			m_TestObject[s]->Draw(id3dGraphicsCommandList, OBJINFO_CB);
+			m_TestObject[s]->Draw(id3dDevice, id3dGraphicsCommandList, OBJINFO_CB);
 	}
 }
 
@@ -59,21 +63,33 @@ void GraphicsObjectsShader::CreateGraphicsRootSignature(ID3D12Device * id3dDevic
 
 void GraphicsObjectsShader::BuildGraphicsObjects(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id3dGraphicsCommandList)
 {
-	Mesh* mesh = new Mesh();
-	mesh->SetCubeMesh(id3dDevice, id3dGraphicsCommandList, 5.0f, 5.0f, 5.0f);
+	Mesh* cubemesh = new Mesh();
+	Mesh* planemesh = new Mesh();
+
+	cubemesh->SetCubeMesh(id3dDevice, id3dGraphicsCommandList, 5.0f, 5.0f, 5.0f);
+	planemesh->SetPlaneMesh(id3dDevice, id3dGraphicsCommandList, 10.0f, 10.0f);
+	
+	MESHMANAGER->SetMesh(cubemesh, std::wstring(L"Cube5.0"));
+	MESHMANAGER->SetMesh(planemesh, std::wstring(L"Plane10.0"));
 
 	std::vector<TextureRootInfo> textures;
 	textures.emplace_back(TEXMANAGER->LoadTexture(id3dDevice, id3dGraphicsCommandList, std::wstring(L"Textures\\tile.DDS"), L"DEFAULT", DDS_ALPHA_MODE_UNKNOWN, false), TEXTURE_SR);
 	textures.emplace_back(TEXMANAGER->LoadTexture(id3dDevice, id3dGraphicsCommandList, std::wstring(L"Textures\\tile_nmap.DDS"), L"DEFAULT_NORM", DDS_ALPHA_MODE_UNKNOWN, false), TEXTURE_NORM_SR);
 	
-	m_TestObject.resize(1);
+	std::vector<TextureRootInfo> tiletextures;
+	tiletextures.emplace_back(TEXMANAGER->LoadTexture(id3dDevice, id3dGraphicsCommandList, std::wstring(L"Textures\\tile.DDS"), L"TILE", DDS_ALPHA_MODE_UNKNOWN, false), TEXTURE_SR);
+	tiletextures.emplace_back(TEXMANAGER->LoadTexture(id3dDevice, id3dGraphicsCommandList, std::wstring(L"Textures\\tile_nmap.DDS"), L"TILE_NORM", DDS_ALPHA_MODE_UNKNOWN, false), TEXTURE_NORM_SR);
+
+	m_TestObject.resize(2);
 	m_TestObject[0] = new GraphicsMeshObject();
-	m_TestObject[0]->BuildObjects(id3dDevice, id3dGraphicsCommandList, 3);
-	m_TestObject[0]->SetMesh(mesh);
+	m_TestObject[0]->BuildObjects(id3dDevice, id3dGraphicsCommandList, 1);
+	m_TestObject[0]->SetMesh(MESHMANAGER->GetMesh(std::wstring(L"Cube5.0")).get());
 	m_TestObject[0]->SetTextures(id3dDevice, textures, m_ID3DDescriptorHeap.Get(), m_DescriptorHeapSRVStart);
 
-	for (UINT i = 0; i < 3; ++i)
-		m_TestObject[0]->Move(i, Vector3(10.0f * i, 0.0f, 0.0f));
+	m_TestObject[1] = new GraphicsMeshObject();
+	m_TestObject[1]->BuildObjects(id3dDevice, id3dGraphicsCommandList, 1);
+	m_TestObject[1]->SetMesh(MESHMANAGER->GetMesh(std::wstring(L"Plane10.0")).get());
+	m_TestObject[1]->SetTextures(id3dDevice, tiletextures, m_ID3DDescriptorHeap.Get(), m_DescriptorHeapSRVStart);
 }
 
 D3D12_INPUT_LAYOUT_DESC GraphicsObjectsShader::GraphicsInputLayoutDesc()

@@ -41,7 +41,10 @@ void GraphicsShaderBase::CreateGraphicsPipeline(ID3D12Device* id3dDevice, ID3D12
 	ThrowIfFail(id3dDevice->CreateGraphicsPipelineState(&d3dGraphicsPipelineDesc, IID_PPV_ARGS(m_ID3DPipelineState.GetAddressOf())));
 }
 
-void GraphicsShaderBase::ExecutePipeline(ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera)
+GraphicsShaderBase::GraphicsShaderBase()
+{}
+
+void GraphicsShaderBase::ExecutePipeline(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera)
 {
 	id3dGraphicsCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	id3dGraphicsCommandList->SetGraphicsRootSignature(m_ID3DRootSignature.Get());
@@ -50,7 +53,7 @@ void GraphicsShaderBase::ExecutePipeline(ID3D12GraphicsCommandList* id3dGraphics
 	if (m_ID3DDescriptorHeap != nullptr)
 		id3dGraphicsCommandList->SetDescriptorHeaps(1, m_ID3DDescriptorHeap.GetAddressOf());
 
-	RenderGraphicsObj(id3dGraphicsCommandList, camera);
+	RenderGraphicsObj(id3dDevice, id3dGraphicsCommandList, camera);
 }
 
 

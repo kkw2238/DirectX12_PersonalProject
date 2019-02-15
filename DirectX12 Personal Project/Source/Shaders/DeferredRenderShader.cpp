@@ -12,7 +12,7 @@ DeferredRenderShader::~DeferredRenderShader()
 void DeferredRenderShader::BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const int numRenderTarget)
 {
 	std::vector<DXGI_FORMAT> formats = { DXGI_FORMAT_R8G8B8A8_UNORM };
-
+	
 	CreateGraphicsRootSignature(id3dDevice, id3dGraphicsCommandList);
 	CreateGraphicsPipeline(id3dDevice, id3dGraphicsCommandList, numRenderTarget, formats);
 	CreateDescriptorHeap(id3dDevice, id3dGraphicsCommandList, 0, 1, 0);
@@ -53,14 +53,14 @@ void DeferredRenderShader::CreateGraphicsRootSignature(ID3D12Device* id3dDevice,
 	ThrowIfFail(id3dDevice->CreateRootSignature(NULL, id3dSignatureBlob->GetBufferPointer(), id3dSignatureBlob->GetBufferSize(), IID_PPV_ARGS(m_ID3DRootSignature.GetAddressOf())));
 }
 
-void DeferredRenderShader::RenderGraphicsObj(ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera)
+void DeferredRenderShader::RenderGraphicsObj(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera)
 {
 	if (camera) {
 		camera->SetViewportScissorRectToCommandList(id3dGraphicsCommandList);
 	}
 
 	for (int i = 0; i < m_TextureObject.size(); ++i)
-		m_TextureObject[i]->Draw(id3dGraphicsCommandList, 0);
+		m_TextureObject[i]->Draw(id3dDevice, id3dGraphicsCommandList, 0);
 }
 
 D3D12_SHADER_BYTECODE DeferredRenderShader::VS()

@@ -48,7 +48,7 @@ public:
 	void CreateSRV(ID3D12Device* id3dDevice, const CD3DX12_CPU_DESCRIPTOR_HANDLE& cpuHandle, const CD3DX12_GPU_DESCRIPTOR_HANDLE& gpuHandle);
 	void RefreshSRV(ID3D12Device* id3dDevice);
 	void RefreshTexture(ID3D12Device* id3dDevice, std::shared_ptr<Texture> texture);
-	void UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList);
+	void UpdateInfo(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 
 protected:
 	std::shared_ptr<Texture> m_Texture;

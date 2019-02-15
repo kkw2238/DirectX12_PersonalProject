@@ -18,9 +18,6 @@ TextureManager* TextureManager::Instance()
 
 std::shared_ptr<Texture> TextureManager::LoadTexture(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& fileName, const std::wstring& textureName, DDS_ALPHA_MODE alphaMode, bool isCubeMap)
 {
-#ifdef _DEBUG
-	std::wcout << L"Successfully LoadFile : " << fileName.c_str() << std::endl;
-#endif
 
 	std::shared_ptr<Texture>originalData = nullptr;
 
@@ -30,12 +27,15 @@ std::shared_ptr<Texture> TextureManager::LoadTexture(ID3D12Device* id3dDevice, I
 	if (m_Textures[textureName] == nullptr) {
 		std::shared_ptr<Texture> makedTexture = std::make_shared<Texture>(id3dDevice, id3dGraphicsCommandList, textureName, fileName, alphaMode, isCubeMap);
 
-		if (makedTexture->Name().length() > 0)
+		if (makedTexture->Name().length() > 0) {
 			m_Textures[textureName] = std::move(makedTexture);
-
+#ifdef _DEBUG
+			std::wcout << L"Successfully LoadFile : " << fileName.c_str() << std::endl;
+#endif
+		}
 		else {
 #ifdef _DEBUG
-			std::wcout << L"Not Found NRMFile : " << fileName.c_str() << std::endl;
+			std::wcout << L"Not Found File : " << fileName.c_str() << std::endl;
 #endif
 			m_Textures[textureName] = std::move(originalData);
 			return nullptr;

@@ -44,6 +44,11 @@ std::shared_ptr<Mesh> MeshManager::LoadMesh(ID3D12Device* id3dDevice, ID3D12Grap
 	return m_Meshes[meshName];
 }
 
+void MeshManager::SetMesh(Mesh* mesh, const std::wstring meshName)
+{
+	m_Meshes[meshName] = std::make_shared<Mesh>(*mesh);
+}
+
 std::shared_ptr<Mesh> MeshManager::GetMesh(const std::wstring& meshName)
 {
 	return m_Meshes[meshName];

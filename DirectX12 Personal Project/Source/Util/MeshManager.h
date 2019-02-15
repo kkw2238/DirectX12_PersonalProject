@@ -15,6 +15,7 @@ public:
 	std::shared_ptr<Mesh> GetLatelyMesh();
 	std::vector<std::shared_ptr<Mesh>> GetMeshVector(std::vector<std::wstring>& mesheNames);
 
+	void SetMesh(Mesh* mesh, const std::wstring meshName);
 protected:
 	std::unordered_map<std::wstring, std::shared_ptr<Mesh>> m_Meshes;
 

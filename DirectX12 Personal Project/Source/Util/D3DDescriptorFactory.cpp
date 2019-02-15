@@ -180,6 +180,9 @@ UINT D3DDescriptorFactory::DescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_T
 
 void D3DDescriptorFactory::CraeteCPUGPUDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE heapType, ID3D12DescriptorHeap* id3dDescriptorHeap, CD3DX12_CPU_DESCRIPTOR_HANDLE& cpuHandle, CD3DX12_GPU_DESCRIPTOR_HANDLE& gpuHandle, UINT offset)
 {
+	D3D12_CPU_DESCRIPTOR_HANDLE cpuhandle = id3dDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	D3D12_GPU_DESCRIPTOR_HANDLE Gpuhandle = id3dDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+
 	cpuHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(id3dDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), offset, DescriptorHandleIncrementSize(heapType));
 	gpuHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(id3dDescriptorHeap->GetGPUDescriptorHandleForHeapStart(), offset, DescriptorHandleIncrementSize(heapType));
 }

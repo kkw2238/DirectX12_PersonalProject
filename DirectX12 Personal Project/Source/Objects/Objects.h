@@ -48,8 +48,8 @@ public:
 	void SetTexture(ID3D12Device* id3dDevice, TextureRootInfo& newTexture, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset);
 	void CreateSRV(ID3D12Device* id3dDevice, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset);
 	void AddTexture(TextureRootInfo& newTexture);
-	void Draw(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex);
-	void UpdateTextureInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList);
+	void Draw(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex);
+	void UpdateTextureInfo(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 
 protected:
 	std::vector<TextureRootInfo> m_Textures;

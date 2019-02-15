@@ -10,14 +10,14 @@ void Scene::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id
 	m_Camera->SetProjectionMatrix(60.0f, (float)CLIENT_WIDTH / (float)CLIENT_HEIGHT, 1.0f, 1000.0f);
 }
 
-void Scene::RenderObjects(ID3D12GraphicsCommandList* id3dGraphicsCommandList)
+void Scene::RenderObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
-	m_TestShaderObject.ExecutePipeline(id3dGraphicsCommandList, m_Camera.get());
+	m_TestShaderObject.ExecutePipeline(id3dDevice, id3dGraphicsCommandList, m_Camera.get());
 }
 
-void Scene::RenderDeferredObjects(ID3D12GraphicsCommandList* id3dGraphicsCommandList)
+void Scene::RenderDeferredObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
-	m_DeferredShaderObject.ExecutePipeline(id3dGraphicsCommandList, m_Camera.get());
+	m_DeferredShaderObject.ExecutePipeline(id3dDevice, id3dGraphicsCommandList, m_Camera.get());
 }
 
 void Scene::UpdateScissorRectViewport()
