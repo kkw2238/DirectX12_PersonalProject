@@ -1,25 +1,20 @@
 #pragma once
 #include "PipelineObject.h"
 
+const unsigned int NUM_USED_MAP = 2;
+
 class GraphicsObjectsShader : public GraphicsShaderBase
 {
-	enum ROOTPAPAMETER_INDEX { CAMERAINFO_CB, OBJINFO_CB, LIGHT_CB , TEXTURE_SR, TEXTURE_NORM_SR };
+	enum ROOTPAPAMETER_INDEX { CAMERAINFO_CB, OBJINFO_CB, LIGHT_CB , TEXTURE_SR };
 	enum DESCRIPTORHEAP_INDEX { DEFAULT_DSEC, PLANE_DESC };
 public:
 	GraphicsObjectsShader();
 	~GraphicsObjectsShader() { };
 
 public:
-	virtual void BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const int numRenderTarget);
 	virtual void RenderGraphicsObj(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera = nullptr);
-
-	void CreateGraphicsRootSignature(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
-	void BuildGraphicsObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
-	
-	virtual D3D12_INPUT_LAYOUT_DESC				GraphicsInputLayoutDesc();
-
-	virtual D3D12_SHADER_BYTECODE				VS();
-	virtual D3D12_SHADER_BYTECODE				PS();
+	virtual void BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
+	virtual void BuildGraphicsObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 
 	GraphicsMeshObject* Objects(UINT index);
 

@@ -122,6 +122,5 @@ void TextureRootInfo::RefreshTexture(ID3D12Device* id3dDevice, std::shared_ptr<T
 
 void TextureRootInfo::UpdateInfo(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
-	//RefreshSRV(id3dDevice);
 	id3dGraphicsCommandList->SetGraphicsRootDescriptorTable(m_rootSignatureIndex, m_GPUDescHandle);
 }

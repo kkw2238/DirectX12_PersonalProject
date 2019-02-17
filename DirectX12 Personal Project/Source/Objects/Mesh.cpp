@@ -24,9 +24,9 @@ Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsComm
 	m_MeshName = meshName;
 }
 
-Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, std::vector<Vector3>& vertices, std::vector<Vector3>& normals, std::vector<Vector3>& tangents, std::vector<Vector2>& texCoords, std::vector<UINT>& indices)
+Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, std::vector<Vector3>& vertices, std::vector<Vector3>& normals, std::vector<Vector3>& tangents, std::vector<Vector2>& texCoords, std::vector<UINT>& indices, std::vector<UINT>& matindices)
 {
-	CreateMesh(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices);
+	CreateMesh(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, matindices);
 }
 
 Mesh::~Mesh()
@@ -42,7 +42,7 @@ void Mesh::DrawMesh(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT nOb
 	id3dGraphicsCommandList->DrawIndexedInstanced(m_nIndicesCount, nObjectCount, 0, 0, 0);
 }
 
-void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, std::vector<Vector3>& vertices, std::vector<Vector3>&normals, std::vector<Vector3>& tangents, std::vector<Vector2>& texCoords, std::vector<UINT>& indices)
+void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, std::vector<Vector3>& vertices, std::vector<Vector3>&normals, std::vector<Vector3>& tangents, std::vector<Vector2>& texCoords, std::vector<UINT>& indices, std::vector<UINT>& matindices)
 {
 	m_nVerticesCount = vertices.size();
 	m_nIndicesCount = indices.size();
@@ -57,7 +57,7 @@ void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dG
 		CreateTangentVectors(vertices, normals, texCoords, indices, m_nVerticesCount / 3, tangents);
 
 	for (UINT i = 0; i < m_nVerticesCount; ++i) {
-		vertexInfo[i] = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i]);
+		vertexInfo[i] = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i], matindices[i]);
 	}
 
 	m_ID3DVertexBuffer = D3DUtil::CreateDefaultBuffer(id3dDevice, id3dGraphicsCommandList, vertexInfo.data(), sizeof(IA_TEXTURE_OBJ) * m_nVerticesCount, m_ID3DVertexUploadBuffer);
@@ -102,12 +102,9 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 	std::vector<Vector3> normals;
 	std::vector<Vector2> texCoords;
 	std::vector<Vector3> tangents;
+	std::vector<UINT> materialIndices;
 	std::vector<UINT> indices;
 
-	std::fstream vertexfStream		= std::fstream("Vertex.txt");
-	std::fstream normalfStream		= std::fstream("Normal.txt");
-	std::fstream UVfStream			= std::fstream("UV.txt");
-	std::fstream indexfStream		= std::fstream("Indices.txt");
 
 	for (size_t verticesIndex = 0; verticesIndex < mesh->mNumVertices; ++verticesIndex) {
 		aiVector3D vertex;
@@ -118,12 +115,10 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 		if (mesh->mVertices != nullptr) {
 			vertex = mesh->mVertices[verticesIndex];
 			vertices.emplace_back(vertex.x, vertex.y, vertex.z);
-			vertexfStream << verticesIndex << " : \t" << Vector3(vertex.x, vertex.y, vertex.z) << std::endl;
 		}
 		if (mesh->mTextureCoords[0] != nullptr) {
 			texCoord = mesh->mTextureCoords[0][verticesIndex];
 			texCoords.emplace_back(texCoord.x, texCoord.y);
-			UVfStream << verticesIndex << " : \t" << Vector2(texCoord.x, texCoord.y) << std::endl;
 		}
 		if (mesh->mTangents != nullptr) {
 			tangent = mesh->mTangents[verticesIndex];
@@ -132,8 +127,8 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 		if (mesh->mNormals != nullptr) {
 			normal = mesh->mNormals[verticesIndex];
 			normals.emplace_back(normal.x, normal.y, normal.z);
-			normalfStream << verticesIndex << " : \t" << Vector3(normal.x, normal.y, normal.z) << std::endl;
 		}
+		materialIndices.emplace_back(mesh->mMaterialIndex);
 	}
 
 	for (size_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
@@ -141,20 +136,15 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 
 		for (size_t indicesIndex = 0; indicesIndex < face.mNumIndices; ++indicesIndex) {
 			indices.push_back(face.mIndices[indicesIndex]);
-			indexfStream << indicesIndex << " : \t" << face.mIndices[indicesIndex] << std::endl;
+
 		}
 	}
 
-	vertexfStream.close();
-	normalfStream.close();
-	UVfStream.close();
-	indexfStream.close();
-
-	return Mesh(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices);
+	return Mesh(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, materialIndices);
 }
 
 
-void Mesh::SetPlaneMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, float width, float depth)
+void Mesh::SetPlaneMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, float width, float depth, UINT matIndex)
 {
 	UINT nVerticesCount = 4;
 	UINT nIndicesCount = 6;
@@ -182,6 +172,8 @@ void Mesh::SetPlaneMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3
 		Vector3(+width / 2.0f, 0.0f, +depth / 2.0f)
 	};
 
+	std::vector<UINT> matindices(nVerticesCount, matIndex);
+
 	std::vector<Vector2> texCoords{
 		Vector2(0.0f, 0.0f),
 		Vector2(1.0f, 0.0f),
@@ -189,10 +181,10 @@ void Mesh::SetPlaneMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3
 		Vector2(1.0f, 1.0f)
 	};
 
-	m_ChildMeshes.emplace_back(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices);
+	m_ChildMeshes.emplace_back(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, matindices);
 }
 
-void Mesh::SetCubeMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, float width, float height, float depth)
+void Mesh::SetCubeMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, float width, float height, float depth, UINT matIndex)
 {
 	UINT nVerticesCount = 24;
 	UINT nIndicesCount = 36;
@@ -219,6 +211,7 @@ void Mesh::SetCubeMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3d
 	};
 
 	std::vector<Vector3> tangents(nVerticesCount);
+	std::vector<UINT> matindices(nVerticesCount, matIndex);
 
 	std::vector<Vector3> normals{
 		Vector3(0.0f, 0.0f, -1.0f),
@@ -316,5 +309,5 @@ void Mesh::SetCubeMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3d
 		Vector2(1.0f, 1.0f)
 	};
 
-	m_ChildMeshes.emplace_back(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices);
+	m_ChildMeshes.emplace_back(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, matindices);
 }

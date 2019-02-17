@@ -19,13 +19,14 @@ struct CB_OBJ_INFO {
 
 struct IA_TEXTURE_OBJ {
 	IA_TEXTURE_OBJ() {};
-	IA_TEXTURE_OBJ(Vector3& vertex, Vector2& texCoord, Vector3& normal, Vector3& tangent) :
-		vertexPos(vertex), texCoord(texCoord), normal(normal), tangent(tangent) {}
+	IA_TEXTURE_OBJ(Vector3& vertex, Vector2& texCoord, Vector3& normal, Vector3& tangent, UINT matindex) :
+		vertexPos(vertex), texCoord(texCoord), normal(normal), tangent(tangent), materialIndex(matindex) {}
 
 	Vector3 vertexPos;
 	Vector2 texCoord;
 	Vector3 normal;
 	Vector3 tangent;
+	UINT	materialIndex;
 };
 
 struct CB_LIGHT_INFO {

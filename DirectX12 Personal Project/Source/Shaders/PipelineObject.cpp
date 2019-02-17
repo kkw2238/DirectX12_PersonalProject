@@ -1,5 +1,6 @@
 #include "PipelineObject.h"
 #include "CompiledShader.h"
+#include "PipelineStateManager.h"
 
 void ShaderObject::ExecutePipeline(ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera)
 {
@@ -16,29 +17,36 @@ void ShaderObject::CreateDescriptorHeap(ID3D12Device* id3dDevice, ID3D12Graphics
 
 //////////////////////////////////////
 
-
-void GraphicsShaderBase::CreateGraphicsPipeline(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const int numRenderTarget, std::vector<DXGI_FORMAT>& RTFormats)
+void GraphicsShaderBase::CreateSRV(ID3D12Device* id3dDevice, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset, bool isUsedDescriptorArray)
 {
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC d3dGraphicsPipelineDesc;
-	::ZeroMemory(&d3dGraphicsPipelineDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+	CD3DX12_CPU_DESCRIPTOR_HANDLE SRVCPUDescriptorHandle;
+	CD3DX12_GPU_DESCRIPTOR_HANDLE SRVGPUDescriptorHandle;
+	DESCFACTORY->CraeteCPUGPUDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, id3dDescriptorHeap, SRVCPUDescriptorHandle, SRVGPUDescriptorHandle, offset);
 
-	d3dGraphicsPipelineDesc.BlendState = GraphicsBlendDesc();
-	d3dGraphicsPipelineDesc.DepthStencilState = GraphicsDepthStencilDesc();
-	d3dGraphicsPipelineDesc.InputLayout = GraphicsInputLayoutDesc();
-	d3dGraphicsPipelineDesc.RasterizerState = GraphicsRasterRizerDesc();
-	d3dGraphicsPipelineDesc.pRootSignature = m_ID3DRootSignature.Get();
-	d3dGraphicsPipelineDesc.VS = VS();
-	d3dGraphicsPipelineDesc.PS = PS();
-	d3dGraphicsPipelineDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-	d3dGraphicsPipelineDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	for (int i = 0; i < numRenderTarget; ++i)
-		d3dGraphicsPipelineDesc.RTVFormats[i] = RTFormats[i];
-	d3dGraphicsPipelineDesc.NumRenderTargets = numRenderTarget;
-	d3dGraphicsPipelineDesc.SampleMask = UINT_MAX;
-	d3dGraphicsPipelineDesc.SampleDesc.Count = 1;
-	d3dGraphicsPipelineDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	m_IsUsedDescriptorHeapArray = isUsedDescriptorArray;
 
-	ThrowIfFail(id3dDevice->CreateGraphicsPipelineState(&d3dGraphicsPipelineDesc, IID_PPV_ARGS(m_ID3DPipelineState.GetAddressOf())));
+	for (UINT i = 0; i < m_TextureInfos.size(); ++i) {
+		m_TextureInfos[i].CreateSRV(id3dDevice, SRVCPUDescriptorHandle, SRVGPUDescriptorHandle);
+
+		SRVCPUDescriptorHandle.Offset(DESCFACTORY->DescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+		if (!m_IsUsedDescriptorHeapArray)
+			SRVGPUDescriptorHandle.Offset(DESCFACTORY->DescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+	}
+
+	for (size_t i = 0; i != m_TextureInfos.size(); ++i)
+		TEXMANAGER->LinkedTexture(m_TextureInfos[i].Data()->Name(), &m_TextureInfos[i]);
+}
+
+void GraphicsShaderBase::UpdateTextureInfo(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
+{
+	if (m_IsUsedDescriptorHeapArray && m_TextureInfos.size() > 0) {
+		m_TextureInfos[0].UpdateInfo(id3dDevice, id3dGraphicsCommandList);
+		return;
+	}
+
+	for (UINT i = 0; i < m_TextureInfos.size(); ++i) {
+		m_TextureInfos[i].UpdateInfo(id3dDevice, id3dGraphicsCommandList);
+	}
 }
 
 GraphicsShaderBase::GraphicsShaderBase()
@@ -47,42 +55,12 @@ GraphicsShaderBase::GraphicsShaderBase()
 void GraphicsShaderBase::ExecutePipeline(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera)
 {
 	id3dGraphicsCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	id3dGraphicsCommandList->SetGraphicsRootSignature(m_ID3DRootSignature.Get());
-	id3dGraphicsCommandList->SetPipelineState(m_ID3DPipelineState.Get());
+	id3dGraphicsCommandList->SetGraphicsRootSignature(PIPELINESTATE_MANAGER->GraphicsRootSignature(m_RootSignatureName));
+	id3dGraphicsCommandList->SetPipelineState(PIPELINESTATE_MANAGER->Pipeline(m_PipelineName));
 
 	if (m_ID3DDescriptorHeap != nullptr)
 		id3dGraphicsCommandList->SetDescriptorHeaps(1, m_ID3DDescriptorHeap.GetAddressOf());
 
+	UpdateTextureInfo(id3dDevice, id3dGraphicsCommandList);
 	RenderGraphicsObj(id3dDevice, id3dGraphicsCommandList, camera);
-}
-
-
-D3D12_BLEND_DESC GraphicsShaderBase::GraphicsBlendDesc()
-{
-	return CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-}
-
-D3D12_RASTERIZER_DESC GraphicsShaderBase::GraphicsRasterRizerDesc()
-{
-	return CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-}
-
-D3D12_DEPTH_STENCIL_DESC GraphicsShaderBase::GraphicsDepthStencilDesc()
-{
-	return CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-}
-
-D3D12_INPUT_LAYOUT_DESC GraphicsShaderBase::GraphicsInputLayoutDesc()
-{
-	return D3D12_INPUT_LAYOUT_DESC();
-}
-
-D3D12_SHADER_BYTECODE GraphicsShaderBase::VS()
-{
-	return D3D12_SHADER_BYTECODE();
-}
-
-D3D12_SHADER_BYTECODE GraphicsShaderBase::PS()
-{
-	return D3D12_SHADER_BYTECODE();
 }

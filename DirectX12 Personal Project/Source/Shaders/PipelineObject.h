@@ -20,8 +20,6 @@ public:
 	virtual void BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const int numRenderTarget) {};
 
 protected:
-	ComPtr<ID3D12RootSignature> m_ID3DRootSignature;
-	ComPtr<ID3D12PipelineState> m_ID3DPipelineState;
 	ComPtr<ID3D12DescriptorHeap> m_ID3DDescriptorHeap;
 
 protected:
@@ -35,20 +33,16 @@ public:
 	~GraphicsShaderBase() {};
 
 public:
-	virtual void BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const int numRenderTarget) {};
-	
+	virtual void BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList) {};
 	virtual void ExecutePipeline(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera = nullptr);
 	virtual void RenderGraphicsObj(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera = nullptr) {};
-	virtual void CreateGraphicsRootSignature(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList) {};
 
-	void CreateGraphicsPipeline(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const int numRenderTarget, std::vector<DXGI_FORMAT>& RTFormats);
-	
-public:
-	virtual D3D12_BLEND_DESC					GraphicsBlendDesc();
-	virtual D3D12_RASTERIZER_DESC				GraphicsRasterRizerDesc();
-	virtual D3D12_DEPTH_STENCIL_DESC			GraphicsDepthStencilDesc();
-	virtual D3D12_INPUT_LAYOUT_DESC				GraphicsInputLayoutDesc();
+	void CreateSRV(ID3D12Device* id3dDevice, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset, bool isUsedDescriptorArray);
+	void UpdateTextureInfo(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
+protected:
+	std::vector<TextureRootInfo>	m_TextureInfos;
+	bool							m_IsUsedDescriptorHeapArray = false;
 
-	virtual D3D12_SHADER_BYTECODE				VS();
-	virtual D3D12_SHADER_BYTECODE				PS();
+	std::wstring					m_RootSignatureName;
+	std::wstring					m_PipelineName;
 };

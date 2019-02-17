@@ -17,11 +17,14 @@ public:
 	static CompiledShader* Instance();
 
 public:
-	D3D12_SHADER_BYTECODE	ShaderByteCode(ComPtr<ID3DBlob> shaderCode);
-	D3D12_SHADER_BYTECODE	GetShaderByteCode(const std::wstring& filename,
+	void CreateShaders();
+	void CreateShaderByteCode(const std::wstring& filename,
 		const D3D_SHADER_MACRO* defines,
 		const std::string& entrypoint,
 		const std::string& target);
+
+	D3D12_SHADER_BYTECODE	ShaderByteCode(ComPtr<ID3DBlob> shaderCode);
+	D3D12_SHADER_BYTECODE	GetShaderByteCode(const std::string& codeName);
 
 private:
 	std::unordered_map<std::string, ComPtr<ID3DBlob>> compiledShaders;

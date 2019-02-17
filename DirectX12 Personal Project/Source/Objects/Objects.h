@@ -42,14 +42,8 @@ public:
 	~GraphicsTextureObject() {};
 
 public:
-
 	void SetMesh(Mesh* newMesh);
-	void SetTextures(ID3D12Device* id3dDevice, std::vector<TextureRootInfo>& newTextures, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset);
-	void SetTexture(ID3D12Device* id3dDevice, TextureRootInfo& newTexture, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset);
-	void CreateSRV(ID3D12Device* id3dDevice, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset);
-	void AddTexture(TextureRootInfo& newTexture);
 	void Draw(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex);
-	void UpdateTextureInfo(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 
 protected:
 	std::vector<TextureRootInfo> m_Textures;
@@ -61,6 +55,7 @@ protected:
 
 	UINT m_ObjectCount = 1;
 
+	bool m_IsUsedDescriptorArray = false;
 	bool m_Is2D;
 };
 
@@ -72,7 +67,6 @@ public:
 	~GraphicsMeshObject() {};
 
 public:
-
 	void SetObjScale(UINT index, const Vector3& vector);
 	void CreateCBV(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset);
 

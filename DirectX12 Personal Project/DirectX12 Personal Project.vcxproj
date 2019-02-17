@@ -166,6 +166,7 @@
     <ClInclude Include="DirectX12 Personal Project.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="LightManager.h" />
+    <ClInclude Include="PipelineStateManager.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Source\DDSTextureLoader\DDSTextureLoader.h" />
     <ClInclude Include="Source\DDSTextureLoader\DDSTextureLoader12.h" />
@@ -193,6 +194,7 @@
     <ClCompile Include="DirectX12 Personal Project.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="LightManager.cpp" />
+    <ClCompile Include="PipelineStateManager.cpp" />
     <ClCompile Include="Source\DDSTextureLoader\DDSTextureLoader.cpp" />
     <ClCompile Include="Source\DDSTextureLoader\DDSTextureLoader12.cpp" />
     <ClCompile Include="Source\Framework\Framework.cpp" />
