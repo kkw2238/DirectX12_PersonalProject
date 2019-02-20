@@ -2,7 +2,7 @@
 #include "CompiledShader.h"
 #include "PipelineStateManager.h"
 
-void ShaderObject::ExecutePipeline(ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera)
+void ShaderObject::ExecutePipeline(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& pipelineName, const std::wstring& signatureName, Camera* camera)
 {
 }
 
@@ -52,15 +52,24 @@ void GraphicsShaderBase::UpdateTextureInfo(ID3D12Device* id3dDevice, ID3D12Graph
 GraphicsShaderBase::GraphicsShaderBase()
 {}
 
-void GraphicsShaderBase::ExecutePipeline(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera)
+void GraphicsShaderBase::ExecutePipeline(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& pipelineName, const std::wstring& signatureName, Camera* camera)
 {
 	id3dGraphicsCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	id3dGraphicsCommandList->SetGraphicsRootSignature(PIPELINESTATE_MANAGER->GraphicsRootSignature(m_RootSignatureName));
-	id3dGraphicsCommandList->SetPipelineState(PIPELINESTATE_MANAGER->Pipeline(m_PipelineName));
+	id3dGraphicsCommandList->SetGraphicsRootSignature(PIPELINESTATE_MANAGER->GraphicsRootSignature(signatureName));
+	id3dGraphicsCommandList->SetPipelineState(PIPELINESTATE_MANAGER->Pipeline(pipelineName));
 
 	if (m_ID3DDescriptorHeap != nullptr)
 		id3dGraphicsCommandList->SetDescriptorHeaps(1, m_ID3DDescriptorHeap.GetAddressOf());
 
 	UpdateTextureInfo(id3dDevice, id3dGraphicsCommandList);
+	RenderGraphicsObj(id3dDevice, id3dGraphicsCommandList, camera);
+}
+
+void GraphicsShaderBase::CreateShadow(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& pipelineName, const std::wstring& signatureName, Camera* camera)
+{
+	id3dGraphicsCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	id3dGraphicsCommandList->SetGraphicsRootSignature(PIPELINESTATE_MANAGER->GraphicsRootSignature(signatureName));
+	id3dGraphicsCommandList->SetPipelineState(PIPELINESTATE_MANAGER->Pipeline(pipelineName));
+
 	RenderGraphicsObj(id3dDevice, id3dGraphicsCommandList, camera);
 }

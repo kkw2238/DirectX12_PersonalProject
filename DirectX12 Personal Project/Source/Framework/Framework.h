@@ -11,7 +11,7 @@
 class Framework
 {
 	enum RenderTargets{ RTV_COLOR = 0 };
-	enum DepthStencils{ MainDepthStencil = 0 };
+	enum DepthStencils{ MainDepthStencil = 0, ShadowDepthStencil = 1 };
 
 	std::vector<std::wstring> MODELTYPES = { L".FBX", L".fbx", L".OBJ", L".obj" };
 	std::vector<std::wstring> TEXTURETYPES = { L".DDS", L".dds" };
@@ -62,6 +62,7 @@ protected:
 	bool				FlushCommandQueue();
 	
 	void				OnPrepareRender();
+	void				CreateShadowMap();
 	void				ForwardRender();
 	void				DeferredRender();
 
@@ -106,7 +107,7 @@ protected:
 	ComPtr<ID3D12GraphicsCommandList>	m_ID3DCommandList;
 
 	static const int					m_RenderTargetBufferCount = 1;
-	static const int					m_DepthStencilBufferCount = 1;
+	static const int					m_DepthStencilBufferCount = 2;
 	static const int					m_SwapChainBufferCount = 2;
 	int									m_CurrentSwapChainBufferIndex = 0;
 
@@ -120,6 +121,7 @@ protected:
 
 	std::wstring						m_MainWindowTitle = L"DirectX12 Project ";
 	std::wstring						m_RenderTargetNames[m_RenderTargetBufferCount] = { L"RT_COLOR" };
+	std::wstring						m_DepthStencilNames[m_DepthStencilBufferCount] = { L"DS_MAIN", L"DS_SHADOW" };
 
 	D3D_DRIVER_TYPE						m_D3DDriverType = D3D_DRIVER_TYPE_HARDWARE;
 	DXGI_FORMAT							m_DXGIBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;

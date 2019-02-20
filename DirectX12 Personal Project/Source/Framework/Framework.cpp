@@ -427,6 +427,8 @@ void Framework::CreateDepthStencilBuffers()
 			&DESCFACTORY->DepthStencilViewDesc(DEFAULTOPT, m_DXGIDepthStencilBufferFormat), GetDepthStencilView(i));
 
 		D3DUtil::ChangeResourceState(m_ID3DDepthStencilBuffer[i].Get(), m_ID3DCommandList.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+		TEXMANAGER->AddTexture(m_ID3DDevice.Get(), m_ID3DDepthStencilBuffer[i].Get(), m_DepthStencilNames[i]);
 	}
 }
 
@@ -494,8 +496,10 @@ void Framework::OnPrepareRender()
 	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
 
 	D3DUtil::ChangeResourceState(GetCurrentBackBuffer(), m_ID3DCommandList.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	D3DUtil::ChangeResourceState(m_ID3DDepthStencilBuffer[ShadowDepthStencil].Get(), m_ID3DCommandList.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
 	m_ID3DCommandList->ClearRenderTargetView(GetCurrentBackBufferView(), DirectX::Colors::Black, 0, nullptr);
-	
+
 	for (int i = 0; i < m_DepthStencilBufferCount; ++i) {
 		m_ID3DCommandList->ClearDepthStencilView(GetDepthStencilView(i), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	}
@@ -512,6 +516,26 @@ void Framework::OnPrepareRender()
 
 	FlushCommandQueue();
 }
+
+void Framework::CreateShadowMap()
+{
+	ThrowIfFail(m_ID3DCommandAllocator->Reset());
+	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
+
+	m_ID3DCommandList->OMSetRenderTargets(0, nullptr, true, &GetDepthStencilView(ShadowDepthStencil));
+
+	m_Scene.CreateShadowMap(m_ID3DDevice.Get(), m_ID3DCommandList.Get());
+
+	ThrowIfFail(m_ID3DCommandList->Close());
+
+	ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };
+	m_ID3DCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+	FlushCommandQueue();
+
+	D3DUtil::ChangeResourceState(m_ID3DDepthStencilBuffer[ShadowDepthStencil].Get(), m_ID3DCommandList.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ);
+}
+
 
 void Framework::ForwardRender()
 {
@@ -554,13 +578,9 @@ void Framework::DeferredRender()
 void Framework::Draw(const float elapsedTime)
 {
 	OnPrepareRender();
+	CreateShadowMap();
 	ForwardRender();
 	DeferredRender();
-
-	//ThrowIfFail(m_ID3DCommandList->Close());
-	//
-	//ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };
-	//m_ID3DCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	ThrowIfFail(m_IDxgiSwapChain->Present(0, 0));
 

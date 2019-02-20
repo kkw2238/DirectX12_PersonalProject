@@ -4,8 +4,6 @@
 
 GraphicsObjectsShader::GraphicsObjectsShader()
 {
-	m_RootSignatureName = L"Obj";
-	m_PipelineName = L"Obj";
 }
 
 void GraphicsObjectsShader::BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)

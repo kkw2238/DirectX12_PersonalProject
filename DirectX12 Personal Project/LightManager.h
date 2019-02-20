@@ -1,4 +1,8 @@
 #pragma once
+/*
+ *	LightManager 클래스에는 게임에 사용할 조명 객체의 정보가 담겨 있음,
+ *  추가로 CBuffer를 업데이트 해주는 역할도 병행합니다.
+ */
 #include "Light.h"
 
 class LightManager
@@ -16,7 +20,6 @@ public:
 	std::vector<Light> GetLights();
 
 	Light* GetLight(UINT index);
-	Matrix4x4* GetLightMatrix(UINT index);
 
 	std::vector<D3D_SHADER_MACRO> GetShaderDefined();
 private:

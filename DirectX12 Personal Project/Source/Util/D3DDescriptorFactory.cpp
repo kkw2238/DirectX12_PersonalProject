@@ -120,7 +120,8 @@ std::vector<CD3DX12_STATIC_SAMPLER_DESC> D3DDescriptorFactory::SamplerDescs(Defa
 D3D12_SHADER_RESOURCE_VIEW_DESC D3DDescriptorFactory::SRVResourceViewDesc(const D3D12_RESOURCE_DESC& d3dResourceDesc, D3D12_SRV_DIMENSION dimension)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC d3dSRVDesc;
-	d3dSRVDesc.Format = d3dResourceDesc.Format;
+
+	d3dSRVDesc.Format = (d3dResourceDesc.Format == DXGI_FORMAT_R24G8_TYPELESS) ? DXGI_FORMAT_R24_UNORM_X8_TYPELESS : d3dResourceDesc.Format;
 	d3dSRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	d3dSRVDesc.ViewDimension = dimension;
 	switch (dimension)

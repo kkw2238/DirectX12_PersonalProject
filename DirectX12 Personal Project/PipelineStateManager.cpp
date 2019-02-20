@@ -65,23 +65,32 @@ void PipelineStateManager::CreateRootSignatures(ID3D12Device* id3dDevice, ID3D12
 		std::vector<CD3DX12_ROOT_PARAMETER> d3dRootParameter;
 		CD3DX12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
 
-		if (i == RENDER_OBJ_SIGNATURE) {
+		switch (i) {
+		case SIGNATURE_RENDER_OBJ:
 			d3dRootDescriptorRange.resize(1);
-			d3dRootDescriptorRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 2);
+			d3dRootDescriptorRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, SR_TEXTURE_0);
 
 			d3dRootParameter.resize(4);
-			d3dRootParameter[0].InitAsConstantBufferView(0);
-			d3dRootParameter[1].InitAsConstantBufferView(1);
-			d3dRootParameter[2].InitAsConstantBufferView(2);
+			d3dRootParameter[0].InitAsConstantBufferView(CB_CAM);
+			d3dRootParameter[1].InitAsConstantBufferView(CB_OBJ);
+			d3dRootParameter[2].InitAsConstantBufferView(CB_LIGHT);
 			d3dRootParameter[3].InitAsDescriptorTable(1, &d3dRootDescriptorRange[0]);
-		}
+			break;
 
-		else if (i == RENDER_DEFERRED_SIGNATURE) {
+		case SIGNATURE_RENDER_DEFERRED:
 			d3dRootDescriptorRange.resize(1);
-			d3dRootDescriptorRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2);
+			d3dRootDescriptorRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, SR_TEXTURE_0);
 
 			d3dRootParameter.resize(1);
 			d3dRootParameter[0].InitAsDescriptorTable(1, &d3dRootDescriptorRange[0]);
+			break;
+
+		case SIGNATURE_CREATE_SHDOWMAP:
+			d3dRootParameter.resize(3);
+			d3dRootParameter[0].InitAsConstantBufferView(CB_CAM);
+			d3dRootParameter[1].InitAsConstantBufferView(CB_OBJ);
+			d3dRootParameter[2].InitAsConstantBufferView(CB_LIGHT);
+			break;
 		}
 
 		d3dRootSignatureDesc.Init(d3dRootParameter.size(), d3dRootParameter.data(), (UINT)d3dSamplerDescs.size(), d3dSamplerDescs.data(), D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -100,9 +109,10 @@ void PipelineStateManager::CreateRootSignatures(ID3D12Device* id3dDevice, ID3D12
 D3D12_BLEND_DESC PipelineStateManager::GraphicsBlendDesc(UINT index)
 {
 	switch (index) {
-	case RENDER_OBJ_PIPELINE:
-	case CREATE_SHDOWMAP_PIPELINE:
-	case RENDER_DEFERRED_PIPELINE:
+	case PIPELINE_RENDER_OBJ:
+	case PIPELINE_CREATE_SHDOWMAP:
+	case PIPELINE_RENDER_DEFERRED:
+	case PIPELINE_RENDER_SR_DEBUG:
 		return CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	}
 	return CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -110,32 +120,45 @@ D3D12_BLEND_DESC PipelineStateManager::GraphicsBlendDesc(UINT index)
 
 D3D12_RASTERIZER_DESC PipelineStateManager::GraphicsRasterRizerDesc(UINT index)
 {
+	D3D12_RASTERIZER_DESC rasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+
 	switch (index) {
-	case RENDER_OBJ_PIPELINE:
-	case CREATE_SHDOWMAP_PIPELINE:
-	case RENDER_DEFERRED_PIPELINE:
-		return CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	case PIPELINE_CREATE_SHDOWMAP:
+		rasterizerDesc.DepthBias = 100000;
+		rasterizerDesc.DepthBiasClamp = 0.0f;
+		rasterizerDesc.SlopeScaledDepthBias = 1.0f;
+		return rasterizerDesc;
+
+	case PIPELINE_RENDER_OBJ:
+	case PIPELINE_RENDER_DEFERRED:
+	case PIPELINE_RENDER_SR_DEBUG:
+		return rasterizerDesc;
 	}
-	return CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	return rasterizerDesc;
 }
 
 D3D12_DEPTH_STENCIL_DESC PipelineStateManager::GraphicsDepthStencilDesc(UINT index)
 {
+	CD3DX12_DEPTH_STENCIL_DESC depthstencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+
 	switch (index) {
-	case RENDER_OBJ_PIPELINE:
-	case CREATE_SHDOWMAP_PIPELINE:
-	case RENDER_DEFERRED_PIPELINE:
-		return CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	case PIPELINE_RENDER_OBJ:
+	case PIPELINE_CREATE_SHDOWMAP:
+		return depthstencilDesc;
+	case PIPELINE_RENDER_DEFERRED:
+	case PIPELINE_RENDER_SR_DEBUG:
+		depthstencilDesc.DepthEnable = false;
+		return depthstencilDesc;
 	}
-	return CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	return depthstencilDesc;
 }
 
 std::vector<D3D12_INPUT_ELEMENT_DESC> PipelineStateManager::GraphicsInputElementDesc(UINT index)
 {
 	std::vector<D3D12_INPUT_ELEMENT_DESC> elements;
 	switch (index) {
-	case RENDER_OBJ_PIPELINE:
-	case CREATE_SHDOWMAP_PIPELINE:
+	case PIPELINE_RENDER_OBJ:
+	case PIPELINE_CREATE_SHDOWMAP:
 		elements = { 
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0 , D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT	, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -144,7 +167,8 @@ std::vector<D3D12_INPUT_ELEMENT_DESC> PipelineStateManager::GraphicsInputElement
 			{ "MATINDEX", 0, DXGI_FORMAT_R32_UINT		, 0, 44, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 } 
 		};
 		break;
-	case RENDER_DEFERRED_PIPELINE:
+	case PIPELINE_RENDER_DEFERRED:
+	case PIPELINE_RENDER_SR_DEBUG:
 		break;
 	}
 	return elements;
@@ -154,11 +178,12 @@ std::vector<DXGI_FORMAT> PipelineStateManager::GraphicsRenderTargetFormat(UINT i
 {
 	std::vector<DXGI_FORMAT> formats;
 	switch (index) {
-	case RENDER_DEFERRED_PIPELINE:
-	case RENDER_OBJ_PIPELINE:
+	case PIPELINE_RENDER_DEFERRED:
+	case PIPELINE_RENDER_SR_DEBUG:
+	case PIPELINE_RENDER_OBJ:
 		formats = { DXGI_FORMAT_R8G8B8A8_UNORM };
 		break;
-	case CREATE_SHDOWMAP_PIPELINE:
+	case PIPELINE_CREATE_SHDOWMAP:
 		break;
 	}
 	return formats;
@@ -167,12 +192,15 @@ std::vector<DXGI_FORMAT> PipelineStateManager::GraphicsRenderTargetFormat(UINT i
 D3D12_SHADER_BYTECODE PipelineStateManager::VS(UINT index)
 {
 	switch (index) {
-	case RENDER_OBJ_PIPELINE:
-	case CREATE_SHDOWMAP_PIPELINE:
+	case PIPELINE_RENDER_OBJ:
+	case PIPELINE_CREATE_SHDOWMAP:
 		return COMPILEDSHADER->GetShaderByteCode("VS");
 
-	case RENDER_DEFERRED_PIPELINE:
+	case PIPELINE_RENDER_DEFERRED:
 		return COMPILEDSHADER->GetShaderByteCode("VSTextureFullScreen");
+
+	case PIPELINE_RENDER_SR_DEBUG:
+		return COMPILEDSHADER->GetShaderByteCode("VSTextureDebug");
 	}
 
 	return D3D12_SHADER_BYTECODE();
@@ -181,24 +209,24 @@ D3D12_SHADER_BYTECODE PipelineStateManager::VS(UINT index)
 D3D12_SHADER_BYTECODE PipelineStateManager::PS(UINT index)
 {
 	switch (index) {
-	case RENDER_OBJ_PIPELINE:
-	case CREATE_SHDOWMAP_PIPELINE:
+	case PIPELINE_RENDER_OBJ:
 		return COMPILEDSHADER->GetShaderByteCode("PS");
-	case RENDER_DEFERRED_PIPELINE:
+	case PIPELINE_CREATE_SHDOWMAP:
+		return COMPILEDSHADER->GetShaderByteCode("PSShadow");
+	case PIPELINE_RENDER_DEFERRED:
 		return COMPILEDSHADER->GetShaderByteCode("PSTextureFullScreen");
+	case PIPELINE_RENDER_SR_DEBUG:
+		return COMPILEDSHADER->GetShaderByteCode("PSTextureDebug");
 	}
 	return D3D12_SHADER_BYTECODE();
 }
 
 ID3D12RootSignature* PipelineStateManager::GraphicsRootSignature(const std::wstring& name)
 {
-	if (name == m_RootSignatureNames[RENDER_OBJ_SIGNATURE] || name == L"Shadow")
-		return m_ID3DRootSignatures[m_RootSignatureNames[RENDER_OBJ_SIGNATURE]].Get();
+	if (name == L"DebugSR")
+		return m_ID3DRootSignatures[L"Deferred"].Get();
 
-	else if (name == m_RootSignatureNames[RENDER_DEFERRED_SIGNATURE])
-		return m_ID3DRootSignatures[m_RootSignatureNames[RENDER_DEFERRED_SIGNATURE]].Get();
-	
-	return nullptr;
+	return m_ID3DRootSignatures[name].Get();
 }
 
 ID3D12PipelineState* PipelineStateManager::Pipeline(const std::wstring& name)

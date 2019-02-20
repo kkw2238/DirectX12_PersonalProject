@@ -1,4 +1,7 @@
 #pragma once
+/*
+ *	MeshManager 클래스에는 fbx로드 후 Mesh객체로 만들어 갖고 있음.
+ */
 #include "Mesh.h"
 
 class MeshManager
