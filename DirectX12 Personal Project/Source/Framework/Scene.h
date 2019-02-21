@@ -19,8 +19,12 @@ public:
 	void UpdateScissorRectViewport();
 	void ProcessKeyboard(float elapsedTime);
 	void ProcessMouseWheel(SHORT wheelRotatedir, float elapsedTime);
+	void ProcesMouseMove(int xpos, int ypos, float elapsedTime);
+	void ProcesMouseDown(HWND hWnd, UINT msg, int xpos, int ypos, float elapsedTime);
+	void ProcesMouseUp(HWND hWnd, UINT msg, int xpos, int ypos, float elapsedTime);
 
 protected:
+	POINT								m_MousePos;
 	/* 테스트용으로 집어넣은 셰이더 오브젝트 */
 	GraphicsObjectsShader				m_TestShaderObject;
 	DeferredRenderShader				m_DeferredShaderObject;
@@ -28,6 +32,9 @@ protected:
 	DebugDefferedResource				m_DebugResourceObject;
 
 	bool m_EnableDebug = false;
+	bool m_IsCapture = false;
+
+	float m_MousSeensitivity = 20.0f;
 
 	std::unique_ptr<Camera> m_Camera;
 };

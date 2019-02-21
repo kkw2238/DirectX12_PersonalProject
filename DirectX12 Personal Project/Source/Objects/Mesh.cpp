@@ -105,7 +105,6 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 	std::vector<UINT> materialIndices;
 	std::vector<UINT> indices;
 
-
 	for (size_t verticesIndex = 0; verticesIndex < mesh->mNumVertices; ++verticesIndex) {
 		aiVector3D vertex;
 		aiVector3D texCoord;

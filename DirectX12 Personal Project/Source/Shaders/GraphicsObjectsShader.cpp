@@ -10,7 +10,7 @@ void GraphicsObjectsShader::BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12
 {
 	std::vector<DXGI_FORMAT> formats = { DXGI_FORMAT_R8G8B8A8_UNORM };
 
-	CreateDescriptorHeap(id3dDevice, id3dGraphicsCommandList, 0, 4, 0);
+	CreateDescriptorHeap(id3dDevice, id3dGraphicsCommandList, 0, 5, 0);
 	
 	BuildGraphicsObjects(id3dDevice, id3dGraphicsCommandList);
 
@@ -48,6 +48,8 @@ void GraphicsObjectsShader::BuildGraphicsObjects(ID3D12Device * id3dDevice, ID3D
 
 	m_TextureInfos.emplace_back(TEXMANAGER->LoadTexture(id3dDevice, id3dGraphicsCommandList, std::wstring(L"Textures\\tile.DDS"), L"TILE", DDS_ALPHA_MODE_UNKNOWN, false), TEXTURE_SR);
 	m_TextureInfos.emplace_back(TEXMANAGER->LoadTexture(id3dDevice, id3dGraphicsCommandList, std::wstring(L"Textures\\tile_nmap.DDS"), L"TILE_NORM", DDS_ALPHA_MODE_UNKNOWN, false), TEXTURE_SR);
+
+	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(L"DS_SHADOW", TEXTURE_SR);
 
 	m_TestObject.resize(2);
 	m_TestObject[0] = new GraphicsMeshObject();

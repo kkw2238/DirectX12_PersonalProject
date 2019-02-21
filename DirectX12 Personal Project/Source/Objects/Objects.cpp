@@ -28,6 +28,33 @@ void Objects::SetObjPosition(UINT index, const Vector3& vector)
 	m_WorldMatrix[index]._xyz4 = vector;
 }
 
+void Objects::SetObjRotateAngle(UINT index, const Vector3& angles)
+{
+	m_RotateAngle[index] = angles;
+	m_RotateMatrix[index] = XMMatrixRotationRollPitchYawFromVector(m_RotateAngle[index].ToRadian().GetXMVector());
+}
+
+void Objects::SetObjLookAt(UINT index, const Vector3& target)
+{
+	Vector3 direction = ((GetObjPosition(index) - target) * -1.0f).Normalize();
+	Vector3 right = (Vector3(0.0f, 1.0f, 0.0f) * direction).Normalize();
+	Vector3 up = (direction * right).Normalize();
+
+	SetObjLookVector(index, direction);
+	SetObjUpVector(index, up);
+	SetObjRightVector(index, right);
+}
+
+void Objects::SetObjLookDirection(UINT index, const Vector3& direction)
+{
+	Vector3 right = (Vector3(0.0f, 1.0f, 0.0f) * static_cast<Vector3>(direction).Normalize()).Normalize();
+	Vector3 up = (static_cast<Vector3>(direction) * right).Normalize();
+
+	SetObjLookVector(index, static_cast<Vector3>(direction).Normalize());
+	SetObjUpVector(index, up);
+	SetObjRightVector(index, right);
+}
+
 Vector3 Objects::GetObjRightVector(UINT index)
 {
 	return m_WorldMatrix[index]._xyz1;
@@ -46,6 +73,11 @@ Vector3 Objects::GetObjLookVector(UINT index)
 Vector3 Objects::GetObjPosition(UINT index)
 {
 	return m_WorldMatrix[index]._xyz4;
+}
+
+Vector3 Objects::GetObjRotateAngle(UINT index)
+{
+	return m_RotateAngle[index];
 }
 
 void Objects::Move(UINT index, DWORD direction, float elapsedtime)
@@ -71,6 +103,12 @@ void Objects::Move(UINT index, const Vector3& distance)
 	newPosition = GetObjPosition(index) + distance;
 
 	SetObjPosition(index, newPosition);
+}
+
+void Objects::Rotate(UINT index, const Vector3& angles)
+{
+	m_RotateAngle[index] += angles;
+	m_RotateMatrix[index] = XMMatrixRotationRollPitchYawFromVector(m_RotateAngle[index].ToRadian().GetXMVector());
 }
 
 void GraphicsTextureObject::SetMesh(Mesh* newMesh)
@@ -114,6 +152,9 @@ UINT GraphicsMeshObject::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCo
 {
 	m_ObjUploadBuffer.CreateResourceBuffer(id3dDevice, objectCount);
 	m_WorldMatrix.resize(objectCount);
+	m_RotateMatrix.resize(objectCount);
+	m_RotateAngle.resize(objectCount);
+
 	m_ObjectCount = objectCount;
 
 	return objectCount;
@@ -124,7 +165,7 @@ void GraphicsMeshObject::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsComma
 	for (UINT i = 0; i < m_ObjectCount; ++i) {
 		CB_OBJ_INFO tmpData;
 		Matrix4x4 scaleMatrix = XMMatrixScalingFromVector(m_ScaleSize.GetXMVector());
-		tmpData.matWorld = (scaleMatrix * m_WorldMatrix[i]).Transpose();
+		tmpData.matWorld = (scaleMatrix * m_WorldMatrix[i] * m_RotateMatrix[i]).Transpose();
 		m_ObjUploadBuffer.CopyData(i, tmpData);
 	}
 

@@ -31,9 +31,9 @@ public:
 	unsigned int		OnKeyDown(WPARAM state);
 	unsigned int		OnKeyUp(WPARAM state);
 	unsigned int		OnFileDrop(HWND hWnd, WPARAM state);
-	unsigned int		OnMouseDown(WPARAM state, int xpos, int ypos);
-	unsigned int		OnMouseUp(WPARAM state, int xpos, int ypos);
-	unsigned int		OnMouseMove(WPARAM state, int xpos, int ypos);
+	unsigned int		OnMouseDown(UINT msg, WPARAM state, int xpos, int ypos);
+	unsigned int		OnMouseUp(UINT msg, WPARAM state, int xpos, int ypos);
+	unsigned int		OnMouseMove(UINT msg, WPARAM state, int xpos, int ypos);
 
 	bool				Initialized();
 	void				SetFrameStatesAtWindowText();

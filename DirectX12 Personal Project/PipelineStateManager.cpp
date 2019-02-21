@@ -68,7 +68,7 @@ void PipelineStateManager::CreateRootSignatures(ID3D12Device* id3dDevice, ID3D12
 		switch (i) {
 		case SIGNATURE_RENDER_OBJ:
 			d3dRootDescriptorRange.resize(1);
-			d3dRootDescriptorRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, SR_TEXTURE_0);
+			d3dRootDescriptorRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, SR_TEXTURE_0);
 
 			d3dRootParameter.resize(4);
 			d3dRootParameter[0].InitAsConstantBufferView(CB_CAM);
@@ -79,7 +79,7 @@ void PipelineStateManager::CreateRootSignatures(ID3D12Device* id3dDevice, ID3D12
 
 		case SIGNATURE_RENDER_DEFERRED:
 			d3dRootDescriptorRange.resize(1);
-			d3dRootDescriptorRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, SR_TEXTURE_0);
+			d3dRootDescriptorRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, SR_TEXTURE_0);
 
 			d3dRootParameter.resize(1);
 			d3dRootParameter[0].InitAsDescriptorTable(1, &d3dRootDescriptorRange[0]);

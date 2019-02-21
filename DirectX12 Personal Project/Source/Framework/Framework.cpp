@@ -120,15 +120,15 @@ LRESULT Framework::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONDOWN:
 	case WM_MBUTTONDOWN:
 	case WM_RBUTTONDOWN:
-		OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		OnMouseDown(msg, wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_LBUTTONUP:
 	case WM_MBUTTONUP:
 	case WM_RBUTTONUP:
-		OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		OnMouseUp(msg, wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_MOUSEMOVE:
-		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		OnMouseMove(msg, wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_DROPFILES:
 		OnFileDrop(hWnd, wParam);
@@ -151,28 +151,31 @@ LRESULT Framework::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 unsigned int Framework::OnKeyDown(WPARAM state)
 {
-	m_Scene.ProcessKeyboard(0.1666f);
+	m_Scene.ProcessKeyboard(m_FPS);
 	return 0;
 }
 
 unsigned int Framework::OnKeyUp(WPARAM state)
 {
-	m_Scene.ProcessKeyboard(0.1666f);
+	m_Scene.ProcessKeyboard(m_FPS);
 	return 0;
 }
 
-unsigned int Framework::OnMouseDown(WPARAM state, int xpos, int ypos)
+unsigned int Framework::OnMouseDown(UINT msg, WPARAM state, int xpos, int ypos)
 {
+	m_Scene.ProcesMouseDown(MainHWND(), msg, xpos, ypos, m_FPS);
 	return 0;
 }
 
-unsigned int Framework::OnMouseUp(WPARAM state, int xpos, int ypos)
+unsigned int Framework::OnMouseUp(UINT msg, WPARAM state, int xpos, int ypos)
 {
+	m_Scene.ProcesMouseUp(MainHWND(), msg, xpos, ypos, m_FPS);
 	return 0;
 }
 
-unsigned int Framework::OnMouseMove(WPARAM state, int xpos, int ypos)
+unsigned int Framework::OnMouseMove(UINT msg, WPARAM state, int xpos, int ypos)
 {
+	m_Scene.ProcesMouseMove(xpos, ypos, m_FPS);
 	return 0;
 }
 

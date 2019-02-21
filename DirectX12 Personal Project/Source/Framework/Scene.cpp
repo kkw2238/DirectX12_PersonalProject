@@ -20,6 +20,7 @@ void Scene::CreateShadowMap(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList*
 
 void Scene::RenderObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
+	m_Camera->SetShadowMatrix(LIGHT_MANAGER->GetLight(0)->GetShadowMatrix());
 	m_TestShaderObject.ExecutePipeline(id3dDevice, id3dGraphicsCommandList, L"Obj", L"Obj", m_Camera.get());
 }
 
@@ -70,5 +71,47 @@ void Scene::ProcessMouseWheel(SHORT wheelRotatedir, float elapsedTime)
 		else 
 			sceneObj->SetObjScale(0, sceneObj->GetObjScale(0) - addScaleSize);
 		
+	}
+}
+
+void Scene::ProcesMouseMove(int xpos, int ypos, float elapsedTime)
+{
+	if (m_IsCapture) {
+		POINT mouseDisplacement;
+		POINT mousePos;
+
+		GetCursorPos(&mousePos);
+
+		mouseDisplacement.x = mousePos.x - m_MousePos.x;
+		mouseDisplacement.y = m_MousePos.y - mousePos.y;
+
+		GraphicsMeshObject* sceneObj = m_TestShaderObject.Objects(0);
+		sceneObj->Rotate(0, Vector3(static_cast<float>(mouseDisplacement.y), static_cast<float>(mouseDisplacement.x), 0.0f) / m_MousSeensitivity);
+
+		SetCursorPos(m_MousePos.x, m_MousePos.y);
+	}
+}
+
+void Scene::ProcesMouseDown(HWND hWnd, UINT msg, int xpos, int ypos, float elapsedTime)
+{
+	switch (msg) {
+	case WM_LBUTTONDOWN:
+		GetCursorPos(&m_MousePos);
+		ShowCursor(false);
+		SetCapture(hWnd);
+		m_IsCapture = true;
+		break;
+	}
+}
+
+void Scene::ProcesMouseUp(HWND hWnd, UINT msg, int xpos, int ypos, float elapsedTime)
+{
+	switch (msg) {
+	case WM_LBUTTONUP:
+		ReleaseCapture();
+		ShowCursor(true);
+		SetCursorPos(m_MousePos.x, m_MousePos.y);
+		m_IsCapture = false;
+		break;
 	}
 }

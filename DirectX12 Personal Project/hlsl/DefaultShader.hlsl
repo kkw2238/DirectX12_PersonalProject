@@ -1,12 +1,13 @@
 #ifndef DEFAULT_SHADER_HLSL
 #define DEFAULT_SHADER_HLSL
 
-#define NUM_TEXTURE 4
+#define NUM_TEXTURE 5
 
 cbuffer CB_CAM_INFO : register(b0)
 {
 	matrix camProjection;
 	matrix camView;
+	matrix camShadow;
 	float3 camPosition;
 };
 
@@ -40,6 +41,7 @@ struct VS_TEXTURE_OUTPUT {
 };
 
 sampler DEFAULT_SAMPLER : register(s0);
+sampler SHADOWMAP_SAMPLER : register(s1);
 
 StructuredBuffer<OBJ_INFO> INST_OBJ_INFO : register(t1);
 
@@ -133,8 +135,10 @@ float4 PSTextureDebug(VS_TEXTURE_DEBUG_OUT psInput) : SV_TARGET
 	uv.x = saturate((uv.x * NUM_TEXTURE) - index);
 	
 	float4 color = SR_TEXTURE[NonUniformResourceIndex((uint)index)].Sample(DEFAULT_SAMPLER, uv);
-	if ((uint)index == 1)
+	if ((uint)index == 1) {
 		color = color.rrra;
+		
+	}
 	return color;
 }
 

@@ -136,6 +136,13 @@ Vector2 Vector2::operator*(const float scalar)
 	return result;
 }
 
+Vector2 Vector2::operator/(const float scalar)
+{
+	XMFLOAT2 result;
+	XMStoreFloat2(&result, XMLoadFloat2(&xmf2Vector) / scalar);
+	return result;
+}
+
 void Vector2::operator*=(const Vector2& other)
 {
 	XMStoreFloat2(&xmf2Vector, XMVector2Cross(XMLoadFloat2(&xmf2Vector), XMLoadFloat2(&XMFLOAT2(other.x, other.y))));
@@ -154,6 +161,11 @@ void Vector2::operator*=(const XMVECTOR& other)
 void Vector2::operator*=(const float scalar)
 {
 	XMStoreFloat2(&xmf2Vector, XMLoadFloat2(&xmf2Vector) * scalar);
+}
+
+void Vector2::operator/=(const float scalar)
+{
+	XMStoreFloat2(&xmf2Vector, XMLoadFloat2(&xmf2Vector) / scalar);
 }
 
 Vector2 Vector2::Normalize()
@@ -327,6 +339,13 @@ Vector3 Vector3::operator*(const float other)
 	return result;
 }
 
+Vector3 Vector3::operator/(const float scalar)
+{
+	XMFLOAT3 result;
+	XMStoreFloat3(&result, XMLoadFloat3(&xmf3Vector) / scalar);
+	return result;
+}
+
 void Vector3::operator*=(const Vector3 & other)
 {
 	XMStoreFloat3(&xmf3Vector, XMVector3Cross(XMLoadFloat3(&xmf3Vector), XMLoadFloat3(&XMFLOAT3(other.x, other.y, other.z))));
@@ -347,9 +366,28 @@ void Vector3::operator*=(const float scalar)
 	XMStoreFloat3(&xmf3Vector, XMLoadFloat3(&xmf3Vector) * scalar);
 }
 
+void Vector3::operator/=(const float scalar)
+{
+	XMStoreFloat3(&xmf3Vector, XMLoadFloat3(&xmf3Vector) / scalar);
+}
+
 Vector3 Vector3::Normalize()
 {
 	XMVECTOR result = XMVector3Normalize(GetXMVector());
+	return result;
+}
+
+Vector3 Vector3::ToRadian()
+{
+	Vector3 result;
+	result = XMLoadFloat3(&xmf3Vector) * (XM_PI / 180.0f);
+	return result;
+}
+
+Vector3 Vector3::ToDegree()
+{
+	Vector3 result;
+	result = XMLoadFloat3(&xmf3Vector) * (180.0f / XM_PI);
 	return result;
 }
 

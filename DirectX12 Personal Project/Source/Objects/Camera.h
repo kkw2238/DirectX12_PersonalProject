@@ -10,11 +10,13 @@ public:
 public:
 	void CreateViewport();
 	void CreateScissorRect();
-	void SetViewport(D3D12_VIEWPORT& viewPort);
-	void SetScissorRect(D3D12_RECT& scissorRect);
+	void SetViewport(D3D12_VIEWPORT& viewPort);	
+	void SetScissorRect(D3D12_RECT& scissorRect);	
 	void SetViewportScissorRectToCommandList(ID3D12GraphicsCommandList* id3dCommandList);
 	void SetProjectionMatrix(float FOV, float aspectRatio, float nearZ, float farZ);
-	
+	void SetShadowMatrix(Matrix4x4 mat);
+
+	Matrix4x4 GetShadowMatrix();
 	void GenerationViewMatrix();
 	void RegenerationViewMatrix();
 
@@ -24,6 +26,7 @@ public:
 protected:
 	Matrix4x4		m_ViewMatrix;
 	Matrix4x4		m_Projection;
+	Matrix4x4		m_ShadowMatrix;
 
 	D3D12_VIEWPORT	m_D3DViewport;
 	D3D12_RECT		m_D3DScissorRect;

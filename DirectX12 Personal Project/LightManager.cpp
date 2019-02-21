@@ -25,13 +25,13 @@ void LightManager::CreateLight(ID3D12Device* id3dDevice)
 	m_Ambient = Vector4(0.1f, 0.1f, 0.1f, 1.0f);
 	m_Lights.resize(MAX_LIGHT);
 	m_Lights = {
-		//					조명색				  감쇠 사작 거리				조명 위치					감쇠 끝 거리			조명 방향	 스포트라이트 파워
-		Light(id3dDevice, CB_LIGHT_INFO{Vector3(0.5f, 0.5f, 0.5f), 1.0f, Vector3(-50.0f, 50.0f, -50.0f), 60.0f, Vector3(1.0f, -1.0f, 1.0f), 10.0f}),
+		//					조명색				  감쇠 사작 거리				조명 위치					감쇠 끝 거리			조명 방향	 스포트라이트 파워	그림자 매트릭스 
+		Light(id3dDevice, CB_LIGHT_INFO{Vector3(0.5f, 0.5f, 0.5f), 1.0f, Vector3(-200.0f, 200.0f, -200.0f), 60.0f, Vector3(1.0f, -1.0f, 1.0f), 10.0f}, -200.0f, 200.0f, 200.0f, -200.0f, 0.01f, 5000.0f),
 		Light(id3dDevice, CB_LIGHT_INFO{Vector3(0.05f, 0.05f, 0.05f), 20.0f, Vector3(-5.0f, 5.0f, -5.0f), 30.0f, Vector3(1.0f, -1.0f, 1.0f), 10.0f})
 	};
 
 	cb_lightsinfo.ambient = m_Ambient;
-	for (int i = 0; i < MAX_LIGHT; ++i)
+	for (int i = 0; i < MAX_LIGHT; ++i) 
 		cb_lightsinfo.lights[i] = m_Lights[i].GetLightInfo();
 	
 	m_LightUploadBuffer.CreateResourceBuffer(id3dDevice, MAX_LIGHT);

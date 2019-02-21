@@ -44,10 +44,14 @@ public:
 	Vector2 operator*(const XMVECTOR& other);
 	Vector2 operator*(const float scalar);
 
+	Vector2 operator/(const float scalar);
+
 	void operator*=(const Vector2& other);
 	void operator*=(const XMFLOAT2& other);
 	void operator*=(const XMVECTOR& other);
 	void operator*=(const float scalar);
+
+	void operator/=(const float scalar);
 
 	Vector2 Normalize();
 	void Normalized();
@@ -109,12 +113,18 @@ public:
 	Vector3 operator*(const XMVECTOR& other);
 	Vector3 operator*(const float scalar);
 
+	Vector3 operator/(const float scalar);
+
 	void operator*=(const Vector3& other);
 	void operator*=(const XMFLOAT3& other);
 	void operator*=(const XMVECTOR& other);
 	void operator*=(const float scalar);
 
+	void operator/=(const float scalar);
+
 	Vector3 Normalize();
+	Vector3 ToRadian();
+	Vector3 ToDegree();
 	void Normalized();
 
 	static float DotProduct(const Vector3& a, const XMFLOAT3& b);

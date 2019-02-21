@@ -17,21 +17,31 @@ public:
 	void			SetObjUpVector(UINT index, const Vector3& vector);
 	void			SetObjLookVector(UINT index, const Vector3& vector);
 	void			SetObjPosition(UINT index, const Vector3& vector);
+	void			SetObjRotateAngle(UINT index, const Vector3& angles);
+	void			SetObjLookAt(UINT index, const Vector3& target);
+	void			SetObjLookDirection(UINT index, const Vector3& direction);
 	
 	Vector3			GetObjRightVector(UINT index);
 	Vector3			GetObjUpVector(UINT index);
 	Vector3			GetObjLookVector(UINT index);
 	Vector3			GetObjPosition(UINT index);
+	Vector3			GetObjRotateAngle(UINT index);
 	
 	void Move(UINT index, DWORD direction, float elapsedtime);
 	void Move(UINT index, const Vector3& distance);
+	void Rotate(UINT index, const Vector3& angles);
 
 	virtual void UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex) {};
 	virtual UINT BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT objectCount) { return objectCount; }
 
 protected:
 	std::vector<Matrix4x4>	m_WorldMatrix; 
+
+	std::vector<Matrix4x4>	m_RotateMatrix;
+	std::vector<Vector3>	m_RotateAngle;
+
 	float m_MoveSpeed = 0.1f;
+
 };
 
 /* 단순한 텍스쳐 오브젝트 ( 메쉬 X )*/
