@@ -218,5 +218,20 @@
     <FxCompile Include="hlsl\Light.hlsl">
       <Filter>소스 파일\Shaders\hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="hlsl\Shadow.hlsl">
+      <Filter>소스 파일\Shaders\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\ShaderResource.hlsl">
+      <Filter>소스 파일\Shaders\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\Deferred.hlsl">
+      <Filter>소스 파일\Shaders\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\Sampler.hlsl">
+      <Filter>소스 파일\Shaders\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\cbuffer.hlsl">
+      <Filter>소스 파일\Shaders\hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

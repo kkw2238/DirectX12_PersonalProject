@@ -32,7 +32,7 @@ float ComputePongFactor(float3 lightPos, float3 objPos, float3 normal) {
 	return saturate(dot(normal, toLight));
 }
 
-float3 ComputePointLight(int lightIndex, float3 objPos, float3 normal, float shdowFactor) {
+float3 ComputePointLight(int lightIndex, float3 objPos, float3 normal, float shadowFactor) {
 	LIGHT_INFO light = lights[lightIndex];
 	float3 toLight = light.litPosition - objPos;
 	float dist = length(toLight);
@@ -48,19 +48,19 @@ float3 ComputePointLight(int lightIndex, float3 objPos, float3 normal, float shd
 }
 
 
-float3 CalculateLight(float3 normal, float3 objPos, float3 camPos) {
+float3 CalculateLight(float3 normal, float3 objPos, float3 camPos, float shadowFactor) {
 	float3 result = (float3)0.0f;
 	float3 toCam = camPos - objPos;
 
 #if (NUM_DIRECTION > 0)
 	for (int i = 0; i < NUM_DIRECTION; ++i) {
-		result += ComputeDirectionalLight(i, normal, toCam, 1.0f);
+		result += ComputeDirectionalLight(i, normal, toCam, shadowFactor) * shadowFactor;
 	}
 #endif
 
 #if (NUM_POINT > 0)
 	for (int i = NUM_DIRECTION; i < MAX_LIGHT; ++i) {
-		result += ComputePointLight(i, objPos, normal, 1.0f);
+		result += ComputePointLight(i, objPos, normal, shadowFactor);
 	}
 #endif
 	return result + litAmbient;

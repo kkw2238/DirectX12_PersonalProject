@@ -98,6 +98,7 @@ void Camera::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT
 	tmpInfo.matProjection = m_Projection.Transpose();
 	tmpInfo.shadowMat = m_ShadowMatrix.Transpose();
 	tmpInfo.position = GetObjPosition(0);
+	tmpInfo.matInvProjection = m_Projection.Inverse().Transpose();
 
 	m_CamUploadBuffer.CopyData(0, tmpInfo);
 

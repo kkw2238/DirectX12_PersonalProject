@@ -44,8 +44,9 @@ void Light::SetLightProjection(float l, float r, float t, float b, float n, floa
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.5f, 0.5f, 0.0f, 1.0f);
 
+	m_ViewMatrix = XMMatrixLookToLH(GetObjPosition(0).GetXMVector(), GetObjLookVector(0).Normalize().GetXMVector(), GetObjUpVector(0).GetXMVector());
 	m_Projection = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);
-	m_ShadowMatrix = m_ViewMatrix.Inverse() * m_Projection * T;
+	m_ShadowMatrix = m_ViewMatrix * m_Projection * T;
 }
 
 CB_LIGHT_INFO Light::GetLightInfo() const

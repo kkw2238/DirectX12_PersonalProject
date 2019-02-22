@@ -49,7 +49,7 @@ void GraphicsObjectsShader::BuildGraphicsObjects(ID3D12Device * id3dDevice, ID3D
 	m_TextureInfos.emplace_back(TEXMANAGER->LoadTexture(id3dDevice, id3dGraphicsCommandList, std::wstring(L"Textures\\tile.DDS"), L"TILE", DDS_ALPHA_MODE_UNKNOWN, false), TEXTURE_SR);
 	m_TextureInfos.emplace_back(TEXMANAGER->LoadTexture(id3dDevice, id3dGraphicsCommandList, std::wstring(L"Textures\\tile_nmap.DDS"), L"TILE_NORM", DDS_ALPHA_MODE_UNKNOWN, false), TEXTURE_SR);
 
-	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(L"DS_SHADOW", TEXTURE_SR);
+	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(L"DS_SHADOW"), TEXTURE_SR);
 
 	m_TestObject.resize(2);
 	m_TestObject[0] = new GraphicsMeshObject();

@@ -5,7 +5,7 @@
 class DeferredRenderShader : public GraphicsShaderBase
 {
 public:
-	enum ROOTPAPAMETER_INDEX { TEXTURE_SR };
+	enum ROOTPAPAMETER_INDEX { CAMERAINFO_CB, LIGHTINFO_CB, TEXTURE_SR };
 
 public:
 	DeferredRenderShader();

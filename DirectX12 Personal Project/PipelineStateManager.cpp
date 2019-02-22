@@ -81,8 +81,10 @@ void PipelineStateManager::CreateRootSignatures(ID3D12Device* id3dDevice, ID3D12
 			d3dRootDescriptorRange.resize(1);
 			d3dRootDescriptorRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, SR_TEXTURE_0);
 
-			d3dRootParameter.resize(1);
-			d3dRootParameter[0].InitAsDescriptorTable(1, &d3dRootDescriptorRange[0]);
+			d3dRootParameter.resize(3);
+			d3dRootParameter[0].InitAsConstantBufferView(CB_CAM);
+			d3dRootParameter[1].InitAsConstantBufferView(CB_LIGHT);
+			d3dRootParameter[2].InitAsDescriptorTable(1, &d3dRootDescriptorRange[0]);
 			break;
 
 		case SIGNATURE_CREATE_SHDOWMAP:
@@ -124,7 +126,7 @@ D3D12_RASTERIZER_DESC PipelineStateManager::GraphicsRasterRizerDesc(UINT index)
 
 	switch (index) {
 	case PIPELINE_CREATE_SHDOWMAP:
-		rasterizerDesc.DepthBias = 100000;
+		rasterizerDesc.DepthBias = 10000;
 		rasterizerDesc.DepthBiasClamp = 0.0f;
 		rasterizerDesc.SlopeScaledDepthBias = 1.0f;
 		return rasterizerDesc;
@@ -181,7 +183,7 @@ std::vector<DXGI_FORMAT> PipelineStateManager::GraphicsRenderTargetFormat(UINT i
 	case PIPELINE_RENDER_DEFERRED:
 	case PIPELINE_RENDER_SR_DEBUG:
 	case PIPELINE_RENDER_OBJ:
-		formats = { DXGI_FORMAT_R8G8B8A8_UNORM };
+		formats = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM };
 		break;
 	case PIPELINE_CREATE_SHDOWMAP:
 		break;
@@ -212,7 +214,7 @@ D3D12_SHADER_BYTECODE PipelineStateManager::PS(UINT index)
 	case PIPELINE_RENDER_OBJ:
 		return COMPILEDSHADER->GetShaderByteCode("PS");
 	case PIPELINE_CREATE_SHDOWMAP:
-		return COMPILEDSHADER->GetShaderByteCode("PSShadow");
+		return COMPILEDSHADER->GetShaderByteCode("PSNone");
 	case PIPELINE_RENDER_DEFERRED:
 		return COMPILEDSHADER->GetShaderByteCode("PSTextureFullScreen");
 	case PIPELINE_RENDER_SR_DEBUG:

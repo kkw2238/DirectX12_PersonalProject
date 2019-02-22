@@ -21,13 +21,12 @@ CompiledShader * CompiledShader::Instance()
 void CompiledShader::CreateShaders()
 {
 	CreateShaderByteCode(L"hlsl\\DefaultShader.hlsl", nullptr, "VS", "vs_5_1");
-	CreateShaderByteCode(L"hlsl\\DefaultShader.hlsl", nullptr, "VSTextureFullScreen", "vs_5_0");
+	CreateShaderByteCode(L"hlsl\\Deferred.hlsl", nullptr, "VSTextureFullScreen", "vs_5_0");
 	CreateShaderByteCode(L"hlsl\\DefaultShader.hlsl", nullptr, "VSTextureDebug", "vs_5_1");
 
 	CreateShaderByteCode(L"hlsl\\DefaultShader.hlsl", LIGHT_MANAGER->GetShaderDefined().data(), "PS", "ps_5_1");
-	CreateShaderByteCode(L"hlsl\\DefaultShader.hlsl", nullptr, "PSTextureFullScreen", "ps_5_0");
+	CreateShaderByteCode(L"hlsl\\Deferred.hlsl", nullptr, "PSTextureFullScreen", "ps_5_0");
 	CreateShaderByteCode(L"hlsl\\DefaultShader.hlsl", nullptr, "PSTextureDebug", "ps_5_1");
-	CreateShaderByteCode(L"hlsl\\DefaultShader.hlsl", nullptr, "PSShadow", "ps_5_1");
 }
 
 void CompiledShader::CreateShaderByteCode(const std::wstring& filename, const D3D_SHADER_MACRO* defines, const std::string& entrypoint, const std::string& target)

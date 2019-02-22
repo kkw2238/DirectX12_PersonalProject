@@ -10,7 +10,7 @@
 
 class Framework
 {
-	enum RenderTargets{ RTV_COLOR = 0 };
+	enum RenderTargets{ RTV_COLOR = 0, RTV_NORMAL = 1 };
 	enum DepthStencils{ MainDepthStencil = 0, ShadowDepthStencil = 1 };
 
 	std::vector<std::wstring> MODELTYPES = { L".FBX", L".fbx", L".OBJ", L".obj" };
@@ -106,7 +106,7 @@ protected:
 	ComPtr<ID3D12CommandAllocator>		m_ID3DCommandAllocator;
 	ComPtr<ID3D12GraphicsCommandList>	m_ID3DCommandList;
 
-	static const int					m_RenderTargetBufferCount = 1;
+	static const int					m_RenderTargetBufferCount = 2;
 	static const int					m_DepthStencilBufferCount = 2;
 	static const int					m_SwapChainBufferCount = 2;
 	int									m_CurrentSwapChainBufferIndex = 0;
@@ -120,7 +120,7 @@ protected:
 	ComPtr<ID3D12DescriptorHeap>		m_ID3DDepthStencilViewHeap;
 
 	std::wstring						m_MainWindowTitle = L"DirectX12 Project ";
-	std::wstring						m_RenderTargetNames[m_RenderTargetBufferCount] = { L"RT_COLOR" };
+	std::wstring						m_RenderTargetNames[m_RenderTargetBufferCount] = { L"RT_COLOR", L"RT_NORMAL" };
 	std::wstring						m_DepthStencilNames[m_DepthStencilBufferCount] = { L"DS_MAIN", L"DS_SHADOW" };
 
 	D3D_DRIVER_TYPE						m_D3DDriverType = D3D_DRIVER_TYPE_HARDWARE;
