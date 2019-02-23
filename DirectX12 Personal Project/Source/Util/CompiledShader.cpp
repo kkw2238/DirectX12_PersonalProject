@@ -24,8 +24,8 @@ void CompiledShader::CreateShaders()
 	CreateShaderByteCode(L"hlsl\\Deferred.hlsl", nullptr, "VSTextureFullScreen", "vs_5_0");
 	CreateShaderByteCode(L"hlsl\\DefaultShader.hlsl", nullptr, "VSTextureDebug", "vs_5_1");
 
-	CreateShaderByteCode(L"hlsl\\DefaultShader.hlsl", LIGHT_MANAGER->GetShaderDefined().data(), "PS", "ps_5_1");
-	CreateShaderByteCode(L"hlsl\\Deferred.hlsl", nullptr, "PSTextureFullScreen", "ps_5_0");
+	CreateShaderByteCode(L"hlsl\\DefaultShader.hlsl", nullptr, "PS", "ps_5_1");
+	CreateShaderByteCode(L"hlsl\\Deferred.hlsl", LIGHT_MANAGER->GetShaderDefined().data(), "PSTextureFullScreen", "ps_5_0");
 	CreateShaderByteCode(L"hlsl\\DefaultShader.hlsl", nullptr, "PSTextureDebug", "ps_5_1");
 }
 

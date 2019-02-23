@@ -30,7 +30,7 @@ cbuffer CB_CAM_INFO : register(b0)
 	matrix camProjection;
 	matrix camView;
 	matrix camShadow;
-	matrix camInvProjection;
+	matrix camInvView;
 	float3 camPosition;
 };
 

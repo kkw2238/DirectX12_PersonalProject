@@ -24,8 +24,9 @@ Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsComm
 	m_MeshName = meshName;
 }
 
-Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, std::vector<Vector3>& vertices, std::vector<Vector3>& normals, std::vector<Vector3>& tangents, std::vector<Vector2>& texCoords, std::vector<UINT>& indices, std::vector<UINT>& matindices)
+Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, std::vector<Vector3>& vertices, std::vector<Vector3>& normals, std::vector<Vector3>& tangents, std::vector<Vector2>& texCoords, std::vector<UINT>& indices, std::vector<UINT>& matindices, float correctionY)
 {
+	m_fCorrectionY = correctionY;
 	CreateMesh(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, matindices);
 }
 
@@ -50,11 +51,14 @@ void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dG
 
 	std::vector<IA_TEXTURE_OBJ> vertexInfo(m_nVerticesCount);
 	
+	for (int i = 0; i < m_nVerticesCount; ++i)
+		vertices[i].y -= m_fCorrectionY;
+
 	if (normals.size() == 0)
 		CreateNormalVectors(vertices, normals);
 
 	if (tangents.size() == 0)
-		CreateTangentVectors(vertices, normals, texCoords, indices, m_nVerticesCount / 3, tangents);
+		CreateTangentVectors(vertices, normals, texCoords, indices, m_nIndicesCount / 3, tangents);
 
 	for (UINT i = 0; i < m_nVerticesCount; ++i) {
 		vertexInfo[i] = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i], matindices[i]);
@@ -69,6 +73,11 @@ void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dG
 	m_D3DIndexBufferView.BufferLocation = m_ID3DIndexBuffer->GetGPUVirtualAddress();
 	m_D3DIndexBufferView.Format = DXGI_FORMAT_R32_UINT;
 	m_D3DIndexBufferView.SizeInBytes = sizeof(UINT) * m_nIndicesCount;
+}
+
+float Mesh::CorrectionY() const
+{
+	return m_fCorrectionY;
 }
 
 std::vector<Mesh> Mesh::Get()
@@ -104,6 +113,7 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 	std::vector<Vector3> tangents;
 	std::vector<UINT> materialIndices;
 	std::vector<UINT> indices;
+	float correctY = 0.0f;
 
 	for (size_t verticesIndex = 0; verticesIndex < mesh->mNumVertices; ++verticesIndex) {
 		aiVector3D vertex;
@@ -114,6 +124,8 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 		if (mesh->mVertices != nullptr) {
 			vertex = mesh->mVertices[verticesIndex];
 			vertices.emplace_back(vertex.x, vertex.y, vertex.z);
+			if (vertex.y < correctY)
+				correctY = vertex.y;
 		}
 		if (mesh->mTextureCoords[0] != nullptr) {
 			texCoord = mesh->mTextureCoords[0][verticesIndex];
@@ -139,7 +151,7 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 		}
 	}
 
-	return Mesh(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, materialIndices);
+	return Mesh(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, materialIndices, correctY);
 }
 
 

@@ -30,11 +30,11 @@ struct PS_FORWARD_OUTPUT {
 };
 
 PS_FORWARD_OUTPUT packing(float4 color, float3 normal) {
-	const float4 addNorm = float4(0.5f, 0.5f, 0.5f, 0.5f);
+	const float4 addNorm = float4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	PS_FORWARD_OUTPUT result;
 	result.color = color;
-	result.norm = (float4(normal, 1.0f) * 0.5f) + addNorm;
+	result.norm = (float4(normal, 1.0f) + addNorm) * 0.5f;
 	
 	return result;
 }
@@ -85,7 +85,7 @@ float4 PSTextureDebug(VS_TEXTURE_DEBUG_OUT psInput) : SV_TARGET
 	uv.x = saturate((uv.x * NUM_TEXTURE) - index);
 	
 	float4 color = SR_TEXTURE[NonUniformResourceIndex((uint)index)].Sample(DEFAULT_SAMPLER, uv);
-	if ((uint)index == 2) {
+	if ((uint)index > 1) {
 		color = color.rrra;
 		
 	}

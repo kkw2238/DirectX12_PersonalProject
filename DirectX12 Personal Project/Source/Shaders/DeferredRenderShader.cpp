@@ -25,6 +25,7 @@ void DeferredRenderShader::BuildGraphicsObjects(ID3D12Device* id3dDevice, ID3D12
 	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(std::wstring(L"RT_COLOR")), TEXTURE_SR);
 	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(std::wstring(L"RT_NORMAL")), TEXTURE_SR);
 	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(std::wstring(L"DS_SHADOW")), TEXTURE_SR);
+	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(std::wstring(L"DS_MAIN")), TEXTURE_SR);
 
 	m_TextureObject.resize(1);
 	m_TextureObject[0] = new GraphicsTextureObject();
@@ -60,6 +61,7 @@ void DebugDefferedResource::BuildGraphicsObjects(ID3D12Device* id3dDevice, ID3D1
 	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(std::wstring(L"RT_COLOR")), TEXTURE_SR);
 	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(std::wstring(L"RT_NORMAL")), TEXTURE_SR);
 	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(std::wstring(L"DS_SHADOW")), TEXTURE_SR);
+	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(std::wstring(L"DS_MAIN")), TEXTURE_SR);
 
 	m_TextureObject.resize(1);
 

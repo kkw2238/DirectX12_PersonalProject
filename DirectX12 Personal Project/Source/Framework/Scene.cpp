@@ -26,6 +26,7 @@ void Scene::RenderObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* i
 
 void Scene::RenderDeferredObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
+	m_Camera->SetShadowMatrix(LIGHT_MANAGER->GetLight(0)->GetShadowMatrix());
 	m_DeferredShaderObject.ExecutePipeline(id3dDevice, id3dGraphicsCommandList, L"Deferred", L"Deferred", m_Camera.get());
 
 	if (m_EnableDebug) {

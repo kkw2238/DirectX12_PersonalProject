@@ -566,7 +566,7 @@ void Framework::DeferredRender()
 	ThrowIfFail(m_ID3DCommandAllocator->Reset());
 	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
 
-	m_ID3DCommandList->OMSetRenderTargets(1, &GetCurrentBackBufferView(), true, &GetDepthStencilView(MainDepthStencil));
+	m_ID3DCommandList->OMSetRenderTargets(1, &GetCurrentBackBufferView(), true, nullptr);
 
 	m_Scene.RenderDeferredObjects(m_ID3DDevice.Get(), m_ID3DCommandList.Get());
 
