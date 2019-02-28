@@ -3,10 +3,16 @@
 
 class PipelineStateManager
 {
-	enum PipelineIndex{ PIPELINE_RENDER_OBJ, PIPELINE_CREATE_SHDOWMAP, PIPELINE_RENDER_DEFERRED, PIPELINE_RENDER_SR_DEBUG };
-	enum RootSignatureIndex { SIGNATURE_RENDER_OBJ, SIGNATURE_CREATE_SHDOWMAP, SIGNATURE_RENDER_DEFERRED };
-	enum CBRegisterIndex { CB_CAM, CB_OBJ, CB_LIGHT };
-	enum SRRegisterIndex { INST_OBJ_INFO = 1, SR_TEXTURE_0, SR_TEXTURE_1, SR_TEXTURE_2, SR_TEXTURE_3 };
+	enum GraphicsPipelineIndex{ PIPELINE_RENDER_OBJ, PIPELINE_CREATE_SHDOWMAP, PIPELINE_RENDER_DEFERRED, PIPELINE_RENDER_SR_DEBUG };
+	enum GraphicsRootSignatureIndex { SIGNATURE_RENDER_OBJ, SIGNATURE_CREATE_SHDOWMAP, SIGNATURE_RENDER_DEFERRED };
+	enum GraphicsCBRegisterIndex { CB_CAM, CB_OBJ, CB_LIGHT };
+	enum GraphicsSRRegisterIndex { INST_OBJ_INFO = 1, SR_TEXTURE_0, SR_TEXTURE_1, SR_TEXTURE_2, SR_TEXTURE_3 };
+
+	enum ComputeRootSignatureIndex { SIGNATURE_CALCULATE_LUM_FIRSTPASS, SIGNATURE_CALCULATE_LUM_SECONDPASS };
+	enum ComputePipelineIndex { PIPELINE_MIX, PIPELINE_BLOOM, PIPELINE_HDR };
+	enum ComputeCBRegisterIndex { CB_MIX };
+	enum ComputeSRRegisterIndex { SR_ORIGIN_TEXTURE };
+	enum ComputeUAVRegisterIndex { UAV_OUTPUT_TEXTURE, UAV_LUM_FACTOR };
 
 public:
 	PipelineStateManager();
@@ -17,9 +23,9 @@ public:
 
 	void CreatePipelineStates(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 	void CreateGraphicsPipelineStates(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
+	void CreateGraphicsRootSignatures(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 	void CreateComputePipelineStates(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
-	void CreateRootSignatures(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
-
+	void CreateComputeRootSignatures(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 public:
 	D3D12_BLEND_DESC						GraphicsBlendDesc(UINT index);
 	D3D12_RASTERIZER_DESC					GraphicsRasterRizerDesc(UINT index);
@@ -27,14 +33,17 @@ public:
 	std::vector<D3D12_INPUT_ELEMENT_DESC>	GraphicsInputElementDesc(UINT index);
 	std::vector<DXGI_FORMAT>				GraphicsRenderTargetFormat(UINT index);
 
+	D3D12_CACHED_PIPELINE_STATE				ComputeCachedPSO(UINT index);
+
 	D3D12_SHADER_BYTECODE					VS(UINT index);
 	D3D12_SHADER_BYTECODE					PS(UINT index);
+	D3D12_SHADER_BYTECODE					CS(UINT index);
 
-	ID3D12RootSignature*					GraphicsRootSignature(const std::wstring& name);
+	ID3D12RootSignature*					RootSignature(const std::wstring& name);
 	ID3D12PipelineState*					Pipeline(const std::wstring& name);
 protected:
-	std::vector<std::wstring> m_PipelineNames			= { L"Obj", L"Shadow", L"Deferred", L"DebugSR" };
-	std::vector<std::wstring> m_RootSignatureNames	= { L"Obj", L"Shadow", L"Deferred" };
+	std::vector<std::wstring> m_ComputePipelineNames			= { L"CalLumFirstPass", L"CalLumSecondPass" };
+	std::vector<std::wstring> m_ComputeRootSignatureNames		= { L"CalLumFirstPass", L"CalLumSecondPass" };
 
 	std::unordered_map<std::wstring, std::vector<D3D12_INPUT_ELEMENT_DESC>>	m_D3DInputElementDescs;
 

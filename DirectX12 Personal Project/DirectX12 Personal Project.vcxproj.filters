@@ -126,6 +126,9 @@
     <ClInclude Include="PipelineStateManager.h">
       <Filter>헤더 파일\Util</Filter>
     </ClInclude>
+    <ClInclude Include="ComputeObjectShader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\DDSTextureLoader\DDSTextureLoader.cpp">
@@ -194,6 +197,9 @@
     <ClCompile Include="LightManager.cpp">
       <Filter>소스 파일\Util</Filter>
     </ClCompile>
+    <ClCompile Include="ComputeObjectShader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX12 Personal Project.rc">
@@ -231,6 +237,9 @@
       <Filter>소스 파일\Shaders\hlsl</Filter>
     </FxCompile>
     <FxCompile Include="hlsl\cbuffer.hlsl">
+      <Filter>소스 파일\Shaders\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\Mix.hlsl">
       <Filter>소스 파일\Shaders\hlsl</Filter>
     </FxCompile>
   </ItemGroup>

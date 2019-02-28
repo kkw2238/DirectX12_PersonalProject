@@ -54,7 +54,7 @@ float3 CalculateLight(float3 normal, float3 objPos, float3 camPos, float shadowF
 
 #if (NUM_DIRECTION > 0)
 	for (int i = 0; i < NUM_DIRECTION; ++i) {
-		result += ComputeDirectionalLight(i, normal, toCam, shadowFactor) * shadowFactor;
+		result += ComputeDirectionalLight(i, normal, toCam, shadowFactor);
 	}
 #endif
 

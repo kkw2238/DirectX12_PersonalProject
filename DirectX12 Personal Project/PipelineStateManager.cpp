@@ -18,13 +18,20 @@ PipelineStateManager* PipelineStateManager::Instance()
 
 void PipelineStateManager::CreatePipelineStates(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
-	CreateRootSignatures(id3dDevice, id3dGraphicsCommandList);
+	CreateGraphicsRootSignatures(id3dDevice, id3dGraphicsCommandList);
 	CreateGraphicsPipelineStates(id3dDevice, id3dGraphicsCommandList);
 }
 
 void PipelineStateManager::CreateGraphicsPipelineStates(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
-	for (UINT i = 0; i < m_PipelineNames.size(); ++i) {
+	std::vector<std::pair<std::wstring, std::wstring>> graphicsPairPipelineSignatureName = {
+		{L"Obj", L"Obj"},
+		{L"Shadow", L"Shadow"},
+		{L"Deferred", L"Deferred"},
+		{L"DebugSR" ,L"Deferred"}
+	};
+
+	for (UINT i = 0; i < graphicsPairPipelineSignatureName.size(); ++i) {
 		std::vector<D3D12_INPUT_ELEMENT_DESC> elements = GraphicsInputElementDesc(i);
 		std::vector<DXGI_FORMAT> formats = GraphicsRenderTargetFormat(i);
 
@@ -35,7 +42,7 @@ void PipelineStateManager::CreateGraphicsPipelineStates(ID3D12Device* id3dDevice
 		d3dGraphicsPipelineDesc.DepthStencilState = GraphicsDepthStencilDesc(i);
 		d3dGraphicsPipelineDesc.InputLayout = D3D12_INPUT_LAYOUT_DESC{ elements.data(), static_cast<UINT>(elements.size()) };
 		d3dGraphicsPipelineDesc.RasterizerState = GraphicsRasterRizerDesc(i);
-		d3dGraphicsPipelineDesc.pRootSignature = GraphicsRootSignature(m_PipelineNames[i]);
+		d3dGraphicsPipelineDesc.pRootSignature = RootSignature(graphicsPairPipelineSignatureName[i].second);
 		d3dGraphicsPipelineDesc.VS = VS(i);
 		d3dGraphicsPipelineDesc.PS = PS(i);
 		d3dGraphicsPipelineDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
@@ -47,19 +54,72 @@ void PipelineStateManager::CreateGraphicsPipelineStates(ID3D12Device* id3dDevice
 		d3dGraphicsPipelineDesc.SampleDesc.Count = 1;
 		d3dGraphicsPipelineDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
-		ThrowIfFail(id3dDevice->CreateGraphicsPipelineState(&d3dGraphicsPipelineDesc, IID_PPV_ARGS(m_ID3DPipelineStates[m_PipelineNames[i]].GetAddressOf())));
+		ThrowIfFail(id3dDevice->CreateGraphicsPipelineState(&d3dGraphicsPipelineDesc, IID_PPV_ARGS(m_ID3DPipelineStates[graphicsPairPipelineSignatureName[i].first].GetAddressOf())));
 	}
 }
 
 void PipelineStateManager::CreateComputePipelineStates(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
+	for (UINT i = 0; i < m_ComputePipelineNames.size() - 2; ++i) {
+		D3D12_COMPUTE_PIPELINE_STATE_DESC d3dComputePipelineDesc;
+		::ZeroMemory(&d3dComputePipelineDesc, sizeof(D3D12_COMPUTE_PIPELINE_STATE_DESC));
+
+		d3dComputePipelineDesc.CS = CS(i);
+		d3dComputePipelineDesc.CachedPSO = ComputeCachedPSO(i);
+		d3dComputePipelineDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+		d3dComputePipelineDesc.NodeMask = 0;
+		d3dComputePipelineDesc.pRootSignature = RootSignature(m_ComputePipelineNames[i]);
+
+		ThrowIfFail(id3dDevice->CreateComputePipelineState(&d3dComputePipelineDesc, IID_PPV_ARGS(m_ID3DPipelineStates[m_ComputePipelineNames[i]].GetAddressOf())));
+	}
 }
 
-void PipelineStateManager::CreateRootSignatures(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
+void PipelineStateManager::CreateComputeRootSignatures(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
+	std::vector<std::wstring> computeRootSignatureNames = { L"CalLumFirstPass", L"CalLumSecondPass" };
+
+	for (size_t i = 0; i < computeRootSignatureNames.size(); ++i)
+	{
+		std::vector<CD3DX12_DESCRIPTOR_RANGE> d3dRootDescriptorRange;
+		std::vector<CD3DX12_ROOT_PARAMETER> d3dRootParameter;
+		CD3DX12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
+
+		switch (i) {
+		case SIGNATURE_CALCULATE_LUM_FIRSTPASS:
+			d3dRootDescriptorRange.resize(3);
+			d3dRootDescriptorRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SR_ORIGIN_TEXTURE);
+			d3dRootDescriptorRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, UAV_LUM_FACTOR);
+			d3dRootDescriptorRange[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, UAV_OUTPUT_TEXTURE);
+
+			d3dRootParameter.resize(2);
+			d3dRootParameter[0].InitAsConstantBufferView(CB_MIX);
+			d3dRootParameter[1].InitAsDescriptorTable(1, &d3dRootDescriptorRange[0]);
+			break;
+
+		case SIGNATURE_CALCULATE_LUM_SECONDPASS:
+			break;
+		}
+
+		d3dRootSignatureDesc.Init(d3dRootParameter.size(), d3dRootParameter.data(), 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+		ComPtr<ID3DBlob> id3dSignatureBlob;
+		ComPtr<ID3DBlob> id3dErrorBlob;
+
+		ThrowIfFail(D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, id3dSignatureBlob.GetAddressOf(), id3dErrorBlob.GetAddressOf()));
+
+		if (id3dErrorBlob != nullptr) ::OutputDebugStringA((char*)id3dErrorBlob->GetBufferPointer());
+
+		ThrowIfFail(id3dDevice->CreateRootSignature(NULL, id3dSignatureBlob->GetBufferPointer(), id3dSignatureBlob->GetBufferSize(), IID_PPV_ARGS(m_ID3DRootSignatures[computeRootSignatureNames[i]].GetAddressOf())));
+	}
+}
+
+void PipelineStateManager::CreateGraphicsRootSignatures(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
+{
+	std::vector<std::wstring> graphicsRootSignatureNames = { L"Obj", L"Shadow", L"Deferred" };
+
 	std::vector<CD3DX12_STATIC_SAMPLER_DESC> d3dSamplerDescs = DESCFACTORY->SamplerDesc(DEFAULTOPT);
 
-	for(size_t i = 0; i < m_RootSignatureNames.size(); ++i)
+	for(size_t i = 0; i < graphicsRootSignatureNames.size(); ++i)
 	{
 		std::vector<CD3DX12_DESCRIPTOR_RANGE> d3dRootDescriptorRange;
 		std::vector<CD3DX12_ROOT_PARAMETER> d3dRootParameter;
@@ -104,7 +164,7 @@ void PipelineStateManager::CreateRootSignatures(ID3D12Device* id3dDevice, ID3D12
 
 		if (id3dErrorBlob != nullptr) ::OutputDebugStringA((char*)id3dErrorBlob->GetBufferPointer());
 
-		ThrowIfFail(id3dDevice->CreateRootSignature(NULL, id3dSignatureBlob->GetBufferPointer(), id3dSignatureBlob->GetBufferSize(), IID_PPV_ARGS(m_ID3DRootSignatures[m_RootSignatureNames[i]].GetAddressOf())));
+		ThrowIfFail(id3dDevice->CreateRootSignature(NULL, id3dSignatureBlob->GetBufferPointer(), id3dSignatureBlob->GetBufferSize(), IID_PPV_ARGS(m_ID3DRootSignatures[graphicsRootSignatureNames[i]].GetAddressOf())));
 	}
 }
 
@@ -191,6 +251,14 @@ std::vector<DXGI_FORMAT> PipelineStateManager::GraphicsRenderTargetFormat(UINT i
 	return formats;
 }
 
+D3D12_CACHED_PIPELINE_STATE PipelineStateManager::ComputeCachedPSO(UINT index)
+{
+	D3D12_CACHED_PIPELINE_STATE cachedPipeline;
+	::ZeroMemory(&cachedPipeline, sizeof(D3D12_CACHED_PIPELINE_STATE));
+
+	return cachedPipeline;
+}
+
 D3D12_SHADER_BYTECODE PipelineStateManager::VS(UINT index)
 {
 	switch (index) {
@@ -213,21 +281,36 @@ D3D12_SHADER_BYTECODE PipelineStateManager::PS(UINT index)
 	switch (index) {
 	case PIPELINE_RENDER_OBJ:
 		return COMPILEDSHADER->GetShaderByteCode("PS");
+
 	case PIPELINE_CREATE_SHDOWMAP:
 		return COMPILEDSHADER->GetShaderByteCode("PSNone");
+
 	case PIPELINE_RENDER_DEFERRED:
 		return COMPILEDSHADER->GetShaderByteCode("PSTextureFullScreen");
+
 	case PIPELINE_RENDER_SR_DEBUG:
 		return COMPILEDSHADER->GetShaderByteCode("PSTextureDebug");
 	}
 	return D3D12_SHADER_BYTECODE();
 }
 
-ID3D12RootSignature* PipelineStateManager::GraphicsRootSignature(const std::wstring& name)
+D3D12_SHADER_BYTECODE PipelineStateManager::CS(UINT index)
 {
-	if (name == L"DebugSR")
-		return m_ID3DRootSignatures[L"Deferred"].Get();
+	switch (index) {
+	case PIPELINE_MIX:
+		return COMPILEDSHADER->GetShaderByteCode("Mix");
 
+	case PIPELINE_BLOOM:
+		return COMPILEDSHADER->GetShaderByteCode("Bloom");
+
+	case PIPELINE_HDR:
+		return COMPILEDSHADER->GetShaderByteCode("HDR");
+	}
+	return D3D12_SHADER_BYTECODE();
+}
+
+ID3D12RootSignature* PipelineStateManager::RootSignature(const std::wstring& name)
+{
 	return m_ID3DRootSignatures[name].Get();
 }
 

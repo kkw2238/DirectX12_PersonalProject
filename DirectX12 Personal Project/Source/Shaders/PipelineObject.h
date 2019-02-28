@@ -40,6 +40,7 @@ public:
 
 	void CreateSRV(ID3D12Device* id3dDevice, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset, bool isUsedDescriptorArray);
 	void UpdateTextureInfo(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
+
 protected:
 	std::vector<TextureRootInfo>	m_TextureInfos;
 	bool							m_IsUsedDescriptorHeapArray = false;

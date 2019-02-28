@@ -64,7 +64,7 @@ float4 PSTextureFullScreen(VS_TEXTURE_DEBUG_OUT psInput) : SV_TARGET
 
 	color.xyz += CalculateLight(data.normal, data.worldPosition.xyz, camPosition, shadowFactor);
 
-	return color;
+	return color * shadowFactor;
 }
 
 #endif

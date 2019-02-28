@@ -55,7 +55,7 @@ GraphicsShaderBase::GraphicsShaderBase()
 void GraphicsShaderBase::ExecutePipeline(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& pipelineName, const std::wstring& signatureName, Camera* camera)
 {
 	id3dGraphicsCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	id3dGraphicsCommandList->SetGraphicsRootSignature(PIPELINESTATE_MANAGER->GraphicsRootSignature(signatureName));
+	id3dGraphicsCommandList->SetGraphicsRootSignature(PIPELINESTATE_MANAGER->RootSignature(signatureName));
 	id3dGraphicsCommandList->SetPipelineState(PIPELINESTATE_MANAGER->Pipeline(pipelineName));
 
 	if (m_ID3DDescriptorHeap != nullptr)
@@ -68,7 +68,7 @@ void GraphicsShaderBase::ExecutePipeline(ID3D12Device* id3dDevice, ID3D12Graphic
 void GraphicsShaderBase::CreateShadow(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& pipelineName, const std::wstring& signatureName, Camera* camera)
 {
 	id3dGraphicsCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	id3dGraphicsCommandList->SetGraphicsRootSignature(PIPELINESTATE_MANAGER->GraphicsRootSignature(signatureName));
+	id3dGraphicsCommandList->SetGraphicsRootSignature(PIPELINESTATE_MANAGER->RootSignature(signatureName));
 	id3dGraphicsCommandList->SetPipelineState(PIPELINESTATE_MANAGER->Pipeline(pipelineName));
 
 	RenderGraphicsObj(id3dDevice, id3dGraphicsCommandList, camera);
