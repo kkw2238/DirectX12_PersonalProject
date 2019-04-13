@@ -14,7 +14,7 @@ Texture::Texture(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphi
 
 	m_TextureName = texName;
 
-	m_D3DResouceViewDesc = DESCFACTORY->SRVResourceViewDesc(m_ID3DTexture->GetDesc(), srvDimension);
+	m_D3DSRVDesc = DESCFACTORY->SRVDesc(m_ID3DTexture->GetDesc(), srvDimension);
 }
 
 Texture::Texture(ID3D12Resource* texture, const std::wstring& texName, D3D12_SRV_DIMENSION srvDimension)
@@ -22,7 +22,7 @@ Texture::Texture(ID3D12Resource* texture, const std::wstring& texName, D3D12_SRV
 	m_ID3DTexture = texture;
 	m_TextureName = texName;
 
-	m_D3DResouceViewDesc = DESCFACTORY->SRVResourceViewDesc(m_ID3DTexture->GetDesc(), srvDimension);
+	m_D3DSRVDesc = DESCFACTORY->SRVDesc(m_ID3DTexture->GetDesc(), srvDimension);
 }
 
 Texture::~Texture()
@@ -46,13 +46,27 @@ D3D12_GPU_VIRTUAL_ADDRESS Texture::GPUVirtualAddress()
 
 D3D12_SHADER_RESOURCE_VIEW_DESC Texture::SRVDesc() const
 {
-	return m_D3DResouceViewDesc;
+	return m_D3DSRVDesc;
 }
 
 std::wstring Texture::Name() const
 {
 	return m_TextureName;
 }
+
+/////////////////////////////////////////////////////////
+
+UnorderedAccessBuffer::UnorderedAccessBuffer(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& texName, UINT elementSize, UINT width, UINT height, D3D12_SRV_DIMENSION srvDimension, D3D12_UAV_DIMENSION uavDimension)
+{
+	m_ID3DTexture = D3DUtil::CreateDefaultBuffer(id3dDevice, id3dGraphicsCommandList, nullptr, static_cast<UINT64>(elementSize) * static_cast<UINT64>(width) * static_cast<UINT64>(height), m_ID3DTextureUploadBuffer);
+
+	m_TextureName = texName;
+	m_ID3DTexture->GetDesc();
+
+	m_D3DSRVDesc = DESCFACTORY->SRVDesc(m_ID3DTexture->GetDesc(), srvDimension);
+	m_D3DUAVDesc = DESCFACTORY->UAVDesc(m_ID3DTexture->GetDesc(), uavDimension);
+}
+
 
 /////////////////////////////////////////////////////////
 

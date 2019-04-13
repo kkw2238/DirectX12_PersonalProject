@@ -30,7 +30,8 @@ public:
 	std::vector<CD3DX12_STATIC_SAMPLER_DESC> SamplerDesc(DefaultOption);
 	std::vector<CD3DX12_STATIC_SAMPLER_DESC> SamplerDescs(DefaultOption);
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC SRVResourceViewDesc(const D3D12_RESOURCE_DESC& d3dResourceDesc, D3D12_SRV_DIMENSION dimension);
+	D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc(const D3D12_RESOURCE_DESC& d3dResourceDesc, D3D12_SRV_DIMENSION dimension);
+	D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc(const D3D12_RESOURCE_DESC& d3dResourceDesc, D3D12_UAV_DIMENSION dimension);
 
 	void SetCBVSRVUAVdescriptorHandleIncrementSize(UINT size);
 	void SetRTVdescriptorHandleIncrementSize(UINT size);

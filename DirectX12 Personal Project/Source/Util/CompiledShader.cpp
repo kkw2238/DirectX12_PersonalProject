@@ -27,6 +27,8 @@ void CompiledShader::CreateShaders()
 	CreateShaderByteCode(L"hlsl\\DefaultShader.hlsl", nullptr, "PS", "ps_5_1");
 	CreateShaderByteCode(L"hlsl\\Deferred.hlsl", LIGHT_MANAGER->GetShaderDefined().data(), "PSTextureFullScreen", "ps_5_0");
 	CreateShaderByteCode(L"hlsl\\DefaultShader.hlsl", nullptr, "PSTextureDebug", "ps_5_1");
+
+	CreateShaderByteCode(L"hlsl\\Mix.hlsl", nullptr, "CalculateLumFirstPass", "cs_5_0");
 }
 
 void CompiledShader::CreateShaderByteCode(const std::wstring& filename, const D3D_SHADER_MACRO* defines, const std::string& entrypoint, const std::string& target)

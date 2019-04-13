@@ -12,7 +12,7 @@ class PipelineStateManager
 	enum ComputePipelineIndex { PIPELINE_MIX, PIPELINE_BLOOM, PIPELINE_HDR };
 	enum ComputeCBRegisterIndex { CB_MIX };
 	enum ComputeSRRegisterIndex { SR_ORIGIN_TEXTURE };
-	enum ComputeUAVRegisterIndex { UAV_OUTPUT_TEXTURE, UAV_LUM_FACTOR };
+	enum ComputeUAVRegisterIndex { UAV_OUTPUT_TEXTURE, UAV_LUM_FACTOR, UAV_TEST };
 
 public:
 	PipelineStateManager();
@@ -26,6 +26,7 @@ public:
 	void CreateGraphicsRootSignatures(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 	void CreateComputePipelineStates(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 	void CreateComputeRootSignatures(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
+
 public:
 	D3D12_BLEND_DESC						GraphicsBlendDesc(UINT index);
 	D3D12_RASTERIZER_DESC					GraphicsRasterRizerDesc(UINT index);

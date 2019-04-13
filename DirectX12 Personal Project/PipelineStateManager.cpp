@@ -20,6 +20,9 @@ void PipelineStateManager::CreatePipelineStates(ID3D12Device* id3dDevice, ID3D12
 {
 	CreateGraphicsRootSignatures(id3dDevice, id3dGraphicsCommandList);
 	CreateGraphicsPipelineStates(id3dDevice, id3dGraphicsCommandList);
+
+	CreateComputeRootSignatures(id3dDevice, id3dGraphicsCommandList);
+	CreateComputePipelineStates(id3dDevice, id3dGraphicsCommandList);
 }
 
 void PipelineStateManager::CreateGraphicsPipelineStates(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
@@ -60,7 +63,7 @@ void PipelineStateManager::CreateGraphicsPipelineStates(ID3D12Device* id3dDevice
 
 void PipelineStateManager::CreateComputePipelineStates(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
-	for (UINT i = 0; i < m_ComputePipelineNames.size() - 2; ++i) {
+	for (UINT i = 0; i < m_ComputePipelineNames.size() - 1; ++i) {
 		D3D12_COMPUTE_PIPELINE_STATE_DESC d3dComputePipelineDesc;
 		::ZeroMemory(&d3dComputePipelineDesc, sizeof(D3D12_COMPUTE_PIPELINE_STATE_DESC));
 
@@ -86,14 +89,15 @@ void PipelineStateManager::CreateComputeRootSignatures(ID3D12Device* id3dDevice,
 
 		switch (i) {
 		case SIGNATURE_CALCULATE_LUM_FIRSTPASS:
-			d3dRootDescriptorRange.resize(3);
+			d3dRootDescriptorRange.resize(4);
 			d3dRootDescriptorRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SR_ORIGIN_TEXTURE);
 			d3dRootDescriptorRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, UAV_LUM_FACTOR);
 			d3dRootDescriptorRange[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, UAV_OUTPUT_TEXTURE);
+			d3dRootDescriptorRange[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, UAV_TEST);
 
 			d3dRootParameter.resize(2);
 			d3dRootParameter[0].InitAsConstantBufferView(CB_MIX);
-			d3dRootParameter[1].InitAsDescriptorTable(1, &d3dRootDescriptorRange[0]);
+			d3dRootParameter[1].InitAsDescriptorTable(d3dRootDescriptorRange.size(), &d3dRootDescriptorRange[0]);
 			break;
 
 		case SIGNATURE_CALCULATE_LUM_SECONDPASS:
@@ -134,7 +138,7 @@ void PipelineStateManager::CreateGraphicsRootSignatures(ID3D12Device* id3dDevice
 			d3dRootParameter[0].InitAsConstantBufferView(CB_CAM);
 			d3dRootParameter[1].InitAsConstantBufferView(CB_OBJ);
 			d3dRootParameter[2].InitAsConstantBufferView(CB_LIGHT);
-			d3dRootParameter[3].InitAsDescriptorTable(1, &d3dRootDescriptorRange[0]);
+			d3dRootParameter[3].InitAsDescriptorTable(d3dRootDescriptorRange.size(), &d3dRootDescriptorRange[0]);
 			break;
 
 		case SIGNATURE_RENDER_DEFERRED:
@@ -144,7 +148,7 @@ void PipelineStateManager::CreateGraphicsRootSignatures(ID3D12Device* id3dDevice
 			d3dRootParameter.resize(3);
 			d3dRootParameter[0].InitAsConstantBufferView(CB_CAM);
 			d3dRootParameter[1].InitAsConstantBufferView(CB_LIGHT);
-			d3dRootParameter[2].InitAsDescriptorTable(1, &d3dRootDescriptorRange[0]);
+			d3dRootParameter[2].InitAsDescriptorTable(d3dRootDescriptorRange.size(), &d3dRootDescriptorRange[0]);
 			break;
 
 		case SIGNATURE_CREATE_SHDOWMAP:
@@ -298,7 +302,7 @@ D3D12_SHADER_BYTECODE PipelineStateManager::CS(UINT index)
 {
 	switch (index) {
 	case PIPELINE_MIX:
-		return COMPILEDSHADER->GetShaderByteCode("Mix");
+		return COMPILEDSHADER->GetShaderByteCode("CalculateLumFirstPass");
 
 	case PIPELINE_BLOOM:
 		return COMPILEDSHADER->GetShaderByteCode("Bloom");

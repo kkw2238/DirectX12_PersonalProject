@@ -15,9 +15,7 @@ void ShaderObject::CreateDescriptorHeap(ID3D12Device* id3dDevice, ID3D12Graphics
 	ThrowIfFail(id3dDevice->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(m_ID3DDescriptorHeap.GetAddressOf())));
 }
 
-//////////////////////////////////////
-
-void GraphicsShaderBase::CreateSRV(ID3D12Device* id3dDevice, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset, bool isUsedDescriptorArray)
+void ShaderObject::CreateSRV(ID3D12Device* id3dDevice, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset, bool isUsedDescriptorArray)
 {
 	CD3DX12_CPU_DESCRIPTOR_HANDLE SRVCPUDescriptorHandle;
 	CD3DX12_GPU_DESCRIPTOR_HANDLE SRVGPUDescriptorHandle;
@@ -36,6 +34,8 @@ void GraphicsShaderBase::CreateSRV(ID3D12Device* id3dDevice, ID3D12DescriptorHea
 	for (size_t i = 0; i != m_TextureInfos.size(); ++i)
 		TEXMANAGER->LinkedTexture(m_TextureInfos[i].Data()->Name(), &m_TextureInfos[i]);
 }
+
+//////////////////////////////////////
 
 void GraphicsShaderBase::UpdateTextureInfo(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {

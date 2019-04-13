@@ -18,6 +18,7 @@ public:
 	D3D12_RESOURCE_DESC ResouceDesc();
 	D3D12_GPU_VIRTUAL_ADDRESS GPUVirtualAddress();
 	D3D12_SHADER_RESOURCE_VIEW_DESC SRVDesc() const;
+	virtual D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc() const {};
 
 	std::wstring Name() const;
 
@@ -26,7 +27,21 @@ protected:
 	ComPtr<ID3D12Resource> m_ID3DTextureUploadBuffer;
 
 	std::wstring m_TextureName;
-	D3D12_SHADER_RESOURCE_VIEW_DESC m_D3DResouceViewDesc;
+	D3D12_SHADER_RESOURCE_VIEW_DESC m_D3DSRVDesc;
+
+	bool m_bISUnorderedAccessBuffer = false;
+};
+
+class UnorderedAccessBuffer : public Texture {
+public:
+	UnorderedAccessBuffer() = default;
+	UnorderedAccessBuffer(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& texName, UINT elementSize, UINT width, UINT height, D3D12_SRV_DIMENSION srvDimension = D3D12_SRV_DIMENSION_TEXTURE2D, D3D12_UAV_DIMENSION uavDimension = D3D12_UAV_DIMENSION_BUFFER);
+
+public:
+	D3D12_UNORDERED_ACCESS_VIEW_DESC UAVDesc() const;
+
+protected:
+	D3D12_UNORDERED_ACCESS_VIEW_DESC m_D3DUAVDesc;
 };
 
 class TextureRootInfo

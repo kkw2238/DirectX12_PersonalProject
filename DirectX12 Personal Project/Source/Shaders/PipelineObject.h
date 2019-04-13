@@ -18,9 +18,12 @@ public:
 	virtual void ExecutePipeline(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& pipelineName, const std::wstring& signatureName, Camera* camera = nullptr);
 	virtual void CreateDescriptorHeap(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT CBVCount, UINT SRVCount, UINT UAVCount);
 	virtual void BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const int numRenderTarget) {};
+	void CreateSRV(ID3D12Device* id3dDevice, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset, bool isUsedDescriptorArray);
 
 protected:
-	ComPtr<ID3D12DescriptorHeap> m_ID3DDescriptorHeap;
+	ComPtr<ID3D12DescriptorHeap>	m_ID3DDescriptorHeap;
+	std::vector<TextureRootInfo>	m_TextureInfos;
+	bool							m_IsUsedDescriptorHeapArray = false;
 
 protected:
 	UINT m_DescriptorHeapSRVStart = 0;
@@ -38,10 +41,6 @@ public:
 	virtual void RenderGraphicsObj(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, Camera* camera = nullptr) {};
 	virtual void CreateShadow(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& pipelineName, const std::wstring& signatureName, Camera* camera = nullptr);
 
-	void CreateSRV(ID3D12Device* id3dDevice, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset, bool isUsedDescriptorArray);
 	void UpdateTextureInfo(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 
-protected:
-	std::vector<TextureRootInfo>	m_TextureInfos;
-	bool							m_IsUsedDescriptorHeapArray = false;
 };

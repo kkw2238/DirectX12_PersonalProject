@@ -132,7 +132,7 @@ std::vector<CD3DX12_STATIC_SAMPLER_DESC> D3DDescriptorFactory::SamplerDescs(Defa
 	return std::vector<CD3DX12_STATIC_SAMPLER_DESC>();
 }
 
-D3D12_SHADER_RESOURCE_VIEW_DESC D3DDescriptorFactory::SRVResourceViewDesc(const D3D12_RESOURCE_DESC& d3dResourceDesc, D3D12_SRV_DIMENSION dimension)
+D3D12_SHADER_RESOURCE_VIEW_DESC D3DDescriptorFactory::SRVDesc(const D3D12_RESOURCE_DESC& d3dResourceDesc, D3D12_SRV_DIMENSION dimension)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC d3dSRVDesc;
 
@@ -161,6 +161,16 @@ D3D12_SHADER_RESOURCE_VIEW_DESC D3DDescriptorFactory::SRVResourceViewDesc(const 
 	}
 
 	return d3dSRVDesc;
+}
+
+D3D12_UNORDERED_ACCESS_VIEW_DESC D3DDescriptorFactory::UAVDesc(const D3D12_RESOURCE_DESC& d3dResourceDesc, D3D12_UAV_DIMENSION dimension)
+{
+	D3D12_UNORDERED_ACCESS_VIEW_DESC d3dUAVDesc;
+	d3dUAVDesc.Format = d3dResourceDesc.Format;
+	d3dUAVDesc.ViewDimension = dimension;
+	d3dUAVDesc.Buffer.NumElements = d3dResourceDesc.Height * d3dResourceDesc.Width;
+
+	return d3dUAVDesc;
 }
 
 void D3DDescriptorFactory::SetCBVSRVUAVdescriptorHandleIncrementSize(UINT size)
