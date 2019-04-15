@@ -16,7 +16,7 @@ groupshared float sharedData[1024];
 [numthreads(1024, 1, 1)]
 void CalculateLumFirstPass(uint3 GroupID : SV_GroupID, uint3 GroupThreadID : SV_GroupThreadID,  uint3 DispatchThreadID : SV_DispatchThreadID )
 {
-	uint index = GroupID.x * 1024 + GroupThreadID.x * 4;
+	uint index = GroupID.x * 1024 + GroupThreadID.x;
 	testTexture[index] = float4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	GroupMemoryBarrierWithGroupSync();

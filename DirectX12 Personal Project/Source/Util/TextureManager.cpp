@@ -61,6 +61,16 @@ void TextureManager::AddTexture(ID3D12Device* id3dDevice, ID3D12Resource* textur
 	RefreshLinkedTexture(id3dDevice, textureName);
 }
 
+void TextureManager::AddUnorderedAccessBuffer(ID3D12Device* id3dDevice, ID3D12Resource* UABuffer, const std::wstring& textureName, D3D12_UAV_DIMENSION uavDimension)
+{
+	if (m_Textures[textureName])
+		m_Textures[textureName].reset();
+
+	m_Textures[textureName] = std::make_shared<UnorderedAccessBuffer>(UABuffer, textureName, uavDimension);
+
+	RefreshLinkedTexture(id3dDevice, textureName);
+}
+
 void TextureManager::RefreshLinkedTexture(ID3D12Device* id3dDevice, const std::wstring& textureName)
 {
 	for (size_t i = 0; i != m_LinkedTextures[textureName].size(); ++i)

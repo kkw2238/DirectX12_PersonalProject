@@ -65,6 +65,23 @@ UnorderedAccessBuffer::UnorderedAccessBuffer(ID3D12Device* id3dDevice, ID3D12Gra
 
 	m_D3DSRVDesc = DESCFACTORY->SRVDesc(m_ID3DTexture->GetDesc(), srvDimension);
 	m_D3DUAVDesc = DESCFACTORY->UAVDesc(m_ID3DTexture->GetDesc(), uavDimension);
+
+	m_bISUnorderedAccessBuffer = true;
+}
+
+UnorderedAccessBuffer::UnorderedAccessBuffer(ID3D12Resource* buffer, const std::wstring& texName, D3D12_UAV_DIMENSION uavDimension)
+{
+	m_ID3DTexture = buffer;
+	m_TextureName = texName;
+
+	m_D3DUAVDesc = DESCFACTORY->UAVDesc(m_ID3DTexture->GetDesc(), uavDimension);
+
+	m_bISUnorderedAccessBuffer = true;
+}
+
+D3D12_UNORDERED_ACCESS_VIEW_DESC UnorderedAccessBuffer::UAVDesc() const
+{
+	return m_D3DUAVDesc;
 }
 
 
@@ -101,6 +118,11 @@ D3D12_SHADER_RESOURCE_VIEW_DESC TextureRootInfo::SRVDesc() const
 	return m_Texture->SRVDesc();
 }
 
+D3D12_UNORDERED_ACCESS_VIEW_DESC TextureRootInfo::UAVDesc() const
+{
+	return m_Texture->UAVDesc();
+}
+
 CD3DX12_CPU_DESCRIPTOR_HANDLE TextureRootInfo::CPUHandle() const
 {
 	return m_CPUDescHandle;
@@ -119,9 +141,22 @@ void TextureRootInfo::CreateSRV(ID3D12Device* id3dDevice, const CD3DX12_CPU_DESC
 	m_GPUDescHandle = gpuHandle;
 }
 
+void TextureRootInfo::CreateUAV(ID3D12Device* id3dDevice, const CD3DX12_CPU_DESCRIPTOR_HANDLE& cpuHandle, const CD3DX12_GPU_DESCRIPTOR_HANDLE& gpuHandle)
+{
+	id3dDevice->CreateUnorderedAccessView(Resource(), nullptr, &UAVDesc(), cpuHandle);
+
+	m_CPUDescHandle = cpuHandle;
+	m_GPUDescHandle = gpuHandle;
+}
+
 void TextureRootInfo::RefreshSRV(ID3D12Device* id3dDevice)
 {
 	id3dDevice->CreateShaderResourceView(Resource(), &SRVDesc(), m_CPUDescHandle);
+}
+
+void TextureRootInfo::RefreshUAV(ID3D12Device* id3dDevice)
+{
+	id3dDevice->CreateUnorderedAccessView(Resource(), nullptr, &UAVDesc(), m_CPUDescHandle);
 }
 
 void TextureRootInfo::RefreshTexture(ID3D12Device* id3dDevice, std::shared_ptr<Texture> texture)
@@ -131,7 +166,10 @@ void TextureRootInfo::RefreshTexture(ID3D12Device* id3dDevice, std::shared_ptr<T
 
 	m_Texture = texture;
 
-	RefreshSRV(id3dDevice);
+	if (m_Texture->IsUnorderedAccessBuffer())
+		RefreshUAV(id3dDevice);
+	else
+		RefreshSRV(id3dDevice);
 }
 
 void TextureRootInfo::UpdateInfo(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)

@@ -1,6 +1,7 @@
 #pragma once
 #include "GraphicsObjectsShader.h"
 #include "DeferredRenderShader.h"
+#include "ComputeObjectShader.h"
 #include "Camera.h"
 
 class Scene
@@ -25,11 +26,14 @@ public:
 
 protected:
 	POINT								m_MousePos;
-	/* 테스트용으로 집어넣은 셰이더 오브젝트 */
+	
 	GraphicsObjectsShader				m_TestShaderObject;
 	DeferredRenderShader				m_DeferredShaderObject;
 
 	DebugDefferedResource				m_DebugResourceObject;
+
+	/* 테스트용으로 집어넣은 계산 셰이더 오브젝트 */
+	ComputeObjectShader					m_TestComputeShaderObject;
 
 	bool m_EnableDebug = false;
 	bool m_IsCapture = false;
