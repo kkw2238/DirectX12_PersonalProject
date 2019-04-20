@@ -27,6 +27,7 @@ protected:
 
 protected:
 	UINT m_DescriptorHeapSRVStart = 0;
+	UINT m_DescriptorHeapUAVStart = 0;
 };
 
 class GraphicsShaderBase : public ShaderObject

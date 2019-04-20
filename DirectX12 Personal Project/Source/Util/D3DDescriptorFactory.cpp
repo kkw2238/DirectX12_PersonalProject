@@ -168,8 +168,24 @@ D3D12_UNORDERED_ACCESS_VIEW_DESC D3DDescriptorFactory::UAVDesc(const D3D12_RESOU
 	D3D12_UNORDERED_ACCESS_VIEW_DESC d3dUAVDesc;
 	d3dUAVDesc.Format = d3dResourceDesc.Format;
 	d3dUAVDesc.ViewDimension = dimension;
-	d3dUAVDesc.Buffer.NumElements = d3dResourceDesc.Height * d3dResourceDesc.Width;
-
+	switch (dimension)
+	{
+	case D3D12_UAV_DIMENSION_BUFFER:
+		d3dUAVDesc.Buffer = D3D12_BUFFER_UAV{ 0, d3dResourceDesc.Height * static_cast<UINT>(d3dResourceDesc.Width), 0, D3D12_BUFFER_SRV_FLAG_NONE };
+		break;
+	case D3D12_UAV_DIMENSION_TEXTURE1D:
+		d3dUAVDesc.Texture1D = D3D12_TEX1D_UAV{ 0 };
+		break;
+	case  D3D12_UAV_DIMENSION_TEXTURE2D:
+		d3dUAVDesc.Texture2D = D3D12_TEX2D_UAV{ 0, 0 };
+		break;
+	case  D3D12_UAV_DIMENSION_TEXTURE2DARRAY:
+		d3dUAVDesc.Texture2DArray = D3D12_TEX2D_ARRAY_UAV{ 0, 0, 0, 0 };
+		break;
+	default:
+		break;
+	}
+	
 	return d3dUAVDesc;
 }
 
@@ -206,9 +222,6 @@ UINT D3DDescriptorFactory::DescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_T
 
 void D3DDescriptorFactory::CraeteCPUGPUDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE heapType, ID3D12DescriptorHeap* id3dDescriptorHeap, CD3DX12_CPU_DESCRIPTOR_HANDLE& cpuHandle, CD3DX12_GPU_DESCRIPTOR_HANDLE& gpuHandle, UINT offset)
 {
-	D3D12_CPU_DESCRIPTOR_HANDLE cpuhandle = id3dDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	D3D12_GPU_DESCRIPTOR_HANDLE Gpuhandle = id3dDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-
 	cpuHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(id3dDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), offset, DescriptorHandleIncrementSize(heapType));
 	gpuHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(id3dDescriptorHeap->GetGPUDescriptorHandleForHeapStart(), offset, DescriptorHandleIncrementSize(heapType));
 }

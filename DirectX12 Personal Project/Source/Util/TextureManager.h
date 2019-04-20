@@ -9,6 +9,9 @@ public:
 
 public:
 	static TextureManager* Instance();
+	std::shared_ptr<Texture> CreateTexture(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& texName, UINT width, UINT height, DXGI_FORMAT format, D3D12_RESOURCE_FLAGS resourceFlag, D3D12_RESOURCE_STATES resourceState);
+	std::shared_ptr<Texture> CreateBuffer(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& bufferName, UINT width, DXGI_FORMAT format, D3D12_RESOURCE_FLAGS resourceFlag, D3D12_RESOURCE_STATES resourceState);
+
 	std::shared_ptr<Texture> LoadTexture(
 		ID3D12Device* id3dDevice, 
 		ID3D12GraphicsCommandList* id3dGraphicsCommandList, 

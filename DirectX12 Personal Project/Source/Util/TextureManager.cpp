@@ -16,6 +16,70 @@ TextureManager* TextureManager::Instance()
 	return &texManager;
 }
 
+std::shared_ptr<Texture> TextureManager::CreateTexture(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& texName, UINT width, UINT height, DXGI_FORMAT format, D3D12_RESOURCE_FLAGS resourceFlag, D3D12_RESOURCE_STATES resourceState)
+{
+	ComPtr<ID3D12Resource> resource;
+
+	id3dDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Tex2D(format, width, height, 1, 0, 1, 0, resourceFlag),
+		resourceState,
+		nullptr,
+		IID_PPV_ARGS(resource.GetAddressOf())
+	);
+
+	if (resourceFlag == D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS) {
+		ComPtr<ID3D12Resource> readBackResource;
+		id3dDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Tex2D(format, width, height),
+			D3D12_RESOURCE_STATE_COPY_DEST,
+			nullptr,
+			IID_PPV_ARGS(readBackResource.GetAddressOf())
+		);
+
+		AddUnorderedAccessBuffer(id3dDevice, resource.Get(), texName, D3D12_UAV_DIMENSION_TEXTURE2D);
+		AddTexture(id3dDevice, readBackResource.Get(), texName + L"RB");
+	}
+
+	else
+		AddTexture(id3dDevice, resource.Get(), texName, D3D12_SRV_DIMENSION_TEXTURE2D);
+
+	return m_Textures[texName];
+}
+
+std::shared_ptr<Texture> TextureManager::CreateBuffer(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& bufferName, UINT width, DXGI_FORMAT format, D3D12_RESOURCE_FLAGS resourceFlag, D3D12_RESOURCE_STATES resourceState)
+{
+	ComPtr<ID3D12Resource> resource;
+
+	id3dDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(width, resourceFlag),
+		resourceState,
+		nullptr,
+		IID_PPV_ARGS(resource.GetAddressOf())
+	);
+
+	if (resourceFlag == D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS) {
+		ComPtr<ID3D12Resource> readBackResource;
+		id3dDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(width),
+			D3D12_RESOURCE_STATE_COPY_DEST,
+			nullptr,
+			IID_PPV_ARGS(resource.GetAddressOf())
+		);
+
+		AddUnorderedAccessBuffer(id3dDevice, resource.Get(), bufferName, D3D12_UAV_DIMENSION_BUFFER);
+		AddTexture(id3dDevice, readBackResource.Get(), bufferName + L"RB");
+	}
+
+	else
+		AddTexture (id3dDevice, resource.Get(), bufferName, D3D12_SRV_DIMENSION_BUFFER);
+	
+	return m_Textures[bufferName];
+}
+
 std::shared_ptr<Texture> TextureManager::LoadTexture(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, const std::wstring& fileName, const std::wstring& textureName, DDS_ALPHA_MODE alphaMode, bool isCubeMap)
 {
 

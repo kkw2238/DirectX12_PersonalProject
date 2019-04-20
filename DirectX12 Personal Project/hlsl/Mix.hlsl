@@ -6,7 +6,7 @@ cbuffer CB_MIX : register(b1)
 };
 
 RWTexture2D<float4> outputTexture : register(u0);
-RWBuffer<float4> testTexture : register(u2);
+RWTexture2D<float4> testTexture : register(u2);
 RWBuffer<float> lumFactor : register(u1);
 
 static const float4 LUM_FACTOR = float4(0.299f, 0.587f, 0.114f, 0.0f);
@@ -17,7 +17,9 @@ groupshared float sharedData[1024];
 void CalculateLumFirstPass(uint3 GroupID : SV_GroupID, uint3 GroupThreadID : SV_GroupThreadID,  uint3 DispatchThreadID : SV_DispatchThreadID )
 {
 	uint index = GroupID.x * 1024 + GroupThreadID.x;
-	testTexture[index] = float4(1.0f, 1.0f, 1.0f, 1.0f);
+	uint2 xy = uint2(index % 800, index / 800);
+
+	testTexture[xy] = float4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	GroupMemoryBarrierWithGroupSync();
 }

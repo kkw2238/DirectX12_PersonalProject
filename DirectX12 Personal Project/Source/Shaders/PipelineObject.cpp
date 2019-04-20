@@ -11,7 +11,7 @@ void ShaderObject::CreateDescriptorHeap(ID3D12Device* id3dDevice, ID3D12Graphics
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = DESCFACTORY->DescriptorHeapDesc(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, CBVCount + SRVCount + UAVCount);
 
 	m_DescriptorHeapSRVStart = CBVCount;
-
+	m_DescriptorHeapUAVStart = CBVCount + SRVCount;
 	ThrowIfFail(id3dDevice->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(m_ID3DDescriptorHeap.GetAddressOf())));
 }
 

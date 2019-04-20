@@ -6,7 +6,7 @@ void Scene::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id
 	m_TestShaderObject.BuildPipelineObject(id3dDevice, id3dGraphicsCommandList);
 	m_DeferredShaderObject.BuildPipelineObject(id3dDevice, id3dGraphicsCommandList);
 	m_DebugResourceObject.BuildPipelineObject(id3dDevice, id3dGraphicsCommandList);
-	m_TestComputeShaderObject.BuildComputeObjects(id3dDevice, id3dGraphicsCommandList);
+	//m_TestComputeShaderObject.BuildPipelineObject(id3dDevice, id3dGraphicsCommandList);
 
 	m_Camera = std::make_unique<Camera>();
 	m_Camera->BuildObjects(id3dDevice, id3dGraphicsCommandList, 1);
