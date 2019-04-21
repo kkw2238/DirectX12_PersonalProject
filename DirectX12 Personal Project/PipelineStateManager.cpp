@@ -90,10 +90,10 @@ void PipelineStateManager::CreateComputeRootSignatures(ID3D12Device* id3dDevice,
 		switch (i) {
 		case SIGNATURE_CALCULATE_LUM_FIRSTPASS:
 			d3dRootDescriptorRange.resize(4);
-			d3dRootDescriptorRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SR_ORIGIN_TEXTURE);
+			d3dRootDescriptorRange[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SR_ORIGIN_TEXTURE);
 			d3dRootDescriptorRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, UAV_LUM_FACTOR);
 			d3dRootDescriptorRange[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, UAV_OUTPUT_TEXTURE);
-			d3dRootDescriptorRange[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, UAV_TEST);
+			d3dRootDescriptorRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, UAV_TEST);
 
 			d3dRootParameter.resize(2);
 			d3dRootParameter[0].InitAsConstantBufferView(CB_MIX);
@@ -305,7 +305,7 @@ D3D12_SHADER_BYTECODE PipelineStateManager::CS(UINT index)
 		return COMPILEDSHADER->GetShaderByteCode("CalculateLumFirstPass");
 
 	case PIPELINE_BLOOM:
-		return COMPILEDSHADER->GetShaderByteCode("Bloom");
+		return COMPILEDSHADER->GetShaderByteCode("CalculateLumFirstPass");
 
 	case PIPELINE_HDR:
 		return COMPILEDSHADER->GetShaderByteCode("HDR");

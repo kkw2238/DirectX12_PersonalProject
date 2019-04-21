@@ -58,7 +58,7 @@ void DebugDefferedResource::BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12
 
 void DebugDefferedResource::BuildGraphicsObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
-	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(std::wstring(L"RT_COLOR")), TEXTURE_SR);
+	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(std::wstring(L"TEST_UABUFFER")), TEXTURE_SR);
 	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(std::wstring(L"RT_NORMAL")), TEXTURE_SR);
 	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(std::wstring(L"DS_SHADOW")), TEXTURE_SR);
 	m_TextureInfos.emplace_back(TEXMANAGER->GetTexture(std::wstring(L"DS_MAIN")), TEXTURE_SR);

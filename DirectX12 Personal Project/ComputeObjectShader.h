@@ -11,6 +11,7 @@ public:
 	virtual void BuildPipelineObject(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 	virtual void BuildComputeObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 	void CreateUAV(ID3D12Device* id3dDevice, ID3D12DescriptorHeap* id3dDescriptorHeap, UINT offset, bool isUsedDescriptorArray);
+	void ReadBackUABuffers(ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 
 protected:
 	XMUINT3 m_ThreadCount;

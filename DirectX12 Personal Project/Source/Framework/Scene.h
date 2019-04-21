@@ -16,6 +16,7 @@ public:
 	void CreateShadowMap(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 	void RenderObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 	void RenderDeferredObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList);
+	void ReadBackUABuffer(ID3D12GraphicsCommandList* id3dGraphicsCommandList);
 
 	void UpdateScissorRectViewport();
 	void ProcessKeyboard(float elapsedTime);

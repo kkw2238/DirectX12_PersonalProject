@@ -5,8 +5,8 @@ void Scene::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id
 {
 	m_TestShaderObject.BuildPipelineObject(id3dDevice, id3dGraphicsCommandList);
 	m_DeferredShaderObject.BuildPipelineObject(id3dDevice, id3dGraphicsCommandList);
+	m_TestComputeShaderObject.BuildPipelineObject(id3dDevice, id3dGraphicsCommandList);
 	m_DebugResourceObject.BuildPipelineObject(id3dDevice, id3dGraphicsCommandList);
-	//m_TestComputeShaderObject.BuildPipelineObject(id3dDevice, id3dGraphicsCommandList);
 
 	m_Camera = std::make_unique<Camera>();
 	m_Camera->BuildObjects(id3dDevice, id3dGraphicsCommandList, 1);
@@ -23,17 +23,23 @@ void Scene::RenderObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* i
 {
 	m_Camera->SetShadowMatrix(LIGHT_MANAGER->GetLight(0)->GetShadowMatrix());
 	m_TestShaderObject.ExecutePipeline(id3dDevice, id3dGraphicsCommandList, L"Obj", L"Obj", m_Camera.get());
+	m_TestComputeShaderObject.ExecutePipeline(id3dDevice, id3dGraphicsCommandList, L"CalLumFirstPass", L"CalLumFirstPass");
+
 }
 
 void Scene::RenderDeferredObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList)
 {
 	m_Camera->SetShadowMatrix(LIGHT_MANAGER->GetLight(0)->GetShadowMatrix());
 	m_DeferredShaderObject.ExecutePipeline(id3dDevice, id3dGraphicsCommandList, L"Deferred", L"Deferred", m_Camera.get());
-	m_TestComputeShaderObject.ExecutePipeline(id3dDevice, id3dGraphicsCommandList, L"CalLumFirstPass", L"CalLumFirstPass");
-
+	
 	if (m_EnableDebug) {
 		m_DebugResourceObject.ExecutePipeline(id3dDevice, id3dGraphicsCommandList, L"DebugSR", L"Deferred", m_Camera.get());
 	}
+}
+
+void Scene::ReadBackUABuffer(ID3D12GraphicsCommandList* id3dGraphicsCommandList)
+{
+	m_TestComputeShaderObject.ReadBackUABuffers(id3dGraphicsCommandList);
 }
 
 void Scene::UpdateScissorRectViewport()

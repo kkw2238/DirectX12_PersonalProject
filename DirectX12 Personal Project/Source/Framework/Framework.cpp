@@ -230,7 +230,8 @@ bool Framework::Initialized()
 	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
 
 	m_Scene.BuildObjects(m_ID3DDevice.Get(), m_ID3DCommandList.Get());
-	
+	std::shared_ptr<Texture> tex = TEXMANAGER->GetTexture(L"TEST_UABUFFER");
+
 	LIGHT_MANAGER->CreateLight(m_ID3DDevice.Get());
 	COMPILEDSHADER->CreateShaders();
 	PIPELINESTATE_MANAGER->CreatePipelineStates(m_ID3DDevice.Get(), m_ID3DCommandList.Get());
@@ -238,8 +239,8 @@ bool Framework::Initialized()
 	ThrowIfFail(m_ID3DCommandList->Close());
 	ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };
 	m_ID3DCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-
 	FlushCommandQueue();
+
 
 	return true;
 }
@@ -498,6 +499,8 @@ void Framework::OnPrepareRender()
 	ThrowIfFail(m_ID3DCommandAllocator->Reset());
 	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
 
+	
+
 	D3DUtil::ChangeResourceState(GetCurrentBackBuffer(), m_ID3DCommandList.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	m_ID3DCommandList->ClearRenderTargetView(GetCurrentBackBufferView(), DirectX::Colors::Black, 0, nullptr);
@@ -566,6 +569,18 @@ void Framework::DeferredRender()
 	ThrowIfFail(m_ID3DCommandAllocator->Reset());
 	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
 
+	m_Scene.ReadBackUABuffer(m_ID3DCommandList.Get());
+
+	ThrowIfFail(m_ID3DCommandList->Close());
+
+	ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };
+	m_ID3DCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+	FlushCommandQueue();
+
+	ThrowIfFail(m_ID3DCommandAllocator->Reset());
+	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
+
 	m_ID3DCommandList->OMSetRenderTargets(1, &GetCurrentBackBufferView(), true, nullptr);
 
 	m_Scene.RenderDeferredObjects(m_ID3DDevice.Get(), m_ID3DCommandList.Get());
@@ -574,7 +589,7 @@ void Framework::DeferredRender()
 
 	ThrowIfFail(m_ID3DCommandList->Close());
 
-	ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };
+	cmdsLists[0] = { m_ID3DCommandList.Get() };
 	m_ID3DCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	FlushCommandQueue();
