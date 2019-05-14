@@ -1,5 +1,4 @@
 #include "Mesh.h"
-#include "Structures.h"
 #include <fstream>
 
 Mesh::Mesh()
@@ -24,10 +23,10 @@ Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsComm
 	m_MeshName = meshName;
 }
 
-Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, std::vector<Vector3>& vertices, std::vector<Vector3>& normals, std::vector<Vector3>& tangents, std::vector<Vector2>& texCoords, std::vector<UINT>& indices, std::vector<UINT>& matindices, float correctionY)
+Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, std::vector<Vector3>& vertices, std::vector<Vector3>& normals, std::vector<Vector3>& tangents, std::vector<Vector2>& texCoords, std::vector<UINT>& indices, std::vector<UINT>& matindices, const VERTEX_IN_BONE* boneDatas, float correctionY)
 {
 	m_fCorrectionY = correctionY;
-	CreateMesh(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, matindices);
+	CreateMesh(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, matindices, boneDatas);
 }
 
 Mesh::~Mesh()
@@ -43,7 +42,7 @@ void Mesh::DrawMesh(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT nOb
 	id3dGraphicsCommandList->DrawIndexedInstanced(m_nIndicesCount, nObjectCount, 0, 0, 0);
 }
 
-void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, std::vector<Vector3>& vertices, std::vector<Vector3>&normals, std::vector<Vector3>& tangents, std::vector<Vector2>& texCoords, std::vector<UINT>& indices, std::vector<UINT>& matindices)
+void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, std::vector<Vector3>& vertices, std::vector<Vector3>&normals, std::vector<Vector3>& tangents, std::vector<Vector2>& texCoords, std::vector<UINT>& indices, std::vector<UINT>& matindices, const VERTEX_IN_BONE* boneDatas)
 {
 	m_nVerticesCount = vertices.size();
 	m_nIndicesCount = indices.size();
@@ -61,7 +60,10 @@ void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dG
 		CreateTangentVectors(vertices, normals, texCoords, indices, m_nIndicesCount / 3, tangents);
 
 	for (UINT i = 0; i < m_nVerticesCount; ++i) {
-		vertexInfo[i] = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i], matindices[i]);
+		if(boneDatas != nullptr)
+			vertexInfo[i] = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i], matindices[i], boneDatas[i].GetData());
+		else
+			vertexInfo[i] = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i], matindices[i]);
 	}
 
 	m_ID3DVertexBuffer = D3DUtil::CreateDefaultBuffer(id3dDevice, id3dGraphicsCommandList, vertexInfo.data(), sizeof(IA_TEXTURE_OBJ) * m_nVerticesCount, m_ID3DVertexUploadBuffer);
@@ -90,13 +92,14 @@ void Mesh::DrawMeshes(ID3D12GraphicsCommandList* id3dCommandList, UINT nObjectCo
 {
 	for (size_t i = 0; i < m_ChildMeshes.size(); ++i)
 		m_ChildMeshes[i].DrawMesh(id3dCommandList, nObjectCount);
+
 	//DrawMesh(id3dCommandList, nObjectCount);
 }
 
 void Mesh::ProcessNode(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id3dGraphicsCommandList, aiNode * node, const aiScene * scene)
 {
 	for (size_t i = 0; i < node->mNumMeshes; ++i) {
-		m_ChildMeshes.push_back(ProcessMesh(id3dDevice, id3dGraphicsCommandList, scene->mMeshes[node->mMeshes[i]], scene));
+		m_ChildMeshes.push_back(ProcessMesh(id3dDevice, id3dGraphicsCommandList, scene->mMeshes[node->mMeshes[i]], scene)); 
 	}
 
 	for (size_t i = 0; i < node->mNumChildren; ++i) {
@@ -111,11 +114,15 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 	std::vector<Vector3> normals;
 	std::vector<Vector2> texCoords;
 	std::vector<Vector3> tangents;
-	std::vector<UINT> materialIndices;
-	std::vector<UINT> indices;
-	float correctY = 0.0f;
+	std::vector<UINT>	materialIndices;
+	std::vector<UINT>	indices;
+	std::vector<VERTEX_IN_BONE> bonedatas;
 
-	for (size_t verticesIndex = 0; verticesIndex < mesh->mNumVertices; ++verticesIndex) {
+	float correctY = 0.0f;
+	UINT numBones = mesh->mNumBones;
+	UINT numVertices = mesh->mNumVertices;
+
+	for (size_t verticesIndex = 0; verticesIndex < numVertices; ++verticesIndex) {
 		aiVector3D vertex;
 		aiVector3D texCoord;
 		aiVector3D tangent;
@@ -142,21 +149,37 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 		materialIndices.emplace_back(mesh->mMaterialIndex);
 	}
 
+	if (mesh->mBones != nullptr) {
+		bonedatas.resize(numVertices);
+	}
+
+	for (size_t boneIndex = 0; boneIndex < numBones; ++boneIndex) {
+		aiBone* bone = mesh->mBones[boneIndex];
+		UINT numWeight = mesh->mBones[boneIndex]->mNumWeights;
+
+		for (size_t weightIndex = 0; weightIndex < numWeight; ++weightIndex) {
+			aiVertexWeight weight = bone->mWeights[weightIndex];
+			bonedatas[weight.mVertexId].InputVertexInBoneData(boneIndex, weight.mWeight);
+		}	
+	}
+
 	for (size_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
 		aiFace face = mesh->mFaces[faceIndex];
 
 		for (size_t indicesIndex = 0; indicesIndex < face.mNumIndices; ++indicesIndex) {
 			indices.push_back(face.mIndices[indicesIndex]);
-
 		}
 	}
 
-	return Mesh(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, materialIndices, correctY);
+	return Mesh(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, materialIndices, bonedatas.data(), correctY);
 }
 
 
 void Mesh::SetPlaneMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, float width, float depth, UINT matIndex)
 {
+	std::vector<UINT> boneIndices;
+	std::vector<float> weights;
+
 	UINT nVerticesCount = 4;
 	UINT nIndicesCount = 6;
 	UINT nStartSlot = 0;
@@ -197,6 +220,9 @@ void Mesh::SetPlaneMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3
 
 void Mesh::SetCubeMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, float width, float height, float depth, UINT matIndex)
 {
+	std::vector<UINT> boneIndices;
+	std::vector<float> weights;
+
 	UINT nVerticesCount = 24;
 	UINT nIndicesCount = 36;
 	UINT nStartSlot = 0;

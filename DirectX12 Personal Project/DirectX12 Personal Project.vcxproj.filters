@@ -129,6 +129,9 @@
     <ClInclude Include="ComputeObjectShader.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>헤더 파일\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\DDSTextureLoader\DDSTextureLoader.cpp">
@@ -164,12 +167,6 @@
     <ClCompile Include="Source\Shaders\PipelineObject.cpp">
       <Filter>소스 파일\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Shaders\DeferredRenderShader.cpp">
-      <Filter>소스 파일\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Shaders\GraphicsObjectsShader.cpp">
-      <Filter>소스 파일\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Util\CompiledShader.cpp">
       <Filter>소스 파일\Util</Filter>
     </ClCompile>
@@ -199,6 +196,15 @@
     </ClCompile>
     <ClCompile Include="ComputeObjectShader.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Shaders\DeferredRenderShader.cpp">
+      <Filter>소스 파일\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Shaders\GraphicsObjectsShader.cpp">
+      <Filter>소스 파일\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>소스 파일\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -211,7 +211,7 @@ UINT D3DDescriptorFactory::DescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_T
 		return m_CBVSRVUAVdescriptorHandleIncrementSize;
 
 	case D3D12_DESCRIPTOR_HEAP_TYPE_RTV:
-		return m_CBVSRVUAVdescriptorHandleIncrementSize;
+		return m_RTVdescriptorHandleIncrementSize;
 		
 	case D3D12_DESCRIPTOR_HEAP_TYPE_DSV:
 		return m_DSVdescriptorHandleIncrementSize;

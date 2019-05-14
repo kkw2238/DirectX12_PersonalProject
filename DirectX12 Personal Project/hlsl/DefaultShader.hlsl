@@ -12,6 +12,8 @@ struct VS_TEXTURE_INPUT {
 	float3 normal : NORMAL;
 	float3 tangent : TANGENT;
 	uint   matIndex : MATINDEX;
+	uint4	boneIndices : BONEINDEX;
+	float4	weights : WEIGHT;
 };
 
 struct VS_TEXTURE_OUTPUT {
