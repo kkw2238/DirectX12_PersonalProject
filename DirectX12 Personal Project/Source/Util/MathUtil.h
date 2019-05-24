@@ -288,3 +288,5 @@ public:
 
 void CreateNormalVectors(std::vector<Vector3>& positions, std::vector<Vector3>& normals);
 void CreateTangentVectors(std::vector<Vector3>& positions, std::vector<Vector3>& normals, std::vector<Vector2>& texcoords, std::vector<UINT>& indeies, UINT meshCount, std::vector<Vector3>& TBN);
+
+Matrix4x4 aiMatrixConverter(aiMatrix4x4& mat);

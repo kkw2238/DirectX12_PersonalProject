@@ -1,6 +1,8 @@
 #ifndef CBUFFER_HLSL
 #define CBUFFER_HLSL
 
+#define BONE_COUNT = 96;
+
 static float4 defaultVSOut[6] = {
 	{ -1.0f, -1.0f, 0.0f, 1.0f },
 	{ -1.0f, +1.0f, 0.0f, 1.0f },
@@ -37,6 +39,8 @@ cbuffer CB_CAM_INFO : register(b0)
 cbuffer CB_OBJ_INFO : register(b1)
 {
 	matrix objWorld;
+	matrix objBoneOffset[BONE_COUNT];
+	matrix objBoneInvMatrix;
 };
 
 #endif

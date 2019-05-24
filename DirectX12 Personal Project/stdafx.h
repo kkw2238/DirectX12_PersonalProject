@@ -40,6 +40,12 @@
 #include <comdef.h>
 #include <dxgi1_4.h>
 
+// Assimp 관련 헤더
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+
 // 여기서 프로그램에 필요한 추가 헤더를 참조합니다.
 #include "d3dx12.h"
 

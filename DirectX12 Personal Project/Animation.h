@@ -1,14 +1,6 @@
 #pragma once
 #include "Mesh.h"
 
-
-Matrix4x4 aiMatrixConverter(aiMatrix4x4& mat) {
-	Matrix4x4 result;
-	::memcpy(&result, &mat, sizeof(float) * 16);
-
-	return result;
-}
-
 class Animation
 {
 public:
@@ -22,5 +14,5 @@ public:
 protected:
 	std::wstring m_AnimationName;
 	Matrix4x4 m_BoneMatrixes[NUM_OF_BONES];
-	Matrix4x4 m_InvRootMatrix;
+	
 };

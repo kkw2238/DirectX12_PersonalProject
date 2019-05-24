@@ -21,13 +21,9 @@ struct CB_CAMERA_INFO {
 
 struct CB_OBJ_INFO {
 	Matrix4x4 matWorld;
+	Matrix4x4 matBonesMatrix[NUM_OF_BONES];
+	Matrix4x4 matBoneInvMatrix;
 };
-
-struct BONE_DATA {
-	Matrix4x4 boneMatrixes[NUM_OF_BONES];
-	std::map<std::wstring, unsigned int> bonStringIndexing;
-};
-
 
 struct VERTEX_IN_BONE_DATA {
 	UINT boneIndices[VERTEX_IN_BONE_COUNT] = { 0, 0, 0, 0 };

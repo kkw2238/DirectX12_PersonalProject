@@ -163,9 +163,28 @@ UINT GraphicsMeshObject::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCo
 void GraphicsMeshObject::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT rootParameterIndex)
 {
 	for (UINT i = 0; i < m_ObjectCount; ++i) {
+		unsigned int boneCount = 0;
+		Matrix4x4* boneOffsetMatrixes = nullptr;
+		Bones* bones = nullptr;
+
+		if (m_pMesh != nullptr) 
+			bones = m_pMesh->BonesData();
+		else if (MESHMANAGER->GetLatelyMesh() != nullptr) 
+			bones = MESHMANAGER->GetLatelyMesh()->BonesData();
+		
 		CB_OBJ_INFO tmpData;
 		Matrix4x4 scaleMatrix = XMMatrixScalingFromVector(m_ScaleSize.GetXMVector());
 		tmpData.matWorld = (scaleMatrix * m_WorldMatrix[i] * m_RotateMatrix[i]).Transpose();
+		if (bones != nullptr) {
+			boneCount = bones->BoneCount();
+			boneOffsetMatrixes = bones->MatrixesData();
+
+			for (int i = 0; i < boneCount; ++i) 
+				tmpData.matBonesMatrix[i] = boneOffsetMatrixes[i];
+			
+			tmpData.matBoneInvMatrix = bones->InvRootMatrix();
+		}
+
 		m_ObjUploadBuffer.CopyData(i, tmpData);
 	}
 

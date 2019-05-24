@@ -792,3 +792,11 @@ void CreateTangentVectors(std::vector<Vector3>& positions, std::vector<Vector3>&
 		Tangent.emplace_back(Vector3(tan1[i] - (normals[i] * Vector3::DotProduct(normals[i], tan1[i]))).Normalize());
 	}
 }
+
+Matrix4x4 aiMatrixConverter(aiMatrix4x4& mat)
+{
+	Matrix4x4 result;
+	::memcpy(&result, &mat, sizeof(float) * 16);
+
+	return result;
+}
