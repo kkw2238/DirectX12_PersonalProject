@@ -230,6 +230,7 @@ bool Framework::Initialized()
 	ThrowIfFail(m_ID3DCommandList->Reset(m_ID3DCommandAllocator.Get(), nullptr));
 
 	m_Scene.BuildObjects(m_ID3DDevice.Get(), m_ID3DCommandList.Get());
+	std::shared_ptr<Texture> tex = TEXMANAGER->GetTexture(L"TEST_UABUFFER");
 
 	LIGHT_MANAGER->CreateLight(m_ID3DDevice.Get());
 	COMPILEDSHADER->CreateShaders();
@@ -371,13 +372,13 @@ void Framework::CreateSwapChain()
 void Framework::CreateSwapChainBuffers()
 {
 	m_CurrentSwapChainBufferIndex = 0;
-	CD3DX12_GPU_DESCRIPTOR_HANDLE cD3DSwapChainViewHeapGHandle( m_ID3DSwapChainBufferViewHeap->GetGPUDescriptorHandleForHeapStart());
-	
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE cD3DSwapChainViewHeapHandle(m_ID3DSwapChainBufferViewHeap->GetCPUDescriptorHandleForHeapStart());
 	for (UINT i = 0; i < m_SwapChainBufferCount; ++i)
 	{
-		CD3DX12_CPU_DESCRIPTOR_HANDLE cD3DSwapChainViewHeapHandle(m_ID3DSwapChainBufferViewHeap->GetCPUDescriptorHandleForHeapStart(), i, DESCFACTORY->DescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV));
 		ThrowIfFail(m_IDxgiSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_ID3DSwapChainBuffer[i])));
 		m_ID3DDevice->CreateRenderTargetView(m_ID3DSwapChainBuffer[i].Get(), nullptr, cD3DSwapChainViewHeapHandle);
+		cD3DSwapChainViewHeapHandle.Offset(1, DESCFACTORY->DescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV));
 	}
 }
 

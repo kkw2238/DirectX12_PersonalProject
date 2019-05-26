@@ -163,7 +163,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Animation.h" />
     <ClInclude Include="ComputeObjectShader.h" />
     <ClInclude Include="DirectX12 Personal Project.h" />
     <ClInclude Include="Light.h" />
@@ -193,7 +192,6 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Animation.cpp" />
     <ClCompile Include="ComputeObjectShader.cpp" />
     <ClCompile Include="DirectX12 Personal Project.cpp" />
     <ClCompile Include="Light.cpp" />

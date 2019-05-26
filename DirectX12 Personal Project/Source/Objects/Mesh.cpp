@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Structures.h"
 #include <fstream>
 
 
@@ -46,10 +47,10 @@ Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsComm
 	m_MeshName = meshName;
 }
 
-Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, std::vector<Vector3>& vertices, std::vector<Vector3>& normals, std::vector<Vector3>& tangents, std::vector<Vector2>& texCoords, std::vector<UINT>& indices, std::vector<UINT>& matindices, const VERTEX_IN_BONE* boneDatas, float correctionY)
+Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, std::vector<Vector3>& vertices, std::vector<Vector3>& normals, std::vector<Vector3>& tangents, std::vector<Vector2>& texCoords, std::vector<UINT>& indices, std::vector<UINT>& matindices, float correctionY)
 {
 	m_fCorrectionY = correctionY;
-	CreateMesh(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, matindices, boneDatas);
+	CreateMesh(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, matindices);
 }
 
 Mesh::~Mesh()
@@ -65,7 +66,7 @@ void Mesh::DrawMesh(ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT nOb
 	id3dGraphicsCommandList->DrawIndexedInstanced(m_nIndicesCount, nObjectCount, 0, 0, 0);
 }
 
-void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, std::vector<Vector3>& vertices, std::vector<Vector3>&normals, std::vector<Vector3>& tangents, std::vector<Vector2>& texCoords, std::vector<UINT>& indices, std::vector<UINT>& matindices, const VERTEX_IN_BONE* boneDatas)
+void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, std::vector<Vector3>& vertices, std::vector<Vector3>&normals, std::vector<Vector3>& tangents, std::vector<Vector2>& texCoords, std::vector<UINT>& indices, std::vector<UINT>& matindices)
 {
 	m_nVerticesCount = vertices.size();
 	m_nIndicesCount = indices.size();
@@ -86,6 +87,7 @@ void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dG
 	//file << "VI\tBI[0]\tBI[1]\tBI[2]\tBI[3]\tBW[0]\tBW[1]\tBW[2]\tBW[3]\n";
 
 	for (UINT i = 0; i < m_nVerticesCount; ++i) {
+<<<<<<< HEAD
 		if (boneDatas != nullptr) {
 			//file << i << '\t' << boneDatas[i].data.boneIndices[0] << '\t' << boneDatas[i].data.boneIndices[1] << '\t' << boneDatas[i].data.boneIndices[2] << '\t' << boneDatas[i].data.boneIndices[3] << '\t'
 			//	<< boneDatas[i].data.weights[0] << '\t' << boneDatas[i].data.weights[1] << '\t' << boneDatas[i].data.weights[2] << '\t' << boneDatas[i].data.weights[3] << '\n';
@@ -93,6 +95,9 @@ void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dG
 		}
 		else
 			vertexInfo[i] = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i], matindices[i]);
+=======
+		vertexInfo[i] = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i], matindices[i]);
+>>>>>>> parent of ee99c41... 애니메이션 작업중
 	}
 
 //	file.close();
@@ -123,14 +128,13 @@ void Mesh::DrawMeshes(ID3D12GraphicsCommandList* id3dCommandList, UINT nObjectCo
 {
 	for (size_t i = 0; i < m_ChildMeshes.size(); ++i)
 		m_ChildMeshes[i].DrawMesh(id3dCommandList, nObjectCount);
-
 	//DrawMesh(id3dCommandList, nObjectCount);
 }
 
 void Mesh::ProcessNode(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id3dGraphicsCommandList, aiNode * node, const aiScene * scene)
 {
 	for (size_t i = 0; i < node->mNumMeshes; ++i) {
-		m_ChildMeshes.push_back(ProcessMesh(id3dDevice, id3dGraphicsCommandList, scene->mMeshes[node->mMeshes[i]], scene)); 
+		m_ChildMeshes.push_back(ProcessMesh(id3dDevice, id3dGraphicsCommandList, scene->mMeshes[node->mMeshes[i]], scene));
 	}
 
 	for (size_t i = 0; i < node->mNumChildren; ++i) {
@@ -145,15 +149,11 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 	std::vector<Vector3> normals;
 	std::vector<Vector2> texCoords;
 	std::vector<Vector3> tangents;
-	std::vector<UINT>	materialIndices;
-	std::vector<UINT>	indices;
-	std::vector<VERTEX_IN_BONE> bonedatas;
-
+	std::vector<UINT> materialIndices;
+	std::vector<UINT> indices;
 	float correctY = 0.0f;
-	UINT numBones = mesh->mNumBones;
-	UINT numVertices = mesh->mNumVertices;
 
-	for (size_t verticesIndex = 0; verticesIndex < numVertices; ++verticesIndex) {
+	for (size_t verticesIndex = 0; verticesIndex < mesh->mNumVertices; ++verticesIndex) {
 		aiVector3D vertex;
 		aiVector3D texCoord;
 		aiVector3D tangent;
@@ -180,6 +180,7 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 		materialIndices.emplace_back(mesh->mMaterialIndex);
 	}
 
+<<<<<<< HEAD
 	if (mesh->mBones != nullptr) {
 		bonedatas.resize(numVertices);
 		m_Bones.SetInvRootMatrix(aiMatrixConverter(scene->mRootNode->mTransformation).Inverse());
@@ -197,23 +198,23 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 		}
 	}
 
+=======
+>>>>>>> parent of ee99c41... 애니메이션 작업중
 	for (size_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
 		aiFace face = mesh->mFaces[faceIndex];
 
 		for (size_t indicesIndex = 0; indicesIndex < face.mNumIndices; ++indicesIndex) {
 			indices.push_back(face.mIndices[indicesIndex]);
+
 		}
 	}
 
-	return Mesh(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, materialIndices, bonedatas.data(), correctY);
+	return Mesh(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, materialIndices, correctY);
 }
 
 
 void Mesh::SetPlaneMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, float width, float depth, UINT matIndex)
 {
-	std::vector<UINT> boneIndices;
-	std::vector<float> weights;
-
 	UINT nVerticesCount = 4;
 	UINT nIndicesCount = 6;
 	UINT nStartSlot = 0;
@@ -254,9 +255,6 @@ void Mesh::SetPlaneMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3
 
 void Mesh::SetCubeMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, float width, float height, float depth, UINT matIndex)
 {
-	std::vector<UINT> boneIndices;
-	std::vector<float> weights;
-
 	UINT nVerticesCount = 24;
 	UINT nIndicesCount = 36;
 	UINT nStartSlot = 0;

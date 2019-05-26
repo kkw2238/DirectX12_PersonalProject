@@ -5,11 +5,7 @@
  */
 
 #include "MathUtil.h"
-#include <Map>
-
-const unsigned int MAX_LIGHT = 2;
-const unsigned int VERTEX_IN_BONE_COUNT = 4;
-const unsigned int NUM_OF_BONES = 96;
+#define MAX_LIGHT 2
 
 struct CB_CAMERA_INFO {
 	Matrix4x4 matProjection;
@@ -25,6 +21,7 @@ struct CB_OBJ_INFO {
 	Matrix4x4 matBoneInvMatrix;
 };
 
+<<<<<<< HEAD
 struct VERTEX_IN_BONE_DATA {
 	UINT boneIndices[VERTEX_IN_BONE_COUNT] = { 0, 0, 0, 0 };
 	float weights[VERTEX_IN_BONE_COUNT] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -44,11 +41,11 @@ struct VERTEX_IN_BONE {
 	VERTEX_IN_BONE_DATA GetData() const { return data; }
 };
 
+=======
+>>>>>>> parent of ee99c41... 애니메이션 작업중
 struct IA_TEXTURE_OBJ {
 	IA_TEXTURE_OBJ() {};
-	IA_TEXTURE_OBJ(Vector3& vertex, Vector2& texCoord, Vector3& normal, Vector3& tangent, const UINT matindex, const VERTEX_IN_BONE_DATA vboData) :
-		vertexPos(vertex), texCoord(texCoord), normal(normal), tangent(tangent), materialIndex(matindex), vertexBoneData(vboData) {}
-	IA_TEXTURE_OBJ(Vector3& vertex, Vector2& texCoord, Vector3& normal, Vector3& tangent, const UINT matindex) :
+	IA_TEXTURE_OBJ(Vector3& vertex, Vector2& texCoord, Vector3& normal, Vector3& tangent, UINT matindex) :
 		vertexPos(vertex), texCoord(texCoord), normal(normal), tangent(tangent), materialIndex(matindex) {}
 
 	Vector3 vertexPos;
@@ -56,7 +53,6 @@ struct IA_TEXTURE_OBJ {
 	Vector3 normal;
 	Vector3 tangent;
 	UINT	materialIndex;
-	VERTEX_IN_BONE_DATA vertexBoneData;
 };
 
 struct CB_LIGHT_INFO {
