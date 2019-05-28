@@ -793,7 +793,7 @@ void CreateTangentVectors(std::vector<Vector3>& positions, std::vector<Vector3>&
 	}
 }
 
-Matrix4x4 aiMatrixConverter(aiMatrix4x4& mat)
+Matrix4x4 aiMatrixConverter(const aiMatrix4x4& mat)
 {
 	Matrix4x4 result;
 	::memcpy(&result, &mat, sizeof(float) * 16);

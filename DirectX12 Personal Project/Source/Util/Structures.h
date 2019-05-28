@@ -44,6 +44,8 @@ struct VERTEX_IN_BONE {
 	VERTEX_IN_BONE_DATA GetData() const { return data; }
 };
 
+
+
 struct IA_TEXTURE_OBJ {
 	IA_TEXTURE_OBJ() {};
 	IA_TEXTURE_OBJ(Vector3& vertex, Vector2& texCoord, Vector3& normal, Vector3& tangent, const UINT matindex, const VERTEX_IN_BONE_DATA vboData) :
@@ -51,6 +53,7 @@ struct IA_TEXTURE_OBJ {
 	IA_TEXTURE_OBJ(Vector3& vertex, Vector2& texCoord, Vector3& normal, Vector3& tangent, const UINT matindex) :
 		vertexPos(vertex), texCoord(texCoord), normal(normal), tangent(tangent), materialIndex(matindex) {}
 
+	
 	Vector3 vertexPos;
 	Vector2 texCoord;
 	Vector3 normal;
@@ -58,6 +61,9 @@ struct IA_TEXTURE_OBJ {
 	UINT	materialIndex;
 	VERTEX_IN_BONE_DATA vertexBoneData;
 };
+
+std::ostream& operator<<(std::ostream& os, const IA_TEXTURE_OBJ& obj);
+
 
 struct CB_LIGHT_INFO {
 	Vector3 color;

@@ -2,6 +2,8 @@
 #include "MathUtil.h"
 #include "Structures.h"
 
+class Animation;
+
 struct InitIntMinusOne {
 	InitIntMinusOne() {};
 	InitIntMinusOne(const int newi) { i = newi; }
@@ -22,17 +24,22 @@ public:
 
 public:
 	void SetInvRootMatrix(Matrix4x4 invRootMatrix);
-	void InsertBoneData(std::string boneName, int boneIndex, Matrix4x4 boneOffsetMatrix);
+	void InsertBoneData(float animationTime, const aiMesh* mesh, const aiNode* node, const Matrix4x4& parentMat, std::vector<VERTEX_IN_BONE>& verData);
+	void ProcessBoneData(float animationTime, const aiNode* node, const int parentIndex);
 
 	int BoneCount() const { return m_BoneCount; }
-	Matrix4x4* MatrixesData() { return m_BoneOffsetMatrixes.data(); }
+
+	std::vector<Matrix4x4> MatrixesData() { return m_BoneOffsetMatrixes; }
 	Matrix4x4 InvRootMatrix() const { return m_InvRootMatrix; }
 protected:
-	unsigned int m_BoneCount;
+	unsigned int m_BoneCount = 0;
 	Matrix4x4 m_InvRootMatrix;
 
 	std::vector<Matrix4x4> m_BoneOffsetMatrixes;
+	std::vector<Matrix4x4*> m_pBoneParentMatrixes;
 	std::map<std::string, InitIntMinusOne> m_BoneNameNumbering;
+
+	Animation* m_NowAni = nullptr;
 };
 
 
@@ -57,7 +64,7 @@ public:
 
 	float CorrectionY() const;
 
-	Bones* BonesData() { return &m_Bones; }
+	Bones BonesData() { return m_Bones; }
 
 	std::vector<Mesh> Get();
 protected:

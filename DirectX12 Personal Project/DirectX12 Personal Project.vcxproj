@@ -215,6 +215,7 @@
     <ClCompile Include="Source\Util\D3DUtil.cpp" />
     <ClCompile Include="Source\Util\MathUtil.cpp" />
     <ClCompile Include="Source\Util\MeshManager.cpp" />
+    <ClCompile Include="Source\Util\Structures.cpp" />
     <ClCompile Include="Source\Util\TextureManager.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

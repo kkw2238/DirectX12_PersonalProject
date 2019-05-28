@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Animation.h"
 #include <fstream>
 
 
@@ -16,11 +17,40 @@ void Bones::SetInvRootMatrix(Matrix4x4 invRootMatrix)
 	m_InvRootMatrix = invRootMatrix;
 }
 
-void Bones::InsertBoneData(std::string boneName, int boneIndex, Matrix4x4 boneOffsetMatrix)
+void Bones::InsertBoneData(float animationTime, const aiMesh* mesh, const aiNode* node, const Matrix4x4& parentMat, std::vector<VERTEX_IN_BONE>& verData)
 {
-	if (m_BoneNameNumbering[boneName] == -1) {
-		m_BoneNameNumbering[boneName] = boneIndex;
-		m_BoneOffsetMatrixes[boneIndex] = boneOffsetMatrix;
+	unsigned int numBones = mesh->mNumBones;
+
+	for (size_t boneIndex = 0; boneIndex < numBones; ++boneIndex) {
+		aiBone* bone = mesh->mBones[boneIndex];
+		UINT numWeight = mesh->mBones[boneIndex]->mNumWeights;
+
+		if (m_BoneNameNumbering[bone->mName.data] == -1) {
+			m_BoneNameNumbering[bone->mName.data] = boneIndex;
+			m_BoneOffsetMatrixes[boneIndex] = aiMatrixConverter(bone->mOffsetMatrix);
+			++m_BoneCount;
+		}
+		
+		for (size_t weightIndex = 0; weightIndex < numWeight; ++weightIndex) {
+			aiVertexWeight weight = bone->mWeights[weightIndex];
+			verData[weight.mVertexId].InputVertexInBoneData(boneIndex, weight.mWeight);
+		}
+	}
+
+	ProcessBoneData(animationTime, node, -1);
+}
+
+void Bones::ProcessBoneData(float animationTime, const aiNode* node, const int parentIndex)
+{
+	int parentID = -1;
+	unsigned int numChildren = node->mNumChildren;
+
+	
+	for (int i = 0; i < numChildren; ++i) {
+		std::string a = node->mChildren[i]->mName.data;
+		if(m_BoneNameNumbering.find(node->mName.data) != m_BoneNameNumbering.end())
+
+		ProcessBoneData(animationTime, node->mChildren[i], parentIndex);
 	}
 }
 
@@ -82,20 +112,19 @@ void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dG
 	if (tangents.size() == 0)
 		CreateTangentVectors(vertices, normals, texCoords, indices, m_nIndicesCount / 3, tangents);
 
-	//std::ofstream file("BoneData.txt");
-	//file << "VI\tBI[0]\tBI[1]\tBI[2]\tBI[3]\tBW[0]\tBW[1]\tBW[2]\tBW[3]\n";
-
+	std::ofstream file("BoneData.txt");
+	
 	for (UINT i = 0; i < m_nVerticesCount; ++i) {
 		if (boneDatas != nullptr) {
-			//file << i << '\t' << boneDatas[i].data.boneIndices[0] << '\t' << boneDatas[i].data.boneIndices[1] << '\t' << boneDatas[i].data.boneIndices[2] << '\t' << boneDatas[i].data.boneIndices[3] << '\t'
-			//	<< boneDatas[i].data.weights[0] << '\t' << boneDatas[i].data.weights[1] << '\t' << boneDatas[i].data.weights[2] << '\t' << boneDatas[i].data.weights[3] << '\n';
+			IA_TEXTURE_OBJ data = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i], matindices[i], boneDatas[i].GetData());
+			file << data;
 			vertexInfo[i] = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i], matindices[i], boneDatas[i].GetData());
 		}
 		else
 			vertexInfo[i] = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i], matindices[i]);
 	}
 
-//	file.close();
+	file.close();
 
 	m_ID3DVertexBuffer = D3DUtil::CreateDefaultBuffer(id3dDevice, id3dGraphicsCommandList, vertexInfo.data(), sizeof(IA_TEXTURE_OBJ) * m_nVerticesCount, m_ID3DVertexUploadBuffer);
 	m_D3DVertexBufferView.BufferLocation = m_ID3DVertexBuffer->GetGPUVirtualAddress();
@@ -161,12 +190,13 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 
 		if (mesh->mVertices != nullptr) {
 			vertex = mesh->mVertices[verticesIndex];
-			vertices.emplace_back(vertex.x, vertex.y, vertex.z);
+			vertices.emplace_back(vertex.x, vertex.y, -vertex.z);
 			if (vertex.y < correctY)
 				correctY = vertex.y;
 		}
 		if (mesh->mTextureCoords[0] != nullptr) {
 			texCoord = mesh->mTextureCoords[0][verticesIndex];
+			texCoord.y = 1.0f - texCoord.y;
 			texCoords.emplace_back(texCoord.x, texCoord.y);
 		}
 		if (mesh->mTangents != nullptr) {
@@ -181,14 +211,14 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 	}
 
 	if (mesh->mBones != nullptr) {
+		Matrix4x4 mat;
 		bonedatas.resize(numVertices);
 		m_Bones.SetInvRootMatrix(aiMatrixConverter(scene->mRootNode->mTransformation).Inverse());
+		m_Bones.InsertBoneData(60.0f, mesh, scene->mRootNode, mat, bonedatas);
 
 		for (size_t boneIndex = 0; boneIndex < numBones; ++boneIndex) {
 			aiBone* bone = mesh->mBones[boneIndex];
 			UINT numWeight = mesh->mBones[boneIndex]->mNumWeights;
-			
-			m_Bones.InsertBoneData(bone->mName.data, boneIndex, aiMatrixConverter(bone->mOffsetMatrix));
 
 			for (size_t weightIndex = 0; weightIndex < numWeight; ++weightIndex) {
 				aiVertexWeight weight = bone->mWeights[weightIndex];
