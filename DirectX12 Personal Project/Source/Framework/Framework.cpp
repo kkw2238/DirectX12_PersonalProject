@@ -4,6 +4,7 @@
 #include <shellapi.h>
 #include "MeshManager.h"
 #include "PipelineStateManager.h"
+#include "Animation.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -207,6 +208,10 @@ unsigned int Framework::OnFileDrop(HWND hWnd, WPARAM state)
 		loadFileName.insert(loadFileName.find_last_of('.'), L"_NRM");
 		TEXMANAGER->LoadTexture(m_ID3DDevice.Get(), m_ID3DCommandList.Get(), loadFileName, L"DEFAULT_NRM", DDS_ALPHA_MODE_UNKNOWN, false);
 	}
+
+	if (std::find(ANITYPES.begin(), ANITYPES.end(), extension) != ANITYPES.end())
+		ANIMATION_CONTROLLER->LoadAnimation(loadFileName, D3DUtil::GetFileName(loadFileName), extension);
+
 	ThrowIfFail(m_ID3DCommandList->Close());
 	ID3D12CommandList* cmdsLists[] = { m_ID3DCommandList.Get() };
 	m_ID3DCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);

@@ -27,7 +27,7 @@ void Bones::InsertBoneData(float animationTime, const aiMesh* mesh, const aiNode
 
 		if (m_BoneNameNumbering[bone->mName.data] == -1) {
 			m_BoneNameNumbering[bone->mName.data] = boneIndex;
-			m_BoneOffsetMatrixes[boneIndex] = aiMatrixConverter(bone->mOffsetMatrix);
+			m_BoneOffsetMatrixes[boneIndex] = bone->mOffsetMatrix;
 			++m_BoneCount;
 		}
 		
@@ -54,6 +54,14 @@ void Bones::ProcessBoneData(float animationTime, const aiNode* node, const int p
 	}
 }
 
+int Bones::findBoneNumber(std::string& boneName)
+{
+	if (m_BoneNameNumbering.find(boneName) != m_BoneNameNumbering.end())
+		return m_BoneNameNumbering[boneName].i;
+
+	return -1;
+}
+
 Mesh::Mesh()
 {
 }
@@ -66,8 +74,9 @@ Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsComm
 	std::string extensionString(extension.begin(), extension.end());
 
 	const aiScene* scene = importer.ReadFile(filenameString.c_str(),
-		aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded);
+		aiProcess_Triangulate |						
+		aiProcess_ConvertToLeftHanded				
+	);
 
 	importer.GetImporterIndex(extensionString.c_str());
 
@@ -112,19 +121,16 @@ void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dG
 	if (tangents.size() == 0)
 		CreateTangentVectors(vertices, normals, texCoords, indices, m_nIndicesCount / 3, tangents);
 
-	std::ofstream file("BoneData.txt");
-	
+
 	for (UINT i = 0; i < m_nVerticesCount; ++i) {
 		if (boneDatas != nullptr) {
 			IA_TEXTURE_OBJ data = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i], matindices[i], boneDatas[i].GetData());
-			file << data;
 			vertexInfo[i] = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i], matindices[i], boneDatas[i].GetData());
 		}
 		else
 			vertexInfo[i] = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i], matindices[i]);
 	}
 
-	file.close();
 
 	m_ID3DVertexBuffer = D3DUtil::CreateDefaultBuffer(id3dDevice, id3dGraphicsCommandList, vertexInfo.data(), sizeof(IA_TEXTURE_OBJ) * m_nVerticesCount, m_ID3DVertexUploadBuffer);
 	m_D3DVertexBufferView.BufferLocation = m_ID3DVertexBuffer->GetGPUVirtualAddress();
@@ -196,7 +202,7 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 		}
 		if (mesh->mTextureCoords[0] != nullptr) {
 			texCoord = mesh->mTextureCoords[0][verticesIndex];
-			texCoord.y = 1.0f - texCoord.y;
+			texCoord.y = texCoord.y;
 			texCoords.emplace_back(texCoord.x, texCoord.y);
 		}
 		if (mesh->mTangents != nullptr) {
@@ -213,7 +219,7 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 	if (mesh->mBones != nullptr) {
 		Matrix4x4 mat;
 		bonedatas.resize(numVertices);
-		m_Bones.SetInvRootMatrix(aiMatrixConverter(scene->mRootNode->mTransformation).Inverse());
+		m_Bones.SetInvRootMatrix(Matrix4x4(scene->mRootNode->mTransformation).Inverse());
 		m_Bones.InsertBoneData(60.0f, mesh, scene->mRootNode, mat, bonedatas);
 
 		for (size_t boneIndex = 0; boneIndex < numBones; ++boneIndex) {
@@ -231,7 +237,7 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 		aiFace face = mesh->mFaces[faceIndex];
 
 		for (size_t indicesIndex = 0; indicesIndex < face.mNumIndices; ++indicesIndex) {
-			indices.push_back(face.mIndices[indicesIndex]);
+			indices.push_back(face.mIndices[face.mNumIndices - indicesIndex - 1]);
 		}
 	}
 

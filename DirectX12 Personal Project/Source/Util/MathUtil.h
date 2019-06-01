@@ -12,8 +12,8 @@ class Vector2 {
 public:
 	Vector2();
 	Vector2(float vecx, float vecy);
-	Vector2(XMFLOAT2& other);
-	Vector2(XMVECTOR& other);
+	Vector2(const XMFLOAT2& other);
+	Vector2(const XMVECTOR& other);
 	~Vector2() = default;
 
 public:
@@ -81,8 +81,8 @@ class Vector3 {
 public:
 	Vector3();
 	Vector3(float vecx, float vecy, float vecz);
-	Vector3(XMFLOAT3& other);
-	Vector3(XMVECTOR& other);
+	Vector3(const XMFLOAT3& other);
+	Vector3(const XMVECTOR& other);
 	~Vector3() = default;
 
 public:
@@ -92,28 +92,28 @@ public:
 	void operator=(const XMFLOAT3& other);
 	void operator=(const XMVECTOR& other);
 
-	Vector3 operator+(const Vector3& other);
-	Vector3 operator+(const XMFLOAT3& other);
-	Vector3 operator+(const XMVECTOR& other);
+	Vector3 operator+(const Vector3& other) const;
+	Vector3 operator+(const XMFLOAT3& other) const;
+	Vector3 operator+(const XMVECTOR& other) const;
 
 	void operator+=(const Vector3& other);
 	void operator+=(const XMFLOAT3& other);
 	void operator+=(const XMVECTOR& other);
 
-	Vector3 operator-(const Vector3& other);
-	Vector3 operator-(const XMFLOAT3& other);
-	Vector3 operator-(const XMVECTOR& other);
+	Vector3 operator-(const Vector3& other) const;
+	Vector3 operator-(const XMFLOAT3& other) const;
+	Vector3 operator-(const XMVECTOR& other) const;
 
 	void operator-=(const Vector3& other);
 	void operator-=(const XMFLOAT3& other);
 	void operator-=(const XMVECTOR& other);
 
-	Vector3 operator*(const Vector3& other);
-	Vector3 operator*(const XMFLOAT3& other);
-	Vector3 operator*(const XMVECTOR& other);
+	Vector3 operator*(const Vector3& other) const;
+	Vector3 operator*(const XMFLOAT3& other) const;
+	Vector3 operator*(const XMVECTOR& other) const;
 	Vector3 operator*(const float scalar);
 
-	Vector3 operator/(const float scalar);
+	Vector3 operator/(const float scalar) const;
 
 	void operator*=(const Vector3& other);
 	void operator*=(const XMFLOAT3& other);
@@ -132,6 +132,25 @@ public:
 	static float DotProduct(const Vector3& a, const XMVECTOR& b);
 
 	static Vector3 Lerp(Vector3& a, Vector3& b, float t) { return a + (b - a) * t; }
+	static Vector3 Lerp(const Vector3& a, const Vector3& b, float t) { return a + (b - a) * t; }
+
+#ifdef AI_VECTOR3D_H_INC
+	Vector3(aiVector3D& aiVec);
+
+	void operator=(const aiVector3D& aiVec);
+
+	Vector3 operator+(const aiVector3D& aiVec);
+	void operator+=(const aiVector3D& aiVec);
+
+	Vector3 operator-(const aiVector3D& aiVec);
+	void operator-=(const aiVector3D& aiVec);
+
+	Vector3 operator*(const aiVector3D& aiVec);
+	void operator*=(const aiVector3D& aiVec);
+	
+	static float DotProduct(const Vector3& a, const aiVector3D& b);
+
+#endif
 
 	friend std::ostream& operator<<(std::ostream& os, const Vector3& vec)
 	{
@@ -152,8 +171,8 @@ class Vector4 {
 public:
 	Vector4();
 	Vector4(float vecx, float vecy, float vecz, float vecw);
-	Vector4(XMFLOAT4& other);
-	Vector4(XMVECTOR& other);
+	Vector4(const XMFLOAT4& other);
+	Vector4(const XMVECTOR& other);
 	~Vector4() = default;
 
 public:
@@ -163,24 +182,24 @@ public:
 	void operator=(const XMFLOAT4& other);
 	void operator=(const XMVECTOR& other);
 
-	Vector4 operator+(const Vector4& other);
-	Vector4 operator+(const XMFLOAT4& other);
-	Vector4 operator+(const XMVECTOR& other);
+	Vector4 operator+(const Vector4& other) const;
+	Vector4 operator+(const XMFLOAT4& other) const;
+	Vector4 operator+(const XMVECTOR& other) const;
 
 	void operator+=(const Vector4& other);
 	void operator+=(const XMFLOAT4& other);
 	void operator+=(const XMVECTOR& other);
 
-	Vector4 operator-(const Vector4& other);
-	Vector4 operator-(const XMFLOAT4& other);
-	Vector4 operator-(const XMVECTOR& other);
+	Vector4 operator-(const Vector4& other) const;
+	Vector4 operator-(const XMFLOAT4& other) const;
+	Vector4 operator-(const XMVECTOR& other) const;
 
 	void operator-=(const Vector4& other);
 	void operator-=(const XMFLOAT4& other);
 	void operator-=(const XMVECTOR& other);
 
-	Vector4 operator*(const float scalar);
-	Vector4 operator*(const Matrix4x4& other);
+	Vector4 operator*(const float scalar) const;
+	Vector4 operator*(const Matrix4x4& other) const;
 
 	void operator*=(const float scalar);
 	void operator*=(const Matrix4x4& other);
@@ -191,6 +210,23 @@ public:
 	static Vector4 DotProduct(const Vector4& a, const XMFLOAT4& b);
 	static Vector4 DotProduct(const Vector4& a, const Vector4& b);
 	static Vector4 DotProduct(const Vector4& a, const XMVECTOR& b);
+
+	static Vector4 Lerp(Vector4& a, Vector4& b, float t) { return a + (b - a) * t; }
+	static Vector4 Lerp(const Vector4 & a, const Vector4 & b, float t) { return a + (b - a) * t; }
+
+#ifdef AI_QUATERNION_H_INC
+	Vector4(aiQuaternion& aiVec);
+
+	void operator=(const aiQuaternion& aiVec);
+
+	Vector4 operator+(const aiQuaternion& aiVec) const ;
+	void operator+=(const aiQuaternion& aiVec);
+
+	Vector4 operator-(const aiQuaternion& aiVec) const;
+	void operator-=(const aiQuaternion& aiVec);
+
+	static Vector4 Slerp(const aiQuaternion& a, const aiQuaternion& b, float t, bool normalize = false);
+#endif
 
 	friend std::ostream& operator<<(std::ostream& os, Vector4& vec)
 	{
@@ -207,9 +243,97 @@ public:
 	};
 };
 
+class Matrix3x3 {
+public:
+	Matrix3x3();
+	Matrix3x3(const Matrix3x3& other);
+	Matrix3x3(const XMFLOAT3X3& other);
+	Matrix3x3(const XMMATRIX& other);
+	Matrix3x3(const Vector3& vec1, const Vector3& vec2, const Vector3& vec3);
+	~Matrix3x3() {};
+
+public:
+	XMMATRIX GetXMMatrix();
+
+	void operator=(const Matrix3x3& other);
+	void operator=(const XMFLOAT3X3& other);
+	void operator=(const XMMATRIX& other);
+
+	Matrix3x3 operator+(const Matrix3x3& other);
+	Matrix3x3 operator+(const XMFLOAT3X3& other);
+	Matrix3x3 operator+(const XMMATRIX& other);
+
+	void operator+=(const Matrix3x3& other);
+	void operator+=(const XMFLOAT3X3& other);
+	void operator+=(const XMMATRIX& other);
+
+	Matrix3x3 operator-(const Matrix3x3& other);
+	Matrix3x3 operator-(const XMFLOAT3X3& other);
+	Matrix3x3 operator-(const XMMATRIX& other);
+
+	void operator-=(const Matrix3x3& other);
+	void operator-=(const XMFLOAT3X3& other);
+	void operator-=(const XMMATRIX& other);
+
+	Matrix3x3 operator*(const Matrix3x3& other);
+	Matrix3x3 operator*(const XMFLOAT3X3& other);
+	Matrix3x3 operator*(const XMMATRIX& other);
+
+	void operator*=(const float scalar);
+	void operator*=(const Matrix3x3& other);
+	void operator*=(const XMFLOAT3X3& other);
+	void operator*=(const XMMATRIX& other);
+
+	void SetRow(const int index, const Vector3& data);
+	void SetColum(const int index, const Vector3& data);
+
+	Vector3 Row(const int index);
+	Vector3 Colum(const int index);
+
+	Matrix3x3 Transpose();
+	Matrix3x3 Inverse();
+
+#ifdef AI_MATRIX3X3_H_INC
+	Matrix3x3(const aiMatrix3x3& aiMat);
+
+	void operator=(const aiMatrix3x3& aiMat);
+	Matrix3x3 operator+(const aiMatrix3x3& aiMat);
+
+	void operator+=(const aiMatrix3x3& aiMat);
+	Matrix3x3 operator-(const aiMatrix3x3& aiMat);
+
+	void operator-=(const aiMatrix3x3& aiMat);
+	Matrix3x3 operator*(const aiMatrix3x3& aiMat);
+
+	void operator*=(const aiMatrix3x3& aiMat);
+	aiMatrix3x3 GetAiMatrix();
+#endif
+
+	friend std::ostream& operator<<(std::ostream& os, Matrix3x3& vec)
+	{
+		for (int i = 0; i < 3; ++i)
+			os << vec.r[i];
+		return os;
+	}
+
+public:
+	union {
+		Vector3 r[3];
+		struct
+		{
+			float _11, _12, _13;
+			float _21, _22, _23;
+			float _31, _32, _33;
+		};
+		float m[3][3];
+		XMFLOAT3X3 matrix;
+	};
+};
+
 class Matrix4x4 {
 public:
 	Matrix4x4();
+	Matrix4x4(const Vector4& vec1, const Vector4& vec2, const Vector4& vec3, const Vector4& vec4);
 	Matrix4x4(const Matrix4x4& other);
 	Matrix4x4(const XMFLOAT4X4& other);
 	Matrix4x4(const XMMATRIX& other);
@@ -256,6 +380,31 @@ public:
 	Matrix4x4 Transpose();
 	Matrix4x4 Inverse();
 
+	static Matrix4x4 GetTransformMatrix(Vector3& pos);
+	static Matrix4x4 GetTransformMatrix(float x, float y, float z);
+	static Matrix4x4 GetScaleMatrix(Vector3& scale);
+	static Matrix4x4 GetScaleMatrix(float x, float y, float z);
+	static Matrix4x4 GetRotationMatrix(Vector4& quaternion);
+	static Matrix4x4 GetRotationMatrix(float x, float y, float z, float w);
+
+	Matrix3x3 GetMatrix3x3();
+
+#ifdef AI_MATRIX4X4_H_INC
+	Matrix4x4(const aiMatrix4x4& aiMat);
+
+	void operator=(const aiMatrix4x4& aiMat);
+	Matrix4x4 operator+(const aiMatrix4x4& aiMat);
+
+	void operator+=(const aiMatrix4x4& aiMat);
+	Matrix4x4 operator-(const aiMatrix4x4& aiMat);
+
+	void operator-=(const aiMatrix4x4& aiMat);
+	Matrix4x4 operator*(const aiMatrix4x4& aiMat);
+
+	void operator*=(const aiMatrix4x4& aiMat);
+	aiMatrix4x4 GetAiMatrix();
+#endif
+
 	friend std::ostream& operator<<(std::ostream& os, Matrix4x4& vec)
 	{
 		for (int i = 0; i < 4; ++i)
@@ -288,5 +437,3 @@ public:
 
 void CreateNormalVectors(std::vector<Vector3>& positions, std::vector<Vector3>& normals);
 void CreateTangentVectors(std::vector<Vector3>& positions, std::vector<Vector3>& normals, std::vector<Vector2>& texcoords, std::vector<UINT>& indeies, UINT meshCount, std::vector<Vector3>& TBN);
-
-Matrix4x4 aiMatrixConverter(const aiMatrix4x4& mat);

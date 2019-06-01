@@ -10,9 +10,15 @@ public:
 
 public:
 	void SetAnimation(aiAnimation ani, aiScene scene, float aniTime, float aniSpeed, bool roop);
-	std::vector<Matrix4x4> UpdateRealTime(float animationTime, Bones* bones, aiNode* node);
+	
+	Matrix4x4 InterpolationNodeanim(aiNodeAnim* nodeAnim, float aniTime);
+	Matrix4x4 InterpolationTransformPos(aiNodeAnim* nodeAnim, float aniTime);
+	Matrix4x4 InterpolationRotationQuaternion(aiNodeAnim* nodeAnim, float aniTime);
+	Matrix4x4 InterpolationScaleSize(aiNodeAnim* nodeAnim, float aniTime);
 
+	void UpdateRealTime(float animationTime, Bones* bones, aiNode* node, Matrix4x4& parentsMat, std::vector<Matrix4x4>& matDatas);
 	aiNodeAnim* FindNodeAnimation(aiAnimation* animation, std::string nodeName);
+
 
 protected:
 	aiAnimation m_Animation;
@@ -27,10 +33,10 @@ class AnimationController
 {
 public:
 	void LoadAnimation(const std::wstring& path, const std::wstring& animationName, const std::wstring& extension);
-	void Update(float elapsedTime);
+	void Update(float& nowFlameTime, float elapsedTime);
 	void SetAnimation(std::wstring& aniName);
 
-	std::vector<Matrix4x4> GetBoneMatrix(Bones* bones);
+	std::vector<Matrix4x4> GetAnimMatrix(float& nowFlameTime, Bones* bones);
 public:
 	static AnimationController* Instance();
 
@@ -42,5 +48,8 @@ protected:
 
 	float m_AniTime = 3.0f;
 	float m_AniSpeed = 1.0f;
-	float m_NowTime = 0.0f;
+
+	Assimp::Importer m_Importer;
 };
+
+#define ANIMATION_CONTROLLER AnimationController::Instance()

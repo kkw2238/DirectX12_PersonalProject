@@ -6,12 +6,12 @@ Vector2::Vector2() : xmf2Vector(XMFLOAT2())
 Vector2::Vector2(float vecx, float vecy) : xmf2Vector(XMFLOAT2(vecx, vecy))
 { }
 
-Vector2::Vector2(XMFLOAT2& other)
+Vector2::Vector2(const XMFLOAT2& other)
 {
 	xmf2Vector = other;
 }
 
-Vector2::Vector2(XMVECTOR& other)
+Vector2::Vector2(const XMVECTOR& other)
 {
 	XMStoreFloat2(&xmf2Vector, other);
 }
@@ -210,11 +210,11 @@ Vector3::Vector3(float vecx, float vecy, float vecz) :
 	xmf3Vector(XMFLOAT3(vecx, vecy, vecz))
 {}
 
-Vector3::Vector3(XMFLOAT3 & other) : 
+Vector3::Vector3(const XMFLOAT3 & other) :
 	xmf3Vector(other)
 {}
 
-Vector3::Vector3(XMVECTOR & other)
+Vector3::Vector3(const XMVECTOR & other)
 {
 	XMStoreFloat3(&xmf3Vector, other);
 }
@@ -239,21 +239,21 @@ void Vector3::operator=(const XMVECTOR & other)
 	XMStoreFloat3(&xmf3Vector, other);
 }
 
-Vector3 Vector3::operator+(const Vector3 & other)
+Vector3 Vector3::operator+(const Vector3 & other) const
 {
 	XMFLOAT3 result;
 	XMStoreFloat3(&result, XMLoadFloat3(&xmf3Vector) + XMLoadFloat3(&XMFLOAT3(other.x, other.y, other.z)));
 	return result;
 }
 
-Vector3 Vector3::operator+(const XMFLOAT3 & other)
+Vector3 Vector3::operator+(const XMFLOAT3 & other) const
 {
 	XMFLOAT3 result;
 	XMStoreFloat3(&result, XMLoadFloat3(&xmf3Vector) + XMLoadFloat3(&other));
 	return result;
 }
 
-Vector3 Vector3::operator+(const XMVECTOR & other)
+Vector3 Vector3::operator+(const XMVECTOR & other) const
 {
 	XMFLOAT3 result;
 	XMStoreFloat3(&result, XMLoadFloat3(&xmf3Vector) + other);
@@ -275,21 +275,21 @@ void Vector3::operator+=(const XMVECTOR & other)
 	XMStoreFloat3(&xmf3Vector, XMLoadFloat3(&xmf3Vector) + other);
 }
 
-Vector3 Vector3::operator-(const Vector3 & other)
+Vector3 Vector3::operator-(const Vector3 & other) const
 {
 	XMFLOAT3 result;
 	XMStoreFloat3(&result, XMLoadFloat3(&xmf3Vector) - XMLoadFloat3(&XMFLOAT3(other.x, other.y, other.z)));
 	return result;
 }
 
-Vector3 Vector3::operator-(const XMFLOAT3 & other)
+Vector3 Vector3::operator-(const XMFLOAT3 & other) const
 {
 	XMFLOAT3 result;
 	XMStoreFloat3(&result, XMLoadFloat3(&xmf3Vector) - XMLoadFloat3(&other));
 	return result;
 }
 
-Vector3 Vector3::operator-(const XMVECTOR & other)
+Vector3 Vector3::operator-(const XMVECTOR & other) const
 {
 	XMFLOAT3 result;
 	XMStoreFloat3(&result, XMLoadFloat3(&xmf3Vector) - other);
@@ -311,21 +311,21 @@ void Vector3::operator-=(const XMVECTOR & other)
 	XMStoreFloat3(&xmf3Vector, XMLoadFloat3(&xmf3Vector) - other);
 }
 
-Vector3 Vector3::operator*(const Vector3 & other)
+Vector3 Vector3::operator*(const Vector3 & other) const
 {
 	XMFLOAT3 result;
 	XMStoreFloat3(&result, XMVector3Cross(XMLoadFloat3(&xmf3Vector), XMLoadFloat3(&XMFLOAT3(other.x, other.y, other.z))));
 	return result;
 }
 
-Vector3 Vector3::operator*(const XMFLOAT3 & other)
+Vector3 Vector3::operator*(const XMFLOAT3 & other) const
 {
 	XMFLOAT3 result;
 	XMStoreFloat3(&result, XMVector3Cross(XMLoadFloat3(&xmf3Vector), XMLoadFloat3(&other)));
 	return result;
 }
 
-Vector3 Vector3::operator*(const XMVECTOR & other)
+Vector3 Vector3::operator*(const XMVECTOR & other) const
 {
 	XMFLOAT3 result;
 	XMStoreFloat3(&result, XMVector3Cross(XMLoadFloat3(&xmf3Vector),other));
@@ -339,7 +339,7 @@ Vector3 Vector3::operator*(const float other)
 	return result;
 }
 
-Vector3 Vector3::operator/(const float scalar)
+Vector3 Vector3::operator/(const float scalar) const
 {
 	XMFLOAT3 result;
 	XMStoreFloat3(&result, XMLoadFloat3(&xmf3Vector) / scalar);
@@ -417,6 +417,83 @@ float Vector3::DotProduct(const Vector3 & a, const XMVECTOR & b)
 	return result.x;
 }
 
+#ifdef AI_VECTOR3D_H_INC
+
+Vector3::Vector3(aiVector3D& aiVec)
+{
+	::memcpy(&xmf3Vector, &aiVec, sizeof(float) * 3);
+}
+
+void Vector3::operator=(const aiVector3D& aiVec)
+{
+	::memcpy(&xmf3Vector, &aiVec, sizeof(float) * 3);
+}
+
+Vector3 Vector3::operator+(const aiVector3D& aiVec)
+{
+	XMFLOAT3 result; 
+	
+	Vector3 convAiVec;
+	convAiVec = aiVec;
+	
+	XMStoreFloat3(&result, XMLoadFloat3(&xmf3Vector) + convAiVec.GetXMVector());
+	return result;
+}
+
+void Vector3::operator+=(const aiVector3D& aiVec)
+{
+	Vector3 convAiVec;
+	convAiVec = aiVec;
+
+	XMStoreFloat3(&xmf3Vector, GetXMVector() + convAiVec.GetXMVector());
+}
+
+Vector3 Vector3::operator-(const aiVector3D& aiVec)
+{
+	XMFLOAT3 result;
+
+	Vector3 convAiVec;
+	convAiVec = aiVec;
+
+	XMStoreFloat3(&result, XMLoadFloat3(&xmf3Vector) - convAiVec.GetXMVector());
+	return result;
+}
+
+void Vector3::operator-=(const aiVector3D& aiVec)
+{
+	Vector3 convAiVec;
+	convAiVec = aiVec;
+
+	XMStoreFloat3(&xmf3Vector, GetXMVector() - convAiVec.GetXMVector());
+}
+
+Vector3 Vector3::operator*(const aiVector3D& aiVec)
+{
+	XMFLOAT3 result;
+
+	Vector3 convAiVec;
+	convAiVec = aiVec;
+
+	XMStoreFloat3(&result, XMVector3Cross(GetXMVector(), convAiVec.GetXMVector()));
+	return result;
+}
+
+void Vector3::operator*=(const aiVector3D& aiVec)
+{
+	Vector3 convAiVec;
+	convAiVec = aiVec;
+
+	XMStoreFloat3(&xmf3Vector, XMVector3Cross(GetXMVector(), convAiVec.GetXMVector()));
+}
+
+float Vector3::DotProduct(const Vector3& a, const aiVector3D& b)
+{
+	XMFLOAT3 result;
+	XMStoreFloat3(&result, XMVector3Dot(XMLoadFloat3(&XMFLOAT3(a.x, a.y, a.z)), XMLoadFloat3(&XMFLOAT3(b.x, b.y, b.z))));
+	return result.x;
+}
+#endif
+
 ////////////////////////////////////////
 
 Vector4::Vector4()
@@ -427,11 +504,11 @@ Vector4::Vector4(float vecx, float vecy, float vecz, float vecw)
 	: xmf4Vector(XMFLOAT4(vecx, vecy, vecz, vecw))
 { }
 
-Vector4::Vector4(XMFLOAT4 & other)
+Vector4::Vector4(const XMFLOAT4 & other)
 	: xmf4Vector(other)
 { }
 
-Vector4::Vector4(XMVECTOR & other)
+Vector4::Vector4(const XMVECTOR & other)
 {
 	XMStoreFloat4(&xmf4Vector, other);
 }
@@ -456,21 +533,21 @@ void Vector4::operator=(const XMVECTOR & other)
 	XMStoreFloat4(&xmf4Vector, other);
 }
 
-Vector4 Vector4::operator+(const Vector4 & other)
+Vector4 Vector4::operator+(const Vector4 & other) const
 {
 	XMFLOAT4 result;
 	XMStoreFloat4(&result, XMLoadFloat4(&xmf4Vector) + XMLoadFloat4(&XMFLOAT4(other.x, other.y, other.z, other.w)));
 	return result;
 }
 
-Vector4 Vector4::operator+(const XMFLOAT4 & other)
+Vector4 Vector4::operator+(const XMFLOAT4 & other) const
 {
 	XMFLOAT4 result;
 	XMStoreFloat4(&result, XMLoadFloat4(&xmf4Vector) + XMLoadFloat4(&other));
 	return result;
 }
 
-Vector4 Vector4::operator+(const XMVECTOR & other)
+Vector4 Vector4::operator+(const XMVECTOR & other) const
 {
 	XMFLOAT4 result;
 	XMStoreFloat4(&result, XMLoadFloat4(&xmf4Vector) + other);
@@ -492,21 +569,21 @@ void Vector4::operator+=(const XMVECTOR & other)
 	XMStoreFloat4(&xmf4Vector, XMLoadFloat4(&xmf4Vector) + other);
 }
 
-Vector4 Vector4::operator-(const Vector4 & other)
+Vector4 Vector4::operator-(const Vector4 & other) const
 {
 	XMFLOAT4 result;
 	XMStoreFloat4(&result, XMLoadFloat4(&xmf4Vector) - XMLoadFloat4(&XMFLOAT4(other.x, other.y, other.z, other.w)));
 	return result;
 }
 
-Vector4 Vector4::operator-(const XMFLOAT4 & other)
+Vector4 Vector4::operator-(const XMFLOAT4 & other) const
 {
 	XMFLOAT4 result;
 	XMStoreFloat4(&result, XMLoadFloat4(&xmf4Vector) - XMLoadFloat4(&other));
 	return result;
 }
 
-Vector4 Vector4::operator-(const XMVECTOR & other)
+Vector4 Vector4::operator-(const XMVECTOR & other) const
 {
 	XMFLOAT4 result;
 	XMStoreFloat4(&result, XMLoadFloat4(&xmf4Vector) - other);
@@ -528,14 +605,14 @@ void Vector4::operator-=(const XMVECTOR & other)
 	XMStoreFloat4(&xmf4Vector, XMLoadFloat4(&xmf4Vector) - other);
 }
 
-Vector4 Vector4::operator*(const float other)
+Vector4 Vector4::operator*(const float other) const
 {
 	XMFLOAT4 result;
 	XMStoreFloat4(&result, XMLoadFloat4(&xmf4Vector) * other);
 	return result;
 }
 
-Vector4 Vector4::operator*(const Matrix4x4 & other)
+Vector4 Vector4::operator*(const Matrix4x4 & other) const
 {
 	XMFLOAT4 result;
 	XMStoreFloat4(&result, XMVector4Transform(XMLoadFloat4(&xmf4Vector) , XMLoadFloat4x4(&other.matrix)));
@@ -584,6 +661,298 @@ Vector4 Vector4::DotProduct(const Vector4 & a, const XMVECTOR & b)
 	return result;
 }
 
+#ifdef AI_QUATERNION_H_INC
+Vector4::Vector4(aiQuaternion& aiVec)
+{
+	x = aiVec.x; y = aiVec.y; z = aiVec.z; w = aiVec.w;
+}
+
+void Vector4::operator=(const aiQuaternion& aiVec)
+{
+	x = aiVec.x; y = aiVec.y; z = aiVec.z; w = aiVec.w;
+}
+
+Vector4 Vector4::operator+(const aiQuaternion& aiVec) const
+{
+	Vector4 vec4;
+	vec4 = aiVec;
+
+	XMFLOAT4 result;
+	XMStoreFloat4(&result, XMLoadFloat4(&xmf4Vector) + vec4.GetXMVector());
+	return result;
+}
+
+void Vector4::operator+=(const aiQuaternion& aiVec)
+{
+	XMStoreFloat4(&xmf4Vector, XMLoadFloat4(&xmf4Vector) + XMLoadFloat4(&XMFLOAT4(aiVec.x, aiVec.y, aiVec.z, aiVec.w)));
+}
+
+Vector4 Vector4::operator-(const aiQuaternion& aiVec) const
+{
+	Vector4 vec4;
+	vec4 = aiVec;
+
+	XMFLOAT4 result;
+	XMStoreFloat4(&result, XMLoadFloat4(&xmf4Vector) - vec4.GetXMVector());
+	return result;
+}
+
+void Vector4::operator-=(const aiQuaternion& aiVec)
+{
+	XMStoreFloat4(&xmf4Vector, XMLoadFloat4(&xmf4Vector) - XMLoadFloat4(&XMFLOAT4(aiVec.x, aiVec.y, aiVec.z, aiVec.w)));
+}
+
+Vector4 Vector4::Slerp(const aiQuaternion& a, const aiQuaternion& b, float t, bool normalize)
+{
+	Vector4 veca, vecb;
+	veca = a;
+	vecb = b;
+
+	if (normalize)
+		return XMQuaternionNormalize(XMQuaternionSlerp(veca.GetXMVector(), vecb.GetXMVector(), t));
+	return XMQuaternionSlerp(veca.GetXMVector(), vecb.GetXMVector(), t);
+}
+#endif
+
+////////////////////////////////////////
+
+Matrix3x3::Matrix3x3()
+{
+	XMStoreFloat3x3(&matrix, DirectX::XMMatrixIdentity());
+}
+
+Matrix3x3::Matrix3x3(const Matrix3x3& other)
+{
+	this->matrix = other.matrix;
+}
+
+Matrix3x3::Matrix3x3(const XMFLOAT3X3& other)
+{
+	matrix = other;
+}
+
+Matrix3x3::Matrix3x3(const XMMATRIX& other)
+{
+	XMStoreFloat3x3(&matrix, other);
+}
+
+Matrix3x3::Matrix3x3(const Vector3& vec1, const Vector3& vec2, const Vector3& vec3)
+{
+	r[0] = vec1; r[1] = vec2; r[2] = vec3;
+}
+
+XMMATRIX Matrix3x3::GetXMMatrix()
+{
+	return XMLoadFloat3x3(&matrix);
+}
+
+void Matrix3x3::operator=(const Matrix3x3& other)
+{
+	matrix = other.matrix;
+}
+
+void Matrix3x3::operator=(const XMFLOAT3X3& other)
+{
+	matrix = other;
+}
+
+void Matrix3x3::operator=(const XMMATRIX& other)
+{
+	XMStoreFloat3x3(&matrix, other);
+}
+
+Matrix3x3 Matrix3x3::operator+(const Matrix3x3& other)
+{
+	return XMLoadFloat3x3(&matrix) + XMLoadFloat3x3(&other.matrix);
+}
+
+Matrix3x3 Matrix3x3::operator+(const XMFLOAT3X3& other)
+{
+	return XMLoadFloat3x3(&matrix) + XMLoadFloat3x3(&other);
+}
+
+Matrix3x3 Matrix3x3::operator+(const XMMATRIX& other)
+{
+	return XMLoadFloat3x3(&matrix) + other;
+}
+
+void Matrix3x3::operator+=(const Matrix3x3& other)
+{
+	XMStoreFloat3x3(&matrix, XMLoadFloat3x3(&matrix) + XMLoadFloat3x3(&other.matrix));
+}
+
+void Matrix3x3::operator+=(const XMFLOAT3X3 & other)
+{
+	XMStoreFloat3x3(&matrix, XMLoadFloat3x3(&matrix) + XMLoadFloat3x3(&other));
+}
+
+void Matrix3x3::operator+=(const XMMATRIX & other)
+{
+	XMStoreFloat3x3(&matrix, XMLoadFloat3x3(&matrix) + other);
+}
+
+Matrix3x3 Matrix3x3::operator-(const Matrix3x3 & other)
+{
+	return XMLoadFloat3x3(&matrix) - XMLoadFloat3x3(&other.matrix);
+}
+
+Matrix3x3 Matrix3x3::operator-(const XMFLOAT3X3 & other)
+{
+	return XMLoadFloat3x3(&matrix) - XMLoadFloat3x3(&other);
+}
+
+Matrix3x3 Matrix3x3::operator-(const XMMATRIX & other)
+{
+	return XMLoadFloat3x3(&matrix) - other;
+}
+
+void Matrix3x3::operator-=(const Matrix3x3 & other)
+{
+	XMStoreFloat3x3(&matrix, XMLoadFloat3x3(&matrix) - XMLoadFloat3x3(&other.matrix));
+}
+
+void Matrix3x3::operator-=(const XMFLOAT3X3 & other)
+{
+	XMStoreFloat3x3(&matrix, XMLoadFloat3x3(&matrix) - XMLoadFloat3x3(&other));
+}
+
+void Matrix3x3::operator-=(const XMMATRIX & other)
+{
+	XMStoreFloat3x3(&matrix, XMLoadFloat3x3(&matrix) - other);
+}
+
+Matrix3x3 Matrix3x3::operator*(const Matrix3x3 & other)
+{
+	return XMLoadFloat3x3(&matrix)* XMLoadFloat3x3(&other.matrix);
+}
+
+Matrix3x3 Matrix3x3::operator*(const XMFLOAT3X3 & other)
+{
+	return XMLoadFloat3x3(&matrix)* XMLoadFloat3x3(&other);
+}
+
+Matrix3x3 Matrix3x3::operator*(const XMMATRIX & other)
+{
+	return XMLoadFloat3x3(&matrix)* other;
+}
+
+void Matrix3x3::operator*=(const float scalar)
+{
+	XMStoreFloat3x3(&matrix, XMLoadFloat3x3(&matrix) * scalar);
+}
+
+void Matrix3x3::operator*=(const Matrix3x3 & other)
+{
+	XMStoreFloat3x3(&matrix, XMLoadFloat3x3(&matrix) * XMLoadFloat3x3(&other.matrix));
+}
+
+void Matrix3x3::operator*=(const XMFLOAT3X3 & other)
+{
+	XMStoreFloat3x3(&matrix, XMLoadFloat3x3(&matrix) * XMLoadFloat3x3(&other));
+}
+
+void Matrix3x3::operator*=(const XMMATRIX & other)
+{
+	XMStoreFloat3x3(&matrix, XMLoadFloat3x3(&matrix) * other);
+}
+
+void Matrix3x3::SetRow(const int index, const Vector3 & data)
+{
+	r[index] = data;
+}
+
+void Matrix3x3::SetColum(const int index, const Vector3 & data)
+{
+	m[0][index] = data.x; m[1][index] = data.y; m[2][index] = data.z;
+}
+
+Vector3 Matrix3x3::Row(const int index)
+{
+	return r[index];
+}
+
+Vector3 Matrix3x3::Colum(const int index)
+{
+	return Vector3(m[index][0], m[index][1], m[index][2]);
+}
+
+Matrix3x3 Matrix3x3::Transpose()
+{
+	XMMATRIX result = XMMatrixTranspose(XMLoadFloat3x3(&matrix));
+	return Matrix3x3(result);
+}
+
+Matrix3x3 Matrix3x3::Inverse()
+{
+	return XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat3x3(&matrix)), XMLoadFloat3x3(&matrix));
+}
+
+#ifdef AI_MATRIX3X3_H_INC
+
+Matrix3x3::Matrix3x3(const aiMatrix3x3 & aiMat)
+{
+	::memcpy(&m, &aiMat, sizeof(float) * 16);
+}
+
+void Matrix3x3::operator=(const aiMatrix3x3 & aiMat)
+{
+	::memcpy(&m, &aiMat, sizeof(float) * 16);
+}
+
+Matrix3x3 Matrix3x3::operator+(const aiMatrix3x3 & aiMat)
+{
+	Matrix3x3 mat = aiMat;
+
+	return XMLoadFloat3x3(&matrix) + XMLoadFloat3x3(&mat.matrix);
+}
+
+void Matrix3x3::operator+=(const aiMatrix3x3 & aiMat)
+{
+	Matrix3x3 mat = aiMat;
+
+	XMStoreFloat3x3(&matrix, XMLoadFloat3x3(&matrix) + XMLoadFloat3x3(&mat.matrix));
+}
+
+Matrix3x3 Matrix3x3::operator-(const aiMatrix3x3 & aiMat)
+{
+	Matrix3x3 mat = aiMat;
+
+	return XMLoadFloat3x3(&matrix) - XMLoadFloat3x3(&mat.matrix);
+}
+
+void Matrix3x3::operator-=(const aiMatrix3x3 & aiMat)
+{
+	Matrix3x3 mat = aiMat;
+
+	XMStoreFloat3x3(&matrix, XMLoadFloat3x3(&matrix) - XMLoadFloat3x3(&mat.matrix));
+}
+
+Matrix3x3 Matrix3x3::operator*(const aiMatrix3x3 & aiMat)
+{
+	Matrix3x3 mat = aiMat;
+
+	return XMLoadFloat3x3(&matrix)* XMLoadFloat3x3(&mat.matrix);
+}
+
+void Matrix3x3::operator*=(const aiMatrix3x3 & aiMat)
+{
+	Matrix3x3 mat = aiMat;
+
+	XMStoreFloat3x3(&matrix, XMLoadFloat3x3(&matrix) * XMLoadFloat3x3(&mat.matrix));
+}
+
+aiMatrix3x3 Matrix3x3::GetAiMatrix()
+{
+	aiMatrix3x3 result;
+
+	::memcpy(&result, &matrix, sizeof(float) * 16);
+
+	return result;
+}
+
+#endif
+
+
 ////////////////////////////////////////
 
 Matrix4x4::Matrix4x4()
@@ -591,9 +960,15 @@ Matrix4x4::Matrix4x4()
 	XMStoreFloat4x4(&matrix, DirectX::XMMatrixIdentity());
 }
 
+
 Matrix4x4::Matrix4x4(const Matrix4x4& other)
 {
 	this->matrix = other.matrix;
+}
+
+Matrix4x4::Matrix4x4(const Vector4& vec1, const Vector4& vec2, const Vector4& vec3, const Vector4& vec4)
+{
+	r[0] = vec1; r[1] = vec2; r[2] = vec3; r[3] = vec4;
 }
 
 Matrix4x4::Matrix4x4(const XMFLOAT4X4 & other)
@@ -738,7 +1113,7 @@ Vector4 Matrix4x4::Row(const int index)
 
 Vector4 Matrix4x4::Colum(const int index)
 {
-	return Vector4(m[index][0], m[index][1], m[index][2], m[index][4]);
+	return Vector4(m[index][0], m[index][1], m[index][2], m[index][3]);
 }
 
 Matrix4x4 Matrix4x4::Transpose()
@@ -752,6 +1127,111 @@ Matrix4x4 Matrix4x4::Inverse()
 	return XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&matrix)), XMLoadFloat4x4(&matrix));
 }
 
+Matrix4x4 Matrix4x4::GetTransformMatrix(Vector3& pos)
+{
+	return XMMatrixTranslationFromVector(pos.GetXMVector());
+}
+
+Matrix4x4 Matrix4x4::GetTransformMatrix(float x, float y, float z)
+{
+	Vector3 pos = Vector3(x, y, z);
+	
+	return Matrix4x4::GetTransformMatrix(pos);
+}
+
+Matrix4x4 Matrix4x4::GetScaleMatrix(Vector3& scale)
+{
+	return XMMatrixScalingFromVector(scale.GetXMVector());
+}
+
+Matrix4x4 Matrix4x4::GetScaleMatrix(float x, float y, float z)
+{
+	Vector3 scale = Vector3(x, y, z);
+	return Matrix4x4::GetScaleMatrix(scale);
+}
+
+Matrix4x4 Matrix4x4::GetRotationMatrix(Vector4& quaternion)
+{
+	return XMMatrixRotationQuaternion(quaternion.GetXMVector());
+}
+
+Matrix4x4 Matrix4x4::GetRotationMatrix(float x, float y, float z, float w)
+{
+	Vector4 quaternion = Vector4(x, y, z, w);
+	return Matrix4x4::GetRotationMatrix(quaternion);
+}
+
+Matrix3x3 Matrix4x4::GetMatrix3x3()
+{
+	return Matrix3x3(_xyz1, _xyz2, _xyz3);
+}
+
+#ifdef AI_MATRIX4X4_H_INC
+
+Matrix4x4::Matrix4x4(const aiMatrix4x4& aiMat)
+{
+	::memcpy(&m, &aiMat, sizeof(float) * 16);
+}
+
+void Matrix4x4::operator=(const aiMatrix4x4& aiMat)
+{
+	::memcpy(&m, &aiMat, sizeof(float) * 16);
+}
+
+Matrix4x4 Matrix4x4::operator+(const aiMatrix4x4& aiMat)
+{
+	Matrix4x4 mat = aiMat;
+
+	return XMLoadFloat4x4(&matrix) + XMLoadFloat4x4(&mat.matrix);
+}
+
+void Matrix4x4::operator+=(const aiMatrix4x4& aiMat)
+{
+	Matrix4x4 mat = aiMat;
+
+	XMStoreFloat4x4(&matrix, XMLoadFloat4x4(&matrix) + XMLoadFloat4x4(&mat.matrix));
+}
+
+Matrix4x4 Matrix4x4::operator-(const aiMatrix4x4& aiMat)
+{
+	Matrix4x4 mat = aiMat;
+
+	return XMLoadFloat4x4(&matrix) - XMLoadFloat4x4(&mat.matrix);
+}
+
+void Matrix4x4::operator-=(const aiMatrix4x4& aiMat)
+{
+	Matrix4x4 mat = aiMat;
+
+	XMStoreFloat4x4(&matrix, XMLoadFloat4x4(&matrix) - XMLoadFloat4x4(&mat.matrix));
+}
+
+Matrix4x4 Matrix4x4::operator*(const aiMatrix4x4& aiMat)
+{
+	Matrix4x4 mat = aiMat;
+
+	return XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&mat.matrix);
+}
+
+void Matrix4x4::operator*=(const aiMatrix4x4& aiMat)
+{
+	Matrix4x4 mat = aiMat;
+
+	XMStoreFloat4x4(&matrix, XMLoadFloat4x4(&matrix) * XMLoadFloat4x4(&mat.matrix));
+}
+
+aiMatrix4x4 Matrix4x4::GetAiMatrix()
+{
+	aiMatrix4x4 result;
+	
+	::memcpy(&result, &matrix, sizeof(float) * 16);
+
+	return result;
+}
+
+#endif
+
+////////////////////////////////////////
 
 void CreateNormalVectors(std::vector<Vector3>& positions, std::vector<Vector3>& normals)
 {
@@ -791,12 +1271,4 @@ void CreateTangentVectors(std::vector<Vector3>& positions, std::vector<Vector3>&
 	for (UINT i = 0; i < vertexCount; ++i) {
 		Tangent.emplace_back(Vector3(tan1[i] - (normals[i] * Vector3::DotProduct(normals[i], tan1[i]))).Normalize());
 	}
-}
-
-Matrix4x4 aiMatrixConverter(const aiMatrix4x4& mat)
-{
-	Matrix4x4 result;
-	::memcpy(&result, &mat, sizeof(float) * 16);
-
-	return result;
 }

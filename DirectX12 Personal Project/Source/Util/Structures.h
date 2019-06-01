@@ -35,6 +35,7 @@ struct VERTEX_IN_BONE {
 	UINT linkedBoneCount = 0;
 
 	void InputVertexInBoneData(UINT boneIndex, float weight) {
+		if (linkedBoneCount > VERTEX_IN_BONE_COUNT) return;
 		data.boneIndices[linkedBoneCount] = boneIndex;
 		data.weights[linkedBoneCount] = weight;
 

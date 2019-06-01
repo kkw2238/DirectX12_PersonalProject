@@ -14,6 +14,7 @@ class Framework
 	enum DepthStencils{ MainDepthStencil = 0, ShadowDepthStencil = 1 };
 
 	std::vector<std::wstring> MODELTYPES = { L".FBX", L".fbx", L".OBJ", L".obj" };
+	std::vector<std::wstring> ANITYPES = { L".anim", L".ANIM" };
 	std::vector<std::wstring> TEXTURETYPES = { L".DDS", L".dds" };
 
 public:

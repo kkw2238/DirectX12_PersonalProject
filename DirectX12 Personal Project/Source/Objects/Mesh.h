@@ -29,19 +29,20 @@ public:
 
 	int BoneCount() const { return m_BoneCount; }
 
+	int findBoneNumber(std::string& boneName);
+
 	std::vector<Matrix4x4> MatrixesData() { return m_BoneOffsetMatrixes; }
 	Matrix4x4 InvRootMatrix() const { return m_InvRootMatrix; }
+	Matrix4x4 OffsetMat(int index) const { return m_BoneOffsetMatrixes[index]; }
 protected:
 	unsigned int m_BoneCount = 0;
 	Matrix4x4 m_InvRootMatrix;
 
 	std::vector<Matrix4x4> m_BoneOffsetMatrixes;
-	std::vector<Matrix4x4*> m_pBoneParentMatrixes;
 	std::map<std::string, InitIntMinusOne> m_BoneNameNumbering;
 
 	Animation* m_NowAni = nullptr;
 };
-
 
 class Mesh
 {
