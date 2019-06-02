@@ -22,7 +22,6 @@ struct CB_CAMERA_INFO {
 struct CB_OBJ_INFO {
 	Matrix4x4 matWorld;
 	Matrix4x4 matBonesMatrix[NUM_OF_BONES];
-	Matrix4x4 matBoneInvMatrix;
 };
 
 struct VERTEX_IN_BONE_DATA {

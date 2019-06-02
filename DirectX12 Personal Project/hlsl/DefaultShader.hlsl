@@ -44,14 +44,30 @@ PS_FORWARD_OUTPUT packing(float4 color, float3 normal) {
 VS_TEXTURE_OUTPUT VS(VS_TEXTURE_INPUT vsInput, uint vertexID : SV_VertexID)
 {
 	VS_TEXTURE_OUTPUT output;
+	float weights[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	float3 posL		= float3(0.0f, 0.0f, 0.0f);
+	float3 normalL	= float3(0.0f, 0.0f, 0.0f);
+	float3 tanL		= float3(0.0f, 0.0f, 0.0f);
+
+	weights[0] = vsInput.weights.x;
+	weights[1] = vsInput.weights.y;
+	weights[2] = vsInput.weights.z;
+	weights[3] = 1.0f - weights[0] - weights[1] - weights[2];
+
+	for (int i = 0; i < 4; ++i) {
+		posL	+= weights[i] * mul(float4(vsInput.vertexPosition, 1.0f), objBoneMat[vsInput.boneIndices[i]]).xyz;
+		normalL += weights[i] * mul(vsInput.normal, (float3x3)objBoneMat[vsInput.boneIndices[i]]).xyz;
+		tanL	+= weights[i] * mul(vsInput.tangent, (float3x3)objBoneMat[vsInput.boneIndices[i]]).xyz;
+	}
 
 	float4 vertexPosition = float4(vsInput.vertexPosition, 1.0f);
 	
-	output.worldPosition = mul(vertexPosition, objWorld);
-	output.position = mul(mul(output.worldPosition, camView), camProjection);
+	output.worldNormal = mul(normalL, (float3x3)objWorld);
+	output.worldPosition = mul(float4(posL, 1.0f), objWorld);
+	output.position = mul(mul(mul(float4(posL, 1.0f), objWorld), camView), camProjection);
+	output.worldTangent = mul(float4(tanL, 1.0f), objWorld).xyz;
 	output.uv = vsInput.vertexUV;
-	output.worldNormal = mul(float4(vsInput.normal, 1.0f), objWorld).xyz;
-	output.worldTangent = mul(float4(vsInput.tangent, 1.0f), objWorld).xyz;
+
 	output.matIndex = vsInput.matIndex;
 	output.shdowPosition = mul(output.worldPosition, camShadow);
 

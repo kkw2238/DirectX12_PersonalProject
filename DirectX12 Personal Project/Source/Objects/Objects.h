@@ -88,5 +88,8 @@ public:
 protected:
 	Vector3 m_ScaleSize = Vector3(1.0f, 1.0f, 1.0f);
 	ObjectResourceBuffer<CB_OBJ_INFO> m_ObjUploadBuffer;
+
+	bool isoutput = false;
+	float m_AniTime = 0.0f;
 };
 

@@ -1,4 +1,5 @@
 #include "Objects.h"
+#include "Animation.h"
 
 Objects::Objects()
 {
@@ -165,7 +166,8 @@ void GraphicsMeshObject::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsComma
 	for (UINT i = 0; i < m_ObjectCount; ++i) {
 		unsigned int boneCount = 0;
 		std::vector<Matrix4x4> boneOffsetMatrixes;
-		Bones bones;
+		std::vector<Matrix4x4> aniMat;
+		Bones* bones = nullptr;
 
 		if (m_pMesh != nullptr) 
 			bones = m_pMesh->BonesData();
@@ -176,16 +178,21 @@ void GraphicsMeshObject::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsComma
 		Matrix4x4 scaleMatrix = XMMatrixScalingFromVector(m_ScaleSize.GetXMVector());
 		tmpData.matWorld = (scaleMatrix * m_WorldMatrix[i] * m_RotateMatrix[i]).Transpose();
 
-		boneCount = bones.BoneCount();
+		if (bones != nullptr)
+			boneCount = bones->BoneCount();
+
 		if (boneCount > 0) {
-			boneOffsetMatrixes = bones.MatrixesData();
-
-			for (int i = 0; i < boneCount; ++i) 
-				tmpData.matBonesMatrix[i] = boneOffsetMatrixes[i];
-			
-			tmpData.matBoneInvMatrix = bones.InvRootMatrix();
+			if (!isoutput) {
+			//ANIMATION_CONTROLLER->OutputMatrixDatas(bones);
+			isoutput = true;
 		}
+			ANIMATION_CONTROLLER->SetAnimation(0);
+			ANIMATION_CONTROLLER->Update(m_AniTime, 0.5f);
+			aniMat = ANIMATION_CONTROLLER->GetAnimMatrix(m_AniTime, bones);
 
+			for (int i = 0; i < aniMat.size(); ++i)
+				tmpData.matBonesMatrix[i] = aniMat[i];
+		}
 		m_ObjUploadBuffer.CopyData(i, tmpData);
 	}
 

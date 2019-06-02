@@ -39,8 +39,7 @@ cbuffer CB_CAM_INFO : register(b0)
 cbuffer CB_OBJ_INFO : register(b1)
 {
 	matrix objWorld;
-	matrix objBoneOffset[BONE_COUNT];
-	matrix objBoneInvMatrix;
+	matrix objBoneMat[BONE_COUNT];
 };
 
 #endif

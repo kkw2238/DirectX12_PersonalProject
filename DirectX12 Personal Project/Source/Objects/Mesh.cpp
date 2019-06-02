@@ -36,8 +36,6 @@ void Bones::InsertBoneData(float animationTime, const aiMesh* mesh, const aiNode
 			verData[weight.mVertexId].InputVertexInBoneData(boneIndex, weight.mWeight);
 		}
 	}
-
-	ProcessBoneData(animationTime, node, -1);
 }
 
 void Bones::ProcessBoneData(float animationTime, const aiNode* node, const int parentIndex)
@@ -196,13 +194,12 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 
 		if (mesh->mVertices != nullptr) {
 			vertex = mesh->mVertices[verticesIndex];
-			vertices.emplace_back(vertex.x, vertex.y, -vertex.z);
+			vertices.emplace_back(vertex.x, vertex.y, vertex.z);
 			if (vertex.y < correctY)
 				correctY = vertex.y;
 		}
 		if (mesh->mTextureCoords[0] != nullptr) {
 			texCoord = mesh->mTextureCoords[0][verticesIndex];
-			texCoord.y = texCoord.y;
 			texCoords.emplace_back(texCoord.x, texCoord.y);
 		}
 		if (mesh->mTangents != nullptr) {
@@ -237,7 +234,7 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 		aiFace face = mesh->mFaces[faceIndex];
 
 		for (size_t indicesIndex = 0; indicesIndex < face.mNumIndices; ++indicesIndex) {
-			indices.push_back(face.mIndices[face.mNumIndices - indicesIndex - 1]);
+			indices.push_back(face.mIndices[indicesIndex]);
 		}
 	}
 

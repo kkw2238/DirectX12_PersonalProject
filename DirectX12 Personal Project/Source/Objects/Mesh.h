@@ -65,7 +65,7 @@ public:
 
 	float CorrectionY() const;
 
-	Bones BonesData() { return m_Bones; }
+	Bones* BonesData() { return &m_Bones; }
 
 	std::vector<Mesh> Get();
 protected:

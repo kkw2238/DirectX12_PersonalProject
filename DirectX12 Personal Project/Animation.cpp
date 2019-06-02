@@ -6,9 +6,22 @@ Animation::Animation()
 {
 }
 
-Animation::Animation(aiScene scene) :
-	m_Animation(*scene.mAnimations[0]), m_Scene(scene)
+Animation::Animation(const aiScene* scene) :
+	m_Animation(scene->mAnimations[0]), m_Scene(scene)
 {
+}
+
+Animation::Animation(const std::wstring& path, const std::wstring& animationName, const std::wstring& extension, Assimp::Importer& assImporter)
+{
+	std::string filenameString(path.begin(), path.end());
+	std::string extensionString = ".fbx";
+
+	m_Scene = assImporter.ReadFile(filenameString.c_str(),
+		aiProcessPreset_TargetRealtime_Quality | aiProcess_ConvertToLeftHanded);
+
+	assImporter.GetImporterIndex(extensionString.c_str());
+
+	m_Animation = m_Scene->mAnimations[0];
 }
 
 Animation::~Animation()
@@ -22,7 +35,7 @@ void Animation::SetAnimation(aiAnimation ani, aiScene scene, float aniTime, floa
 
 Matrix4x4 Animation::InterpolationNodeanim(aiNodeAnim* nodeAnim, float aniTime)
 {
-	return InterpolationTransformPos(nodeAnim, aniTime) * InterpolationRotationQuaternion(nodeAnim, aniTime) * InterpolationScaleSize(nodeAnim, aniTime);
+	return InterpolationScaleSize(nodeAnim, aniTime) * InterpolationRotationQuaternion(nodeAnim, aniTime) * InterpolationTransformPos(nodeAnim, aniTime);
 }
 
 Matrix4x4 Animation::InterpolationTransformPos(aiNodeAnim* nodeAnim, float aniTime)
@@ -64,7 +77,7 @@ Matrix4x4 Animation::InterpolationRotationQuaternion(aiNodeAnim* nodeAnim, float
 
 	double delTime = nextQuatKey->mTime - nowQuatKey->mTime;
 
-	Vector4 quaternion = Vector4::Slerp(nowQuatKey->mValue, nextQuatKey->mValue, (nextQuatKey->mTime - static_cast<double>(aniTime)) / delTime, true);
+	Vector4 quaternion = Vector4::Slerp(nowQuatKey->mValue, nextQuatKey->mValue, (nextQuatKey->mTime - static_cast<double>(aniTime)) / delTime, true).Normalize();
 
 	return Matrix4x4::GetRotationMatrix(quaternion);
 }
@@ -95,17 +108,17 @@ void Animation::UpdateRealTime(float animationTime, Bones* bones, aiNode* node, 
 {
 	aiNode* nowNode = node;
 	if (nowNode == nullptr)
-		nowNode = m_Scene.mRootNode;
+		nowNode = m_Scene->mRootNode;
 		
 	std::string nodeName = nowNode->mName.data;
 	Matrix4x4 nowMat;
 
-	aiNodeAnim* nodeAnim = FindNodeAnimation(&m_Animation, nodeName);
+	aiNodeAnim* nodeAnim = FindNodeAnimation(m_Animation, nodeName);
 
-	Matrix4x4 nodeTransform;
+	Matrix4x4 nodeTransform = nowNode->mTransformation;
 
 	if (nodeAnim != nullptr)
-		nodeTransform = InterpolationNodeanim(nodeAnim, animationTime);
+		nodeTransform = InterpolationNodeanim(nodeAnim, animationTime).Transpose();
 
 	nowMat = parentsMat * nodeTransform;
 
@@ -115,7 +128,7 @@ void Animation::UpdateRealTime(float animationTime, Bones* bones, aiNode* node, 
 		matDatas[index] = bones->InvRootMatrix() * nowMat * bones->OffsetMat(index);
 	}
 
-	for (unsigned int i = 0; i < node->mNumChildren; ++i)
+	for (unsigned int i = 0; i < nowNode->mNumChildren; ++i)
 		UpdateRealTime(animationTime, bones, nowNode->mChildren[i], nowMat, matDatas);
 }
 
@@ -125,38 +138,29 @@ aiNodeAnim* Animation::FindNodeAnimation(aiAnimation* animation, std::string nod
 	aiNodeAnim** ppAniChannels = animation->mChannels;
 	int numAniChannels = animation->mNumChannels;
 
-	aiNodeAnim* result = std::find_if(ppAniChannels[0], ppAniChannels[numAniChannels + 1], [&nodeName](aiNodeAnim& ani) {
-		return (nodeName.compare(ani.mNodeName.data) == 0);
-		});
+	for (int i = 0; i < numAniChannels; ++i) {
+		if (nodeName.compare(ppAniChannels[i]->mNodeName.data) == 0)
+			return ppAniChannels[i];
+	}
 
-	if (result == ppAniChannels[numAniChannels + 1])
-		return nullptr;
-
-	return result;
+	return nullptr;
 }
 
 void AnimationController::LoadAnimation(const std::wstring& path, const std::wstring& animationName, const std::wstring& extension)
 {
+	m_LoadedAnimations[animationName] = std::make_shared<Animation>(path, animationName, extension, m_Importer);
+	m_LoadedAnimaionNames.push_back(animationName);
 
-	std::string filenameString(path.begin(), path.end());
-	std::string extensionString = ".fbx";
+	std::ofstream file("Walk.anim");
 
-	const aiScene* scene = m_Importer.ReadFile(filenameString.c_str(),
-		aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded);
-
-	aiScene aiSc = *scene;
-
-	m_Importer.GetImporterIndex(extensionString.c_str());
-
-	m_LoadedAnimations[animationName] = std::make_shared<Animation>(aiSc);
+	file.close();
 }
 
 void AnimationController::Update(float& nowFlameTime, float elapsedTime)
 {
 	nowFlameTime += (elapsedTime * m_AniSpeed);
 	if (m_Roop)
-		nowFlameTime = (nowFlameTime >= m_AniTime) ? 0.0f : m_AniTime;
+		nowFlameTime = (nowFlameTime >= m_AniTime) ? 0.0f : nowFlameTime;
 }
 
 void AnimationController::SetAnimation(std::wstring& aniName)
@@ -164,12 +168,42 @@ void AnimationController::SetAnimation(std::wstring& aniName)
 	m_NowAni = aniName;
 }
 
+void AnimationController::SetAnimation(int aniIndex)
+{
+	if(m_LoadedAnimaionNames.size() > aniIndex)
+		m_NowAni = m_LoadedAnimaionNames[aniIndex];
+}
+
+void AnimationController::OutputMatrixDatas(Bones* bones)
+{
+	std::ofstream file("walk.anim");
+
+	SetAnimation(0);
+
+	file << 30 << '\n';
+
+	for (float i = 0.0f; i < 31.0f; i += 1.0f) {
+		std::vector<Matrix4x4> output;
+
+		output = GetAnimMatrix(i, bones);
+
+		for (unsigned int j = 0; j < output.size(); ++j) {
+			file << output[j];
+		}
+	}
+
+	file.close();
+}
+
 std::vector<Matrix4x4> AnimationController::GetAnimMatrix(float& nowFlameTime, Bones* bones)
 {
+	std::vector<Matrix4x4> aniMat;
+
+	if (bones == nullptr) return aniMat;
 	if (m_LoadedAnimations.size() < 1) return std::vector<Matrix4x4>();
 
 	Matrix4x4 mat4x4;
-	std::vector<Matrix4x4> aniMat;
+	
 	aniMat.resize(bones->BoneCount());
 
 	m_LoadedAnimations[m_NowAni]->UpdateRealTime(nowFlameTime, bones, nullptr, mat4x4, aniMat);
