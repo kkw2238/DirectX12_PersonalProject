@@ -121,7 +121,7 @@ void Animation::UpdateRealTime(float animationTime, Bones* bones, aiNode* node, 
 	if (nodeAnim != nullptr)
 		nodeTransform = InterpolationNodeanim(nodeAnim, animationTime);
 
-	nowMat = parentsMat * nodeTransform;
+	nowMat = nodeTransform * parentsMat;
 
 	int index = bones->findBoneNumber(nodeName);
 
