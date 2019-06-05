@@ -17,7 +17,7 @@ Animation::Animation(const std::wstring& path, const std::wstring& animationName
 	std::string extensionString = ".fbx";
 
 	m_Scene = assImporter.ReadFile(filenameString.c_str(),
-		aiProcessPreset_TargetRealtime_Quality | aiProcess_ConvertToLeftHanded);
+		aiProcess_ConvertToLeftHanded);
 
 	assImporter.GetImporterIndex(extensionString.c_str());
 
@@ -35,7 +35,7 @@ void Animation::SetAnimation(aiAnimation ani, aiScene scene, float aniTime, floa
 
 Matrix4x4 Animation::InterpolationNodeanim(aiNodeAnim* nodeAnim, float aniTime)
 {
-	return InterpolationScaleSize(nodeAnim, aniTime) * InterpolationRotationQuaternion(nodeAnim, aniTime) * InterpolationTransformPos(nodeAnim, aniTime);
+	return InterpolationScaleSize(nodeAnim, aniTime) * InterpolationRotationQuaternion(nodeAnim, aniTime) * InterpolationTransformPos(nodeAnim, aniTime) ;
 }
 
 Matrix4x4 Animation::InterpolationTransformPos(aiNodeAnim* nodeAnim, float aniTime)
@@ -116,16 +116,17 @@ void Animation::UpdateRealTime(float animationTime, Bones* bones, aiNode* node, 
 	aiNodeAnim* nodeAnim = FindNodeAnimation(m_Animation, nodeName);
 
 	Matrix4x4 nodeTransform = nowNode->mTransformation;
+	nodeTransform = nodeTransform.Transpose();
 
 	if (nodeAnim != nullptr)
-		nodeTransform = InterpolationNodeanim(nodeAnim, animationTime).Transpose();
+		nodeTransform = InterpolationNodeanim(nodeAnim, animationTime);
 
 	nowMat = parentsMat * nodeTransform;
 
 	int index = bones->findBoneNumber(nodeName);
 
 	if (index != -1) {
-		matDatas[index] = bones->InvRootMatrix() * nowMat * bones->OffsetMat(index);
+		matDatas[index] = bones->OffsetMat(index).Transpose() * nowMat * bones->InvRootMatrix().Transpose();
 	}
 
 	for (unsigned int i = 0; i < nowNode->mNumChildren; ++i)

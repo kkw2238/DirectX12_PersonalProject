@@ -191,7 +191,7 @@ void GraphicsMeshObject::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsComma
 			aniMat = ANIMATION_CONTROLLER->GetAnimMatrix(m_AniTime, bones);
 
 			for (int i = 0; i < aniMat.size(); ++i)
-				tmpData.matBonesMatrix[i] = aniMat[i];
+				tmpData.matBonesMatrix[i] = aniMat[i].Transpose();
 		}
 		m_ObjUploadBuffer.CopyData(i, tmpData);
 	}
