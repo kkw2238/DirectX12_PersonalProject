@@ -182,10 +182,7 @@ void GraphicsMeshObject::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsComma
 			boneCount = bones->BoneCount();
 
 		if (boneCount > 0) {
-			if (!isoutput) {
-			//ANIMATION_CONTROLLER->OutputMatrixDatas(bones);
-			isoutput = true;
-		}
+		
 			ANIMATION_CONTROLLER->SetAnimation(0);
 			ANIMATION_CONTROLLER->Update(m_AniTime, 0.5f);
 			aniMat = ANIMATION_CONTROLLER->GetAnimMatrix(m_AniTime, bones);

@@ -20,12 +20,16 @@ public:
 	void UpdateRealTime(float animationTime, Bones* bones, aiNode* node, Matrix4x4& parentsMat, std::vector<Matrix4x4>& matDatas);
 	aiNodeAnim* FindNodeAnimation(aiAnimation* animation, std::string nodeName);
 
+	void UpdateTime(float& nowFlameTime, float elapsedTime);
 
 protected:
 	aiAnimation* m_Animation;
 	const aiScene* m_Scene;
 
 	float m_NowTime = 0.0f;
+	float m_DurationTime = 0.0f;
+	float m_TickPerSecond = 0.0f;
+	float m_AniSpeed = 1.0f;
 
 	bool m_Roop = true;
 };
@@ -47,11 +51,6 @@ protected:
 	std::map<std::wstring, std::shared_ptr<Animation>> m_LoadedAnimations;
 	std::vector<std::wstring> m_LoadedAnimaionNames;
 	std::wstring m_NowAni;
-
-	bool  m_Roop = true;
-
-	float m_AniTime = 30.0f;
-	float m_AniSpeed = 1.0f;
 
 	Assimp::Importer m_Importer;
 };

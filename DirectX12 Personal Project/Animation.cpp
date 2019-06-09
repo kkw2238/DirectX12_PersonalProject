@@ -22,6 +22,9 @@ Animation::Animation(const std::wstring& path, const std::wstring& animationName
 	assImporter.GetImporterIndex(extensionString.c_str());
 
 	m_Animation = m_Scene->mAnimations[0];
+
+	m_TickPerSecond = static_cast<float>(m_Animation->mTicksPerSecond);
+	m_DurationTime = static_cast<float>(m_Animation->mDuration);
 }
 
 Animation::~Animation()
@@ -147,6 +150,13 @@ aiNodeAnim* Animation::FindNodeAnimation(aiAnimation* animation, std::string nod
 	return nullptr;
 }
 
+void Animation::UpdateTime(float& nowFlameTime, float elapsedTime)
+{
+	nowFlameTime += (elapsedTime * m_AniSpeed);
+	if (m_Roop)
+		nowFlameTime = (nowFlameTime >= m_DurationTime) ? 0.0f : nowFlameTime;
+}
+
 void AnimationController::LoadAnimation(const std::wstring& path, const std::wstring& animationName, const std::wstring& extension)
 {
 	m_LoadedAnimations[animationName] = std::make_shared<Animation>(path, animationName, extension, m_Importer);
@@ -159,9 +169,8 @@ void AnimationController::LoadAnimation(const std::wstring& path, const std::wst
 
 void AnimationController::Update(float& nowFlameTime, float elapsedTime)
 {
-	nowFlameTime += (elapsedTime * m_AniSpeed);
-	if (m_Roop)
-		nowFlameTime = (nowFlameTime >= m_AniTime) ? 0.0f : nowFlameTime;
+	if (m_LoadedAnimaionNames.size() > 0)
+		m_LoadedAnimations[m_NowAni]->UpdateTime(nowFlameTime, elapsedTime);
 }
 
 void AnimationController::SetAnimation(std::wstring& aniName)
