@@ -17,7 +17,8 @@ Animation::Animation(const std::wstring& path, const std::wstring& animationName
 	std::string extensionString = ".fbx";
 
 	m_Scene = assImporter.ReadFile(filenameString.c_str(),
-		aiProcess_ConvertToLeftHanded);
+		(aiProcessPreset_TargetRealtime_Quality | 
+		aiProcess_ConvertToLeftHanded) & ~aiProcess_FindInvalidData);
 
 	assImporter.GetImporterIndex(extensionString.c_str());
 
@@ -119,17 +120,16 @@ void Animation::UpdateRealTime(float animationTime, Bones* bones, aiNode* node, 
 	aiNodeAnim* nodeAnim = FindNodeAnimation(m_Animation, nodeName);
 
 	Matrix4x4 nodeTransform = nowNode->mTransformation;
-	nodeTransform = nodeTransform.Transpose();
 
 	if (nodeAnim != nullptr)
-		nodeTransform = InterpolationNodeanim(nodeAnim, animationTime);
+		nodeTransform = InterpolationNodeanim(nodeAnim, animationTime).Transpose();
 
-	nowMat = nodeTransform * parentsMat;
+	nowMat = parentsMat * nodeTransform;
 
 	int index = bones->findBoneNumber(nodeName);
 
 	if (index != -1) {
-		matDatas[index] = bones->OffsetMat(index).Transpose() * nowMat * bones->InvRootMatrix().Transpose();
+		matDatas[index] = bones->InvRootMatrix() * nowMat * bones->OffsetMat(index);
 	}
 
 	for (unsigned int i = 0; i < nowNode->mNumChildren; ++i)

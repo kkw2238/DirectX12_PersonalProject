@@ -148,7 +148,6 @@ void GraphicsMeshObject::CreateCBV(ID3D12Device* id3dDevice, ID3D12GraphicsComma
 	}
 }
 
-
 UINT GraphicsMeshObject::BuildObjects(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, UINT objectCount)
 {
 	m_ObjUploadBuffer.CreateResourceBuffer(id3dDevice, objectCount);
@@ -182,13 +181,12 @@ void GraphicsMeshObject::UpdateInfo(ID3D12GraphicsCommandList* id3dGraphicsComma
 			boneCount = bones->BoneCount();
 
 		if (boneCount > 0) {
-		
 			ANIMATION_CONTROLLER->SetAnimation(0);
 			ANIMATION_CONTROLLER->Update(m_AniTime, 0.5f);
 			aniMat = ANIMATION_CONTROLLER->GetAnimMatrix(m_AniTime, bones);
 
 			for (int i = 0; i < aniMat.size(); ++i)
-				tmpData.matBonesMatrix[i] = aniMat[i].Transpose();
+				tmpData.matBonesMatrix[i] = aniMat[i];
 		}
 		m_ObjUploadBuffer.CopyData(i, tmpData);
 	}

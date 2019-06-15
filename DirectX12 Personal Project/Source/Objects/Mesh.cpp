@@ -22,18 +22,24 @@ void Bones::InsertBoneData(float animationTime, const aiMesh* mesh, const aiNode
 	unsigned int numBones = mesh->mNumBones;
 
 	for (size_t boneIndex = 0; boneIndex < numBones; ++boneIndex) {
+		UINT index = 0;
 		aiBone* bone = mesh->mBones[boneIndex];
 		UINT numWeight = mesh->mBones[boneIndex]->mNumWeights;
 
-		if (m_BoneNameNumbering[bone->mName.data] == -1) {
-			m_BoneNameNumbering[bone->mName.data] = boneIndex;
-			m_BoneOffsetMatrixes[boneIndex] = bone->mOffsetMatrix;
+		if (m_BoneNameNumbering.find(bone->mName.data) == m_BoneNameNumbering.end()) {
+			index = boneIndex;
 			++m_BoneCount;
 		}
 		
+		else 
+			index = m_BoneNameNumbering[bone->mName.data];
+
+		m_BoneNameNumbering[bone->mName.data] = index;
+		m_BoneOffsetMatrixes[index] = bone->mOffsetMatrix;
+
 		for (size_t weightIndex = 0; weightIndex < numWeight; ++weightIndex) {
 			aiVertexWeight weight = bone->mWeights[weightIndex];
-			verData[weight.mVertexId].InputVertexInBoneData(boneIndex, weight.mWeight);
+			verData[weight.mVertexId].InputVertexInBoneData(index, weight.mWeight);
 		}
 	}
 }
@@ -47,15 +53,14 @@ void Bones::ProcessBoneData(float animationTime, const aiNode* node, const int p
 	for (int i = 0; i < numChildren; ++i) {
 		std::string a = node->mChildren[i]->mName.data;
 		if(m_BoneNameNumbering.find(node->mName.data) != m_BoneNameNumbering.end())
-
-		ProcessBoneData(animationTime, node->mChildren[i], parentIndex);
+			ProcessBoneData(animationTime, node->mChildren[i], parentIndex);
 	}
 }
 
-int Bones::findBoneNumber(std::string& boneName)
+UINT Bones::findBoneNumber(std::string& boneName)
 {
 	if (m_BoneNameNumbering.find(boneName) != m_BoneNameNumbering.end())
-		return m_BoneNameNumbering[boneName].i;
+		return m_BoneNameNumbering[boneName];
 
 	return -1;
 }
@@ -72,8 +77,20 @@ Mesh::Mesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsComm
 	std::string extensionString(extension.begin(), extension.end());
 
 	const aiScene* scene = importer.ReadFile(filenameString.c_str(),
-		aiProcess_Triangulate |						
-		aiProcess_ConvertToLeftHanded				
+		aiProcess_JoinIdenticalVertices |			// join identical vertices/ optimize indexing
+		aiProcess_ValidateDataStructure |						// perform a full validation of the loader's output
+		aiProcess_ImproveCacheLocality |					// improve the cache locality of the output vertices
+		aiProcess_RemoveRedundantMaterials |			// remove redundant materials
+		aiProcess_GenUVCoords |								// convert spherical, cylindrical, box and planar mapping to proper UVs
+		aiProcess_TransformUVCoords |						// pre-process UV transformations (scaling, translation ...)
+		aiProcess_FindInstances |								// search for instanced meshes and remove them by references to one master
+		aiProcess_LimitBoneWeights |							// limit bone weights to 4 per vertex
+		aiProcess_OptimizeMeshes |							// join small meshes, if possible;
+		aiProcess_GenSmoothNormals |						// generate smooth normal vectors if not existing
+		aiProcess_SplitLargeMeshes |							// split large, unrenderable meshes into sub-meshes
+		aiProcess_Triangulate |									// triangulate polygons with more than 3 edges
+		aiProcess_ConvertToLeftHanded |						// convert everything to D3D left handed space
+		aiProcess_SortByPType									// make 'clean' meshes which consist of a single type of primitives			
 	);
 
 	importer.GetImporterIndex(extensionString.c_str());
@@ -122,7 +139,6 @@ void Mesh::CreateMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dG
 
 	for (UINT i = 0; i < m_nVerticesCount; ++i) {
 		if (boneDatas != nullptr) {
-			IA_TEXTURE_OBJ data = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i], matindices[i], boneDatas[i].GetData());
 			vertexInfo[i] = IA_TEXTURE_OBJ(vertices[i], texCoords[i], normals[i], tangents[i], matindices[i], boneDatas[i].GetData());
 		}
 		else
@@ -219,15 +235,7 @@ Mesh Mesh::ProcessMesh(ID3D12Device * id3dDevice, ID3D12GraphicsCommandList * id
 		m_Bones.SetInvRootMatrix(Matrix4x4(scene->mRootNode->mTransformation).Inverse());
 		m_Bones.InsertBoneData(60.0f, mesh, scene->mRootNode, mat, bonedatas);
 
-		for (size_t boneIndex = 0; boneIndex < numBones; ++boneIndex) {
-			aiBone* bone = mesh->mBones[boneIndex];
-			UINT numWeight = mesh->mBones[boneIndex]->mNumWeights;
 
-			for (size_t weightIndex = 0; weightIndex < numWeight; ++weightIndex) {
-				aiVertexWeight weight = bone->mWeights[weightIndex];
-				bonedatas[weight.mVertexId].InputVertexInBoneData(boneIndex, weight.mWeight);
-			}
-		}
 	}
 
 	for (size_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
@@ -282,7 +290,10 @@ void Mesh::SetPlaneMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3
 		Vector2(1.0f, 1.0f)
 	};
 
-	m_ChildMeshes.emplace_back(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, matindices);
+	std::vector<VERTEX_IN_BONE> boneData;
+	boneData.resize(vertices.size());
+	
+	m_ChildMeshes.emplace_back(id3dDevice, id3dGraphicsCommandList, vertices, normals, tangents, texCoords, indices, matindices, boneData.data());
 }
 
 void Mesh::SetCubeMesh(ID3D12Device* id3dDevice, ID3D12GraphicsCommandList* id3dGraphicsCommandList, float width, float height, float depth, UINT matIndex)

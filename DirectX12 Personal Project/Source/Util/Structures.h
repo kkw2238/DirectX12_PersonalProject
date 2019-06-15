@@ -32,19 +32,20 @@ struct VERTEX_IN_BONE_DATA {
 struct VERTEX_IN_BONE {
 	VERTEX_IN_BONE_DATA data;
 	UINT linkedBoneCount = 0;
+	float totalWeight = 0.0f;
 
 	void InputVertexInBoneData(UINT boneIndex, float weight) {
-		if (linkedBoneCount > VERTEX_IN_BONE_COUNT) return;
+		if (linkedBoneCount > VERTEX_IN_BONE_COUNT - 1) return;
 		data.boneIndices[linkedBoneCount] = boneIndex;
 		data.weights[linkedBoneCount] = weight;
+
+		totalWeight += weight;
 
 		++linkedBoneCount;
 	}
 
 	VERTEX_IN_BONE_DATA GetData() const { return data; }
 };
-
-
 
 struct IA_TEXTURE_OBJ {
 	IA_TEXTURE_OBJ() {};
@@ -53,7 +54,6 @@ struct IA_TEXTURE_OBJ {
 	IA_TEXTURE_OBJ(Vector3& vertex, Vector2& texCoord, Vector3& normal, Vector3& tangent, const UINT matindex) :
 		vertexPos(vertex), texCoord(texCoord), normal(normal), tangent(tangent), materialIndex(matindex) {}
 
-	
 	Vector3 vertexPos;
 	Vector2 texCoord;
 	Vector3 normal;
@@ -63,7 +63,6 @@ struct IA_TEXTURE_OBJ {
 };
 
 std::ostream& operator<<(std::ostream& os, const IA_TEXTURE_OBJ& obj);
-
 
 struct CB_LIGHT_INFO {
 	Vector3 color;

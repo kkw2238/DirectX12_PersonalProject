@@ -4,18 +4,6 @@
 
 class Animation;
 
-struct InitIntMinusOne {
-	InitIntMinusOne() {};
-	InitIntMinusOne(const int newi) { i = newi; }
-
-	int i = -1;
-
-	bool operator==(const int other) const {
-		return i == other;
-	}
-};
-
-
 class Bones
 {
 public:
@@ -29,7 +17,7 @@ public:
 
 	int BoneCount() const { return m_BoneCount; }
 
-	int findBoneNumber(std::string& boneName);
+	UINT findBoneNumber(std::string& boneName);
 
 	std::vector<Matrix4x4> MatrixesData() { return m_BoneOffsetMatrixes; }
 	Matrix4x4 InvRootMatrix() const { return m_InvRootMatrix; }
@@ -39,7 +27,7 @@ protected:
 	Matrix4x4 m_InvRootMatrix;
 
 	std::vector<Matrix4x4> m_BoneOffsetMatrixes;
-	std::map<std::string, InitIntMinusOne> m_BoneNameNumbering;
+	std::map<std::string, int> m_BoneNameNumbering;
 
 	Animation* m_NowAni = nullptr;
 };
